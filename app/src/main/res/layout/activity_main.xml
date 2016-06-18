@@ -13,4 +13,66 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Export DB "
+        android:layout_below="@+id/btnShowLocation"
+        android:layout_toLeftOf="@+id/textView"
+        android:layout_marginTop="53dp" />
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete DB"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_alignBottom="@+id/button3"
+        android:layout_toRightOf="@+id/textView" />
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Export to CSV"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_alignTop="@+id/button2"
+        android:layout_centerHorizontal="true" />
+
+    <ImageButton
+        android:id="@+id/btnShowLocation"
+        android:layout_height="235dp"
+        android:layout_width="235dp"
+        android:src="@mipmap/m"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register Device"
+        android:onClick="onRegisterClicked"
+        android:id="@+id/button"
+        android:layout_above="@+id/btnShowLocation"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Net Analyzer v1.0"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="UBWiNS @ UB Computer Science"
+        android:id="@+id/textView2"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
