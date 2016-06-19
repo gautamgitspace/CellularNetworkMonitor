@@ -9,10 +9,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ubcomputerscience.ubwins.cellularnetworkmonitor.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
 
     <Button
         android:id="@+id/button2"
@@ -61,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Net Analyzer v1.0"
+        android:text="CelNetMon v1.0"
         android:id="@+id/textView"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />

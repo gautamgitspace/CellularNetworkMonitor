@@ -32,7 +32,6 @@ import java.util.List;
 public class LocationFinder extends Service implements LocationListener
 {
     private final Context mContext;
-    boolean isNetworkEnabled = false;
     public Geocoder geocoder;
 
     Location location;
@@ -45,7 +44,7 @@ public class LocationFinder extends Service implements LocationListener
 
     private static final long distance = 10;
     private static final long updateInterval = 30000;
-    static final String TAG = "[CELNETMON-DEBUG]";
+    static final String TAG = "[CELNETMON-DEBUG-LOCATIONFINDER]";
     protected LocationManager locationManager;
     protected LocationListener locationListener;
 
@@ -60,6 +59,7 @@ public class LocationFinder extends Service implements LocationListener
         try
         {
             Log.v(TAG, "trying to get location from Wi-Fi or Cellular Towers");
+            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
             geocoder = new Geocoder(mContext);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
             if(locationManager==null)
@@ -76,34 +76,34 @@ public class LocationFinder extends Service implements LocationListener
                     Log.v(TAG, "LAT: " + Double.toString(latitude));
                     Log.v(TAG, "LONG: " + Double.toString(longitude));
 
-                    try {
-                        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-                        {
-                            Log.v(TAG,"Attempting to resolve address");
-                            List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                            Log.v(TAG,locationList.get(0).toString());
-                            if(locationList.get(0).getLocality()!=null)
-                            {
-                                Log.v("[LOCALITY]", locality);
-                            }
-                            if(locationList.get(0).getAdminArea()!=null)
-                            {
-                                Log.v("[ADMIN AREA]", adminArea);
-                            }
-                            if(locationList.get(0).getCountryName()!=null)
-                            {
-                                Log.v("[COUNTRY]", countryCode);
-                            }
-                            if(locationList.get(0).getThoroughfare()!=null)
-                            {
-                                Log.v("[THROUGH FARE]", throughFare);
-                            }
-                        }
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+//                        {
+//                            Log.v(TAG,"Attempting to resolve address");
+//                            List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+//                            Log.v(TAG,locationList.get(0).toString());
+//                            if(locationList.get(0).getLocality()!=null)
+//                            {
+//                                Log.v("[LOCALITY]", locality);
+//                            }
+//                            if(locationList.get(0).getAdminArea()!=null)
+//                            {
+//                                Log.v("[ADMIN AREA]", adminArea);
+//                            }
+//                            if(locationList.get(0).getCountryName()!=null)
+//                            {
+//                                Log.v("[COUNTRY]", countryCode);
+//                            }
+//                            if(locationList.get(0).getThoroughfare()!=null)
+//                            {
+//                                Log.v("[THROUGH FARE]", throughFare);
+//                            }
+//                        }
+//                    }
+//                    catch (IOException e)
+//                    {
+//                        e.printStackTrace();
+//                    }
 
                 }
                 else
@@ -135,18 +135,22 @@ public class LocationFinder extends Service implements LocationListener
                 if (locationList.get(0).getLocality() != null)
                 {
                     locality = locationList.get(0).getLocality();
+                    Log.v(TAG, "[LOCALITY]" + locality);
                 }
                 if (locationList.get(0).getAdminArea() != null)
                 {
                     adminArea = locationList.get(0).getAdminArea();
+                    Log.v(TAG, "[ADMIN AREA]" + adminArea);
                 }
                 if (locationList.get(0).getCountryName() != null)
                 {
                     countryCode = locationList.get(0).getCountryName();
+                    Log.v(TAG, "[COUNTRY]" + countryCode);
                 }
                 if (locationList.get(0).getThoroughfare() != null)
                 {
                     throughFare = locationList.get(0).getThoroughfare();
+                    Log.v(TAG, "[THROUGH FARE]" + throughFare);
                 }
             }
         } catch (IOException e)
@@ -171,10 +175,6 @@ public class LocationFinder extends Service implements LocationListener
     public String getThroughFare()
     {
         return throughFare;
-    }
-    public String getProvider()
-    {
-        return providerType;
     }
 
 

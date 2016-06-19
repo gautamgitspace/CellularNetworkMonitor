@@ -16,7 +16,7 @@ import android.util.Log;
  */
 public class DBstore
 {
-    static final String TAG = "[CELNETMON-DEBUG]";
+    static final String TAG = "[CELNETMON-DEBUG-DBSTORE]";
     private final Context mContext;
     LocationFinder locationFinder;
     String locality;
@@ -32,7 +32,7 @@ public class DBstore
         this.mContext=context;
     }
 
-    public void insertIntoDB(Location location, String timeStamp, String cellularInfo, String provider)
+    public void insertIntoDB(Location location, String timeStamp, String cellularInfo)
     {
         ContentValues contentValues = new ContentValues();
         DBHandler dbHandler = new DBHandler(mContext);
@@ -47,7 +47,6 @@ public class DBstore
         adminArea=locationFinder.getAdminArea();
         countryCode=locationFinder.getCountryCode();
         throughFare=locationFinder.getThroughFare();
-        providerType=provider;
 
         Log.v(TAG, "before split: " + cellularInfo);
         String[] splitter = cellularInfo.split("@");

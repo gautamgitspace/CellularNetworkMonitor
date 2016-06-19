@@ -20,7 +20,7 @@ public class DBHandler extends SQLiteOpenHelper
 {
     private static  String dbName="mainTuple";
     private static int version=1;
-    static final String TAG = "[NetAnalyzer-DEBUG]";
+    static final String TAG = "[CELNETMON-DEBUG-DBHANDLER]";
 
     private static final String schema = "CREATE TABLE cellRecords (LAT DATA, LONG DATA, LOCALITY DATA, CITY DATA, STATE DATA, COUNTRY DATA, NETWORK_PROVIDER DATA, TIMESTAMP DATA, NETWORK_TYPE DATA, NETWORK_STATE DATA, NETWORK_RSSI DATA)";
 
