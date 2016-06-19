@@ -16,7 +16,7 @@ import android.util.Log;
  */
 public class DBstore
 {
-    static final String TAG = "[CELNETMON-DEBUG-DBSTORE]";
+    static final String TAG = "[CELNETMON-DBSTORE]";
     private final Context mContext;
     LocationFinder locationFinder;
     String locality;
@@ -56,6 +56,7 @@ public class DBstore
         String splitter1[] = splitter[1].split("_");
         String networkState = splitter1[0];
         Log.v(TAG,"splitter1 of zero: " + splitter1[0]);
+        Log.v(TAG,"splitter1 of one: " + splitter1[1]);
         String networkRSSI = splitter1[1];
 
         Log.v(TAG,"Trying to push to DB");
