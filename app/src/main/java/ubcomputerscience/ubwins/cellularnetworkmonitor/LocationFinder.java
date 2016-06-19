@@ -24,6 +24,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +45,7 @@ public class LocationFinder extends Service implements LocationListener
 
     private static final long distance = 10;
     private static final long updateInterval = 30000;
-    static final String TAG = "[CELNETMON-DEBUG-LOCATIONFINDER]";
+    static final String TAG = "[CELNETMON-LOCFINDER]";
     protected LocationManager locationManager;
     protected LocationListener locationListener;
 
@@ -60,8 +61,9 @@ public class LocationFinder extends Service implements LocationListener
         {
             Log.v(TAG, "trying to get location from Wi-Fi or Cellular Towers");
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-            geocoder = new Geocoder(mContext);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
+            geocoder = new Geocoder(mContext);
+
             if(locationManager==null)
             {
                 Log.v(TAG, "location manager returned null");
@@ -75,35 +77,6 @@ public class LocationFinder extends Service implements LocationListener
                     longitude = location.getLongitude();
                     Log.v(TAG, "LAT: " + Double.toString(latitude));
                     Log.v(TAG, "LONG: " + Double.toString(longitude));
-
-//                    try {
-//                        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-//                        {
-//                            Log.v(TAG,"Attempting to resolve address");
-//                            List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-//                            Log.v(TAG,locationList.get(0).toString());
-//                            if(locationList.get(0).getLocality()!=null)
-//                            {
-//                                Log.v("[LOCALITY]", locality);
-//                            }
-//                            if(locationList.get(0).getAdminArea()!=null)
-//                            {
-//                                Log.v("[ADMIN AREA]", adminArea);
-//                            }
-//                            if(locationList.get(0).getCountryName()!=null)
-//                            {
-//                                Log.v("[COUNTRY]", countryCode);
-//                            }
-//                            if(locationList.get(0).getThoroughfare()!=null)
-//                            {
-//                                Log.v("[THROUGH FARE]", throughFare);
-//                            }
-//                        }
-//                    }
-//                    catch (IOException e)
-//                    {
-//                        e.printStackTrace();
-//                    }
 
                 }
                 else
@@ -181,7 +154,7 @@ public class LocationFinder extends Service implements LocationListener
     @Override
     public void onLocationChanged(Location location)
     {
-        //TODO
+
     }
 
     @Override

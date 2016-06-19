@@ -29,7 +29,7 @@ import android.util.Log;
 public class CellularDataRecorder
 {
 
-    static final String TAG = "[CELNETMON-DEBUG-CDR]";
+    static final String TAG = "[CELNETMON-CDR]";
 
     public String getLocalTimeStamp()
     {

@@ -42,7 +42,7 @@ import java.nio.channels.FileChannel;
 public class MainActivity extends AppCompatActivity
 {
 
-    static final String TAG = "[CELNETMON-DEBUG-ACTIVITY]";
+    static final String TAG = "[CELNETMON-ACTIVITY]";
     Button track;
     DBstore dbStore;
     CellularDataRecorder cdr;
@@ -322,6 +322,7 @@ public class MainActivity extends AppCompatActivity
             text = sb.toString();
             Log.v(TAG,"Reply from server:");
             Log.v(TAG,text);
+            Toast.makeText(getApplicationContext(), "REPLY FROM SERVER" + text, Toast.LENGTH_LONG).show();
         }
         catch(UnsupportedEncodingException e)
         {
