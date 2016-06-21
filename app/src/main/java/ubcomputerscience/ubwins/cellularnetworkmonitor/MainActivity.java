@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.accumulate("IMEI", IMEI);
                 jsonObject.accumulate("SERVICE", service);
-                jsonObject.accumulate("MDOEL", modelMake);
+                jsonObject.accumulate("MODEL", modelMake);
                 jsonObject.accumulate("OS_VERSION", androidVersion);
 
                 // 4. convert JSONObject to JSON to String
