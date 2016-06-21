@@ -1,11 +1,3 @@
-package ubcomputerscience.ubwins.cellularnetworkmonitor;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
-import android.util.Log;
-
 /**
  * Created by Gautam on 6/18/16.
  * MBP111.0138.B16
@@ -14,6 +6,16 @@ import android.util.Log;
  * University at Buffalo, The State University of New York.
  * Copyright © 2016 Gautam. All rights reserved.
  */
+
+package ubcomputerscience.ubwins.cellularnetworkmonitor;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.util.Log;
+
+
 public class DBstore
 {
     static final String TAG = "[CELNETMON-DBSTORE]";

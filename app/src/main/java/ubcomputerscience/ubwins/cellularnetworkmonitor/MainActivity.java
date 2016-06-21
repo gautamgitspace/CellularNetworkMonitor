@@ -5,6 +5,9 @@
  *   agautam2@buffalo.edu
  *   University at Buffalo, The State University of New York.
  *   Copyright © 2016 Gautam. All rights reserved.
+ *
+ *   CelNetMon v1.0 ~ gets location pure network based location does not fail to GPS
+ *   CelNetMon v1.1 ~ registers device uses a JSON POST
  */
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;

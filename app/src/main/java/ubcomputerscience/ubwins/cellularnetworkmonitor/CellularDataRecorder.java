@@ -1,5 +1,3 @@
-package ubcomputerscience.ubwins.cellularnetworkmonitor;
-
 /**
  *   Created by Gautam on 6/18/16.
  *   MBP111.0138.B16
@@ -8,6 +6,8 @@ package ubcomputerscience.ubwins.cellularnetworkmonitor;
  *   University at Buffalo, The State University of New York.
  *   Copyright © 2016 Gautam. All rights reserved.
  */
+
+package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
