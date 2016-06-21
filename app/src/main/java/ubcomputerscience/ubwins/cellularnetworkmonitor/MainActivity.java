@@ -9,11 +9,15 @@
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -24,25 +28,29 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 public class MainActivity extends AppCompatActivity
 {
 
-    static final String TAG = "[CELNETMON-ACTIVITY]";
+    public final String TAG = "[CELNETMON-ACTIVITY]";
     Button track;
     DBstore dbStore;
     CellularDataRecorder cdr;
@@ -278,71 +286,121 @@ public class MainActivity extends AppCompatActivity
         StrictMode.setThreadPolicy(policy);
     }
 
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException
+    {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String line = "";
+        String result = "";
+        while ((line = bufferedReader.readLine()) != null)
+            result += line;
+
+        inputStream.close();
+        return result;
+    }
+
+    public boolean isConnected()
+    {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
+    }
+
+
+    public String POST(String url)
+    {
+        InputStream inputStream = null;
+        String result = "";
+            try {
+
+                String IMEI = getIMEI();
+                String service = getService();
+                String modelMake = getModel();
+                String androidVersion = getOS();
+
+                // 1. create HttpClient
+                HttpClient httpclient = new DefaultHttpClient();
+
+                // 2. make POST request to the given URL
+                HttpPost httpPost = new HttpPost(url);
+                String json = "";
+
+                // 3. build jsonObject
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.accumulate("IMEI", IMEI);
+                jsonObject.accumulate("SERVICE", service);
+                jsonObject.accumulate("MDOEL", modelMake);
+                jsonObject.accumulate("OS_VERSION", androidVersion);
+
+                // 4. convert JSONObject to JSON to String
+                json = jsonObject.toString();
+                // ** Alternative way to convert Person object to JSON string usin Jackson Lib
+                // ObjectMapper mapper = new ObjectMapper();
+                // json = mapper.writeValueAsString(person);
+
+                // 5. set json to StringEntity
+                StringEntity se = new StringEntity(json);
+
+                // 6. set httpPost Entity
+                httpPost.setEntity(se);
+
+                // 7. Set some headers to inform server about the type of the content   
+                httpPost.setHeader("Accept", "application/json");
+                httpPost.setHeader("Content-type", "application/json");
+
+                // 8. Execute POST request to the given URL
+                HttpResponse httpResponse = httpclient.execute(httpPost);
+
+                // 9. receive response as inputStream
+                inputStream = httpResponse.getEntity().getContent();
+
+                // 10. convert inputstream to string
+                if(inputStream != null)
+                    result = convertInputStreamToString(inputStream);
+                else
+                    result = "Did not work!";
+
+            }
+            catch (Exception e)
+            {
+                Log.d("InputStream", e.getLocalizedMessage());
+            }
+
+        // 11. return result
+        return result;
+        }
+
     public void onRegisterClicked(View view)
     {
-        String text = "";
-        BufferedReader reader=null;
-
-        String IMEI = getIMEI();
-        String service = getService();
-        String modelMake = getModel();
-        String androidVersion = getOS();
-
-        try {
-            enableStrictMode();
-            String data = URLEncoder.encode("imei", "UTF-8")
-                    + "=" + URLEncoder.encode(IMEI, "UTF-8");
-
-            data += "&" + URLEncoder.encode("service", "UTF-8") + "="
-                    + URLEncoder.encode(service, "UTF-8");
-
-            data += "&" + URLEncoder.encode("model_make", "UTF-8")
-                    + "=" + URLEncoder.encode(modelMake, "UTF-8");
-
-            data += "&" + URLEncoder.encode("os_version", "UTF-8")
-                    + "=" + URLEncoder.encode(androidVersion, "UTF-8");
-
-            URL url = new URL("http://mediahackerz.azurewebsites.net/ir/finalproject/FileStore.php");
-
-            URLConnection conn = url.openConnection();
-            conn.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.write( data );
-            wr.flush();
-
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-
-            while((line = reader.readLine()) != null)
-            {
-                sb.append(line + "\n");
-            }
-
-            text = sb.toString();
-            Log.v(TAG,"Reply from server:");
-            Log.v(TAG,text);
-            Toast.makeText(getApplicationContext(), "REPLY FROM SERVER" + text, Toast.LENGTH_LONG).show();
-        }
-        catch(UnsupportedEncodingException e)
+        boolean isConnected = isConnected();
+        if(isConnected)
         {
-            e.printStackTrace();
+            Log.v(TAG, "isConnected = TRUE");
+            //TODO
+            new HttpAsyncTask().execute("YOUR_URL_HERE");
         }
-        catch (IOException i)
+        else
         {
-            i.printStackTrace();
+            Log.v(TAG, "isConnected = FALSE");
+            Toast.makeText(getBaseContext(), "Device has. No Internet Connectivity! Please check your Network Connection and try again", Toast.LENGTH_LONG).show();
         }
-        finally
+
+    }
+    private class HttpAsyncTask extends AsyncTask<String, Void, String>
+    {
+        @Override
+        protected String doInBackground(String... urls)
         {
-            try
-            {
-
-                reader.close();
-            }
-
-            catch(Exception ex) {}
+            Log.v(TAG, "inside AsyncTask");
+            return POST(urls[0]);
         }
-
+        @Override
+        protected void onPostExecute(String result)
+        {
+            Toast.makeText(getBaseContext(), "Device Registered!", Toast.LENGTH_LONG).show();
+        }
     }
 
 }
