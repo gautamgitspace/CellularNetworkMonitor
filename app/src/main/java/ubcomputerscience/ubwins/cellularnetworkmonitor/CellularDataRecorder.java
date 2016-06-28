@@ -45,36 +45,46 @@ public class CellularDataRecorder
         String cellularInfo = "";
         String log = "";
 
-        for (final CellInfo info : telephonyManager.getAllCellInfo()) {
-            if (info instanceof CellInfoGsm) {
+        for (final CellInfo info : telephonyManager.getAllCellInfo())
+        {
+            if (info instanceof CellInfoGsm)
+            {
                 log += "GSM@";
                 CellIdentityGsm gsm_cell = ((CellInfoGsm) info).getCellIdentity();
                 log += gsm_cell.getCid() + "#" + gsm_cell.getLac() + "#" + gsm_cell.getMcc() + "#" + gsm_cell.getMnc() + "_";
 
                 final CellSignalStrengthGsm gsm = ((CellInfoGsm) info).getCellSignalStrength();
                 log += gsm.getDbm() + "#" + gsm.getLevel();
-            } else if (info instanceof CellInfoCdma) {
+            }
+            else if (info instanceof CellInfoCdma)
+            {
                 log += "CDMA@";
                 CellIdentityCdma cdma_cell = ((CellInfoCdma) info).getCellIdentity();
                 log += cdma_cell.getBasestationId() + "#" + cdma_cell.getNetworkId() + "#" + cdma_cell.getSystemId() + "#" + cdma_cell.getSystemId() + "_";
 
                 final CellSignalStrengthCdma cdma = ((CellInfoCdma) info).getCellSignalStrength();
                 log += cdma.getDbm() + "#" + cdma.getLevel();
-            } else if (info instanceof CellInfoLte) {
+            }
+            else if (info instanceof CellInfoLte)
+            {
                 log += "LTE@";
                 CellIdentityLte lte_cell = ((CellInfoLte) info).getCellIdentity();
                 log += lte_cell.getCi() + "#" + lte_cell.getPci() + "#" + lte_cell.getMcc() + "#" + lte_cell.getMnc() + "_";
 
                 final CellSignalStrengthLte lte = ((CellInfoLte) info).getCellSignalStrength();
                 log += lte.getDbm() + "#" + lte.getLevel();
-            } else if (info instanceof CellInfoWcdma) {
+            }
+            else if (info instanceof CellInfoWcdma)
+            {
                 log += "WCDMA@";
                 CellIdentityWcdma wcdma_cell = ((CellInfoWcdma) info).getCellIdentity();
                 log += wcdma_cell.getCid() + "#" + wcdma_cell.getLac() + "#" + wcdma_cell.getMcc() + "#" + wcdma_cell.getMnc() + "_";
 
                 final CellSignalStrengthWcdma wcdma = ((CellInfoWcdma) info).getCellSignalStrength();
                 log += wcdma.getDbm() + "#" + wcdma.getLevel();
-            } else {
+            }
+            else
+            {
                 Log.v(TAG, "Unknown Network Type");
             }
         }

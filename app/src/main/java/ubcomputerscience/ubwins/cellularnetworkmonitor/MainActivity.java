@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity
         if(started)
         {
             Button button = (Button) findViewById(R.id.button);
+            assert button!=null;
             button.setEnabled(false);
         }
 
@@ -211,19 +212,19 @@ public class MainActivity extends AppCompatActivity
 
         ImageButton imageButton = (ImageButton) findViewById(R.id.btnShowLocation);
 
-        imageButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View arg0)
-            {
-                Log.v(TAG, "inside onClick");
-                locationFinder = new LocationFinder(MainActivity.this);
+        assert imageButton!=null;
 
-                location = locationFinder.getLocationByNetwork();
+        try {
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View arg0) {
+                    Log.v(TAG, "inside onClick");
+                    locationFinder = new LocationFinder(MainActivity.this);
+
+                    location = locationFinder.getLocationByNetwork();
 
 
-                if(location!=null)
-                    {
+                    if (location != null) {
                         final TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                         cdr = new CellularDataRecorder();
                         Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
@@ -246,17 +247,19 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(getApplicationContext(), "You are at - " + throughFare + ", " + locality + ", " + adminArea + ", " + countryCode + "\n" +
                                 "Latitude: " + latitude + "\nLongitude: " + longitude, Toast.LENGTH_LONG).show();
 
-                    }
-                    else
-                    {
+                    } else {
                         Log.v(TAG, "Waiting to get location from NETWORK_PROVIDER");
                         Toast.makeText(getApplicationContext(), "Waiting to get location from the network", Toast.LENGTH_LONG).show();
                     }
-            }
+                }
 
 
-
-        });
+            });
+        }
+        catch (NullPointerException n)
+        {
+            n.printStackTrace();
+        }
     }
 
     private String getIMEI()
