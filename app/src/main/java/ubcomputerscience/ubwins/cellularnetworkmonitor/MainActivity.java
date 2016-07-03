@@ -293,13 +293,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         String cellularInfo = cdr.getCellularInfo(telephonyManager);
                         String dataActivity = cdr.getCurrentDataActivity(telephonyManager);
                         String dataState = cdr.getCurrentDataState(telephonyManager);
+                        String mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
 
 
                         Log.v(TAG, "TIME STAMP: " + timeStamp);
                         Log.v(TAG, "CELLULAR INFO: " + cellularInfo);
                         Log.v(TAG, "DATA ACTIVITY: "+ dataActivity);
                         Log.v(TAG, "DATA STATE: " + dataState);
-                        
+                        Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
+
                         dbStore = new DBstore(MainActivity.this);
                         dbStore.insertIntoDB(location, timeStamp, cellularInfo,dataActivity, dataState);
 
