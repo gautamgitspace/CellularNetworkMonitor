@@ -60,12 +60,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener , ActivityCompat.OnRequestPermissionsResultCallback
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback
 {
 
     public final String TAG = "[CELNETMON-ACTIVITY]";
-    protected GoogleApiClient mGoogleApiClient;
+    //protected GoogleApiClient mGoogleApiClient;
     Button track;
     DBstore dbStore;
     CellularDataRecorder cdr;
@@ -79,6 +78,19 @@ public class MainActivity extends AppCompatActivity implements
     //Exports SQLiteDB to CSV file in Phone Storage
     public void exportToCSV()
     {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Storage permission has not been granted.
+
+            requestStoragePermission();
+
+        } else {
+
+            // Storage permission is already available.
+            Log.v(TAG,
+                    "Storage permission has already been granted.");
+            //carry on
+        }
         String state = Environment.getExternalStorageState();
         if (!Environment.MEDIA_MOUNTED.equals(state))
         {
@@ -180,56 +192,13 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-    }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-    }
-
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     */
-    @Override
-    public void onConnected(Bundle connectionHint) {
-
-    }
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
-        // onConnectionFailed.
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        // The connection to Google Play services was lost for some reason. We call connect() to
-        // attempt to re-establish the connection.
-        Log.i(TAG, "Connection suspended");
-        mGoogleApiClient.connect();
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mLayout = findViewById(R.id.myLayout);
 
         Log.v(TAG,"NetAnalyzer Service Started");
 
@@ -281,12 +250,42 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View arg0) {
                     Log.v(TAG, "inside onClick");
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        // LOCATION permission has not been granted.
+
+                        requestLocationPermission();
+
+                    } else
+                    {
+
+                        // LOCATION permission is already available.
+                        Log.v(TAG,
+                                "LOCATION permission has already been granted.");
+                        //carry on
+                    }
                     locationFinder = new LocationFinder(MainActivity.this);
 
                     location = locationFinder.getLocationByNetwork();
 
 
-                    if (location != null) {
+                    if (location != null)
+                    {
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            // phone permission has not been granted.
+
+                            requestPhonePermission();
+
+                        }
+                        else
+                        {
+
+                            // phone permissions is already available.
+                            Log.v(TAG, "Phone permission has already been granted.");
+                            //carry on
+                        }
+
                         final TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                         cdr = new CellularDataRecorder();
                         Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
@@ -295,10 +294,12 @@ public class MainActivity extends AppCompatActivity implements
                         String dataActivity = cdr.getCurrentDataActivity(telephonyManager);
                         String dataState = cdr.getCurrentDataState(telephonyManager);
 
+
                         Log.v(TAG, "TIME STAMP: " + timeStamp);
                         Log.v(TAG, "CELLULAR INFO: " + cellularInfo);
-                        Log.v(TAG, "DATA ACTIVITY: "+dataActivity);
-                        Log.v(TAG, "DATA STATE: " +dataState);
+                        Log.v(TAG, "DATA ACTIVITY: "+ dataActivity);
+                        Log.v(TAG, "DATA STATE: " + dataState);
+                        
                         dbStore = new DBstore(MainActivity.this);
                         dbStore.insertIntoDB(location, timeStamp, cellularInfo,dataActivity, dataState);
 
