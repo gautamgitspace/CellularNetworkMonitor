@@ -39,6 +39,58 @@ public class CellularDataRecorder
         return ts;
     }
 
+    public String getCurrentDataState(TelephonyManager telephonyManager)
+    {
+        Log.v(TAG,"inside getDataState");
+        int state = telephonyManager.getDataState();
+        String dataState = "Unknown";
+        if(state == 0)
+        {
+            dataState = "Disconnected";
+        }
+        else if (state == 1)
+        {
+            dataState = "Connecting";
+        }
+        else if(state == 2)
+        {
+            dataState = "Connected";
+        }
+        else if(state == 3)
+        {
+            dataState = "Suspended";
+        }
+        return dataState;
+    }
+
+    public String getCurrentDataActivity(TelephonyManager telephonyManager)
+    {
+        Log.v(TAG,"inside getCurrentDataActivity");
+        int activity = telephonyManager.getDataActivity();
+        String dataActivity = "Unknown";
+        if(activity == 0)
+        {
+            dataActivity = "None";
+        }
+        else if (activity == 1)
+        {
+            dataActivity = "IN";
+        }
+        else if(activity == 2)
+        {
+            dataActivity = "OUT";
+        }
+        else if(activity == 3)
+        {
+            dataActivity = "IN_OUT";
+        }
+        else if(activity == 4)
+        {
+            dataActivity = "Dormant";
+        }
+        return dataActivity;
+    }
+
     public String getCellularInfo(TelephonyManager telephonyManager)
     {
         Log.v(TAG, "inside getCellularInfo");
