@@ -8,7 +8,7 @@
  *
  *   CelNetMon v1.0 ~ gets location pure network based location does not fail to GPS
  *   CelNetMon v1.1 ~ registers device uses a JSON POST
- *   CelNetMon v1.4 ~ with user permissions for android v6.0+, records DataActivity and DataSate
+ *   CelNetMon v1.2 ~ with user permissions for android v6.0+, records DataActivity and DataSate, testing getNetworkType()
  */
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
