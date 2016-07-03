@@ -34,7 +34,7 @@ public class DBstore
         this.mContext=context;
     }
 
-    public void insertIntoDB(Location location, String timeStamp, String cellularInfo)
+    public void insertIntoDB(Location location, String timeStamp, String cellularInfo, String dataActivity, String dataState)
     {
         ContentValues contentValues = new ContentValues();
         DBHandler dbHandler = new DBHandler(mContext);
@@ -73,6 +73,8 @@ public class DBstore
         contentValues.put("NETWORK_TYPE", networkType);
         contentValues.put("NETWORK_STATE", networkState);
         contentValues.put("NETWORK_RSSI", networkRSSI);
+        contentValues.put("DATA_STATE",dataState);
+        contentValues.put("DATA_ACTIVITY", dataActivity);
 
         sqLiteDatabase.insert("cellRecords", null, contentValues);
         sqLiteDatabase.close();
