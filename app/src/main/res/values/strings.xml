@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">CellularNetworkMonitor</string>
+    <string name="ok">OK</string>
+    <string name="permission_available_location">Location Permission has been granted.</string>
+    <string name="permission_available_storage">Storage Permissions have been granted.</string>
+    <string name="permission_available_phone">Phone State Permissions have been granted.</string>
+    <string name="permissions_not_granted">Permissions were not granted.</string>
+    <string name="permission_location_rationale">Location permission is needed for the application to function correctly.</string>
+    <string name="permission_storage_rationale">Storage permissions are needed to be able to log the data to local memory.</string>
+    <string name="permission_phone_rationale">Phone state permissions are needed to be able to log the necessary data.</string>
 </resources>
