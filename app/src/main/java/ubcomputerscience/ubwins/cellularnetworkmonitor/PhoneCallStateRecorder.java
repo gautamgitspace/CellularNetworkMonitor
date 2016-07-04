@@ -19,30 +19,30 @@ public class PhoneCallStateRecorder extends PhoneCallState
     @Override
     protected  void onIncomingCallStarted(Context ctx, String number, Date start)
     {
-
+        Log.v(TAG, "Call Received from: " + number + " at: " + start);
     }
 
     @Override
     protected  void onIncomingCallEnded(Context ctx, String number, Date start, Date end)
     {
-
+        Log.v(TAG, "Call Received from: " + number + " at: " + start + " ended at: " + end);
     }
 
     @Override
     protected  void onOutgoingCallStarted(Context ctx, String number, Date start)
     {
-
+        Log.v(TAG, "Outgoing call to: " + number + " started at: " + start);
     }
 
     @Override
     protected  void onOutgoingCallEnded(Context ctx, String number, Date start, Date end)
     {
-
+        Log.v(TAG, "Outgoing call to: " + number + " started at: " + start + " ended at: " + end);
     }
 
     @Override
     protected  void onMissedCall(Context ctx, String number, Date start)
     {
-        
+        Log.v(TAG, "Missed call from: " + number + " at: " + start);
     }
 }
