@@ -43,11 +43,11 @@ public class DBstore
         longitude=location.getLongitude();
 
         locationFinder = new LocationFinder(mContext);
-        locationFinder.addressResolver(location);
-        locality=locationFinder.getLocality();
-        adminArea=locationFinder.getAdminArea();
-        countryCode=locationFinder.getCountryCode();
-        throughFare=locationFinder.getThroughFare();
+//        locationFinder.addressResolver(location);
+//        locality=locationFinder.getLocality();
+//        adminArea=locationFinder.getAdminArea();
+//        countryCode=locationFinder.getCountryCode();
+//        throughFare=locationFinder.getThroughFare();
 
         Log.v(TAG, "before split: " + cellularInfo);
         String[] splitter = cellularInfo.split("@");
@@ -64,10 +64,10 @@ public class DBstore
         contentValues.put("LAT",latitude);
         contentValues.put("LONG",longitude);
         contentValues.put("NETWORK_PROVIDER", providerType);
-        contentValues.put("LOCALITY",throughFare);
-        contentValues.put("CITY",locality);
-        contentValues.put("STATE",adminArea);
-        contentValues.put("COUNTRY",countryCode);
+        contentValues.put("LOCALITY","");
+        contentValues.put("CITY","");
+        contentValues.put("STATE","");
+        contentValues.put("COUNTRY","");
         contentValues.put("TIMESTAMP",timeStamp);
         contentValues.put("NETWORK_TYPE", networkType);
         contentValues.put("NETWORK_STATE", networkState);

@@ -8,13 +8,18 @@
  *   CelNetMon v1.0 ~ gets location pure network based location does not fail to GPS
  *   CelNetMon v1.1 ~ registers device uses a JSON POST
  *   CelNetMon v1.2 ~ with user permissions for android v6.0+, records DataActivity and DataSate, logs call state
+ *   CelNetMon v1.2.1 ~ with alarm and periodic recording on 60 secs.
  */
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -31,18 +36,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.support.design.widget.Snackbar;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
-
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private static final int REQUEST_LOCATION = 0;
     private static final int REQUEST_STORAGE = 1;
     private static final int REQUEST_PHONE = 2;
+    private AlarmManager alarmManager;
+    private PendingIntent pendingIntent;
 
     //Exports SQLiteDB to CSV file in Phone Storage
     public void exportToCSV()
@@ -199,6 +201,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.myLayout);
 
+        Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarmIntent, 0);
+
         Log.v(TAG,"NetAnalyzer Service Started");
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -245,80 +250,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         assert imageButton!=null;
 
         try {
-            imageButton.setOnClickListener(new View.OnClickListener() {
+            imageButton.setOnClickListener(new View.OnClickListener()
+            {
                 @Override
-                public void onClick(View arg0) {
+                public void onClick(View arg0)
+                {
+                    alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                    int interval = 10000; // 10 seconds
+
+                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+                    Toast.makeText(getApplicationContext(), "Alarm Set", Toast.LENGTH_SHORT).show();
+
                     Log.v(TAG, "inside onClick");
-                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        // LOCATION permission has not been granted.
 
-                        requestLocationPermission();
-
-                    } else
-                    {
-
-                        // LOCATION permission is already available.
-                        Log.v(TAG,
-                                "LOCATION permission has already been granted.");
-                        //carry on
-                    }
-                    locationFinder = new LocationFinder(MainActivity.this);
-
-                    location = locationFinder.getLocationByNetwork();
-
-
-                    if (location != null)
-                    {
-                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            // phone permission has not been granted.
-
-                            requestPhonePermission();
-
-                        }
-                        else
-                        {
-
-                            // phone permissions is already available.
-                            Log.v(TAG, "Phone permission has already been granted.");
-                            //carry on
-                        }
-
-                        final TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-                        cdr = new CellularDataRecorder();
-                        Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
-                        String timeStamp = cdr.getLocalTimeStamp();
-                        String cellularInfo = cdr.getCellularInfo(telephonyManager);
-                        String dataActivity = cdr.getCurrentDataActivity(telephonyManager);
-                        String dataState = cdr.getCurrentDataState(telephonyManager);
-                        String mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
-
-
-                        Log.v(TAG, "TIME STAMP: " + timeStamp);
-                        Log.v(TAG, "CELLULAR INFO: " + cellularInfo);
-                        Log.v(TAG, "DATA ACTIVITY: "+ dataActivity);
-                        Log.v(TAG, "DATA STATE: " + dataState);
-                        Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
-
-                        dbStore = new DBstore(MainActivity.this);
-                        dbStore.insertIntoDB(location, timeStamp, cellularInfo,dataActivity, dataState);
-
-                        locationFinder.addressResolver(location);
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-                        String countryCode = locationFinder.getCountryCode();
-                        String adminArea = locationFinder.getAdminArea();
-                        String locality = locationFinder.getLocality();
-                        String throughFare = locationFinder.getThroughFare();
-
-                        Toast.makeText(getApplicationContext(), "You are at - " + throughFare + ", " + locality + ", " + adminArea + ", " + countryCode + "\n" +
-                                "Latitude: " + latitude + "\nLongitude: " + longitude, Toast.LENGTH_LONG).show();
-
-                    } else {
-                        Log.v(TAG, "Waiting to get location from NETWORK_PROVIDER");
-                        Toast.makeText(getApplicationContext(), "Waiting to get location from the network", Toast.LENGTH_LONG).show();
-                    }
                 }
 
 
@@ -330,7 +274,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    private void requestLocationPermission() {
+    public void cancelAlarm(View view)
+    {
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
+            Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void requestLocationPermission()
+    {
         Log.i(TAG, "LOCATION permission has NOT been granted. Requesting permission.");
 
         // BEGIN_INCLUDE(location_permission_request)
@@ -360,7 +314,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
         // END_INCLUDE(location_permission_request)
     }
-    private void requestPhonePermission() {
+    public void requestPhonePermission()
+    {
         Log.i(TAG, "Phone permission has NOT been granted. Requesting permission.");
 
         // BEGIN_INCLUDE(phone_permission_request)
@@ -382,7 +337,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         }
                     })
                     .show();
-        } else {
+        }
+        else
+        {
 
             // Phone state permission has not been granted yet. Request it directly.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE},
@@ -390,7 +347,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
         // END_INCLUDE(phone_permission_request)
     }
-    private void requestStoragePermission() {
+    public void requestStoragePermission()
+    {
         Log.i(TAG, "STORAGE permission has NOT been granted. Requesting permission.");
 
         // BEGIN_INCLUDE(storage_permission_request)
@@ -412,7 +370,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         }
                     })
                     .show();
-        } else {
+        }
+        else
+        {
 
             // Location permission has not been granted yet. Request it directly.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -422,7 +382,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+                                           @NonNull int[] grantResults)
+    {
 
         if (requestCode == REQUEST_LOCATION) {
             // BEGIN_INCLUDE(permission_result)
@@ -435,7 +396,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 Log.i(TAG, "Location permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_location,
                         Snackbar.LENGTH_SHORT).show();
-            } else {
+            }
+            else
+            {
                 Log.i(TAG, "Location permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
@@ -443,35 +406,46 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
             // END_INCLUDE(permission_result)
 
-        } else if (requestCode == REQUEST_STORAGE) {
+        }
+        else if (requestCode == REQUEST_STORAGE)
+        {
             Log.i(TAG, "Received response for storage permissions request.");
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
                 // Storage permission has been granted
                 Log.i(TAG, "Storage permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_storage,
                         Snackbar.LENGTH_SHORT).show();
-            } else {
+            }
+            else
+            {
                 Log.i(TAG, "Storage permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
 
             }
         }
-        else if (requestCode == REQUEST_PHONE) {
+        else if (requestCode == REQUEST_PHONE)
+        {
             Log.i(TAG, "Received response for phone permissions request.");
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
                 // Phone permission has been granted
                 Log.i(TAG, "Phone permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_phone,
                         Snackbar.LENGTH_SHORT).show();
-            } else {
+            }
+            else
+            {
                 Log.i(TAG, "Phone permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
 
             }
 
-        } else {
+        }
+        else
+        {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
@@ -623,4 +597,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-}
+    }
+
+
+
+

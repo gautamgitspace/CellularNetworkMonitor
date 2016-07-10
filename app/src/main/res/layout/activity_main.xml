@@ -36,6 +36,16 @@
         android:layout_alignTop="@+id/button2"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:text="Cancel Alarm"
+        android:onClick="cancelAlarm"
+        android:layout_below="@+id/btnShowLocation"
+        android:layout_alignStart="@+id/button3" />
+
     <ImageButton
         android:id="@+id/btnShowLocation"
         android:layout_height="235dp"
@@ -54,14 +64,17 @@
         android:layout_alignLeft="@+id/textView"
         android:layout_alignStart="@+id/textView" />
 
+
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="CelNetMon v1.2"
+        android:text="CelNetMon v1.2.1"
         android:id="@+id/textView"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
 
     <TextView
         android:layout_width="wrap_content"

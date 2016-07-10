@@ -8,7 +8,6 @@
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
-import android.content.Context;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
 import android.telephony.CellIdentityWcdma;
