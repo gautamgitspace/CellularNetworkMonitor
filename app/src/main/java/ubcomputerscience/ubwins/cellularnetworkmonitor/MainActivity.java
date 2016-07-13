@@ -9,6 +9,10 @@
  *   CelNetMon v1.1 ~ registers device uses a JSON POST
  *   CelNetMon v1.2 ~ with user permissions for android v6.0+, records DataActivity and DataSate, logs call state
  *   CelNetMon v1.2.1 ~ with alarm and periodic recording on 60 secs.
+ *   CelNetMon v1.2.2 ~ Permissions handled on onCreate in MainActivity. GPS functionality included. Records data even when location object returns null.
+ *   //TODO - check listeners for wifi = connected and charging = true
+ *   //TODO - add fused API
+ *   //TODO - explore MessagePack
  */
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
@@ -71,27 +75,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     Location location;
     private View mLayout;
     private static final int REQUEST_LOCATION = 0;
-    private static final int REQUEST_STORAGE = 1;
-    private static final int REQUEST_PHONE = 2;
+    private static final int REQUEST_STORAGE = 2;
+    private static final int REQUEST_PHONE = 1;
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
 
     //Exports SQLiteDB to CSV file in Phone Storage
     public void exportToCSV()
     {
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Storage permission has not been granted.
 
-            requestStoragePermission();
-
-        } else {
-
-            // Storage permission is already available.
-            Log.v(TAG,
-                    "Storage permission has already been granted.");
-            //carry on
-        }
         String state = Environment.getExternalStorageState();
         if (!Environment.MEDIA_MOUNTED.equals(state))
         {
@@ -199,7 +191,55 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         mLayout = findViewById(R.id.myLayout);
+        //Ask for permissions here itself(both for final app and one write to storage for generating CSV file)
+
+        //First, read location permission
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // LOCATION permission has not been granted.
+
+            requestLocationPermission();
+
+        }
+        else
+        {
+            // LOCATION permission is already available.
+            Log.v(TAG, "LOCATION permission has already been granted.");
+            //carry on
+        }
+
+        //Second read phone state permission
+
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            // phone permission has not been granted.
+            requestPhonePermission();
+        }
+        else
+        {
+            // phone permissions is already available.
+            Log.v(TAG, "Phone permission has already been granted.");
+            //carry on
+        }
+
+        //Write to Storage permission
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Storage permission has not been granted.
+
+            requestStoragePermission();
+
+        } else {
+
+            // Storage permission is already available.
+            Log.v(TAG,
+                    "Storage permission has already been granted.");
+            //carry on
+        }
 
         Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarmIntent, 0);
@@ -288,30 +328,30 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         Log.i(TAG, "LOCATION permission has NOT been granted. Requesting permission.");
 
         // BEGIN_INCLUDE(location_permission_request)
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            // Provide an additional rationale to the user if the permission was not granted
-            // and the user would benefit from additional context for the use of the permission.
-            // For example if the user has previously denied the permission.
-            Log.i(TAG,
-                    "Displaying location permission rationale to provide additional context.");
-            Snackbar.make(mLayout, R.string.permission_location_rationale,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    REQUEST_LOCATION);
-                        }
-                    })
-                    .show();
-        } else {
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION)) {
+//            // Provide an additional rationale to the user if the permission was not granted
+//            // and the user would benefit from additional context for the use of the permission.
+//            // For example if the user has previously denied the permission.
+//            Log.i(TAG,
+//                    "Displaying location permission rationale to provide additional context.");
+//            Snackbar.make(mLayout, R.string.permission_location_rationale,
+//                    Snackbar.LENGTH_INDEFINITE)
+//                    .setAction(R.string.ok, new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            ActivityCompat.requestPermissions(MainActivity.this,
+//                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                                    REQUEST_LOCATION);
+//                        }
+//                    })
+//                    .show();
+//        } else {
 
             // Location permission has not been granted yet. Request it directly.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_LOCATION);
-        }
+        //}
         // END_INCLUDE(location_permission_request)
     }
     public void requestPhonePermission()
@@ -319,32 +359,32 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         Log.i(TAG, "Phone permission has NOT been granted. Requesting permission.");
 
         // BEGIN_INCLUDE(phone_permission_request)
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.READ_PHONE_STATE)) {
-            // Provide an additional rationale to the user if the permission was not granted
-            // and the user would benefit from additional context for the use of the permission.
-            // For example if the user has previously denied the permission.
-            Log.i(TAG,
-                    "Displaying Phone permission rationale to provide additional context.");
-            Snackbar.make(mLayout, R.string.permission_phone_rationale,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.READ_PHONE_STATE},
-                                    REQUEST_PHONE);
-                        }
-                    })
-                    .show();
-        }
-        else
-        {
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                Manifest.permission.READ_PHONE_STATE)) {
+//            // Provide an additional rationale to the user if the permission was not granted
+//            // and the user would benefit from additional context for the use of the permission.
+//            // For example if the user has previously denied the permission.
+//            Log.i(TAG,
+//                    "Displaying Phone permission rationale to provide additional context.");
+//            Snackbar.make(mLayout, R.string.permission_phone_rationale,
+//                    Snackbar.LENGTH_INDEFINITE)
+//                    .setAction(R.string.ok, new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            ActivityCompat.requestPermissions(MainActivity.this,
+//                                    new String[]{Manifest.permission.READ_PHONE_STATE},
+//                                    REQUEST_PHONE);
+//                        }
+//                    })
+//                    .show();
+//        }
+        //else
+        //{
 
             // Phone state permission has not been granted yet. Request it directly.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE},
                     REQUEST_PHONE);
-        }
+        //}
         // END_INCLUDE(phone_permission_request)
     }
     public void requestStoragePermission()
@@ -352,32 +392,32 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         Log.i(TAG, "STORAGE permission has NOT been granted. Requesting permission.");
 
         // BEGIN_INCLUDE(storage_permission_request)
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            // Provide an additional rationale to the user if the permission was not granted
-            // and the user would benefit from additional context for the use of the permission.
-            // For example if the user has previously denied the permission.
-            Log.i(TAG,
-                    "Displaying location permission rationale to provide additional context.");
-            Snackbar.make(mLayout, R.string.permission_storage_rationale,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    REQUEST_STORAGE);
-                        }
-                    })
-                    .show();
-        }
-        else
-        {
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//            // Provide an additional rationale to the user if the permission was not granted
+//            // and the user would benefit from additional context for the use of the permission.
+//            // For example if the user has previously denied the permission.
+//            Log.i(TAG,
+//                    "Displaying location permission rationale to provide additional context.");
+//            Snackbar.make(mLayout, R.string.permission_storage_rationale,
+//                    Snackbar.LENGTH_INDEFINITE)
+//                    .setAction(R.string.ok, new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            ActivityCompat.requestPermissions(MainActivity.this,
+//                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                                    REQUEST_STORAGE);
+//                        }
+//                    })
+//                    .show();
+//        }
+//        else
+//        {
 
             // Location permission has not been granted yet. Request it directly.
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_STORAGE);
-        }
+        //}
         // END_INCLUDE(location_permission_request)
     }
     @Override

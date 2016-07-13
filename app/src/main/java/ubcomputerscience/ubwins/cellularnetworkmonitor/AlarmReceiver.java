@@ -1,3 +1,10 @@
+/**
+ * Created by Gautam on 7/9/16.
+ * MBP111.0138.B16
+ * agautam2@buffalo.edu
+ * University at Buffalo, The State University of New York.
+ * Copyright © 2016 Gautam. All rights reserved.
+ */
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
 import android.Manifest;
@@ -11,14 +18,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
-/**
- * Created by Gautam on 7/9/16.
- * MBP111.0138.B16
- * agautam2@buffalo.edu
- * University at Buffalo, The State University of New York.
- * Copyright © 2016 Gautam. All rights reserved.
- */
-public class AlarmReceiver extends BroadcastReceiver {
+
+public class AlarmReceiver extends BroadcastReceiver
+{
     LocationFinder locationFinder;
     CellularDataRecorder cdr;
     DBstore dbStore;
@@ -27,40 +29,16 @@ public class AlarmReceiver extends BroadcastReceiver {
     public final String TAG = "[CELNETMON-AlARMRCVR]";
 
     @Override
-    public void onReceive(Context arg0, Intent arg1) {
+    public void onReceive(Context arg0, Intent arg1)
+    {
         Log.v(TAG, "inside onReceive");
-        if (ActivityCompat.checkSelfPermission(arg0, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // LOCATION permission has not been granted.
-
-            mainActivity.requestLocationPermission();
-
-        } else {
-            // LOCATION permission is already available.
-            Log.v(TAG,
-                    "LOCATION permission has already been granted.");
-            //carry on
-        }
         locationFinder = new LocationFinder(arg0);
 
-        location = locationFinder.getLocationByNetwork();
-
-
-        if (location != null)
+        location = locationFinder.getLocation();
+        if(location==null)
         {
-            if (ActivityCompat.checkSelfPermission(arg0, Manifest.permission.READ_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED)
-            {
-                // phone permission has not been granted.
-                mainActivity.requestPhonePermission();
-            }
-            else
-            {
-                // phone permissions is already available.
-                Log.v(TAG, "Phone permission has already been granted.");
-                //carry on
-            }
-
+            Log.v(TAG, "Location object returned null");
+        }
             final TelephonyManager telephonyManager = (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
             cdr = new CellularDataRecorder();
             Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
@@ -89,9 +67,5 @@ public class AlarmReceiver extends BroadcastReceiver {
 //
 //                Toast.makeText(getApplicationContext(), "You are at - " + throughFare + ", " + locality + ", " + adminArea + ", " + countryCode + "\n" +
 //                        "Latitude: " + latitude + "\nLongitude: " + longitude, Toast.LENGTH_LONG).show();
-        } else {
-            Log.v(TAG, "Waiting to get location from NETWORK_PROVIDER");
-            Toast.makeText(arg0, "Waiting to get location from the network", Toast.LENGTH_LONG).show();
-        }
     }
 }

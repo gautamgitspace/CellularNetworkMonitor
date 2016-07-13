@@ -38,9 +38,15 @@ public class DBstore
         ContentValues contentValues = new ContentValues();
         DBHandler dbHandler = new DBHandler(mContext);
         SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
-
-        latitude=location.getLatitude();
-        longitude=location.getLongitude();
+        if(location!=null) {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+        }
+        else
+        {
+            latitude=null;
+            longitude=null;
+        }
 
         locationFinder = new LocationFinder(mContext);
 //        locationFinder.addressResolver(location);

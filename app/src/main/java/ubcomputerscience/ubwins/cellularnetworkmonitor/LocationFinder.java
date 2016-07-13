@@ -42,9 +42,11 @@ public class LocationFinder extends Service implements LocationListener
 
     private static final long distance = 10;
     private static final long updateInterval = 30000;
+    boolean isGPSEnabled = false;
     static final String TAG = "[CELNETMON-LOCFINDER]";
     protected LocationManager locationManager;
     protected LocationListener locationListener;
+
 
     public LocationFinder(Context context)
     {
@@ -52,41 +54,57 @@ public class LocationFinder extends Service implements LocationListener
         Log.v(TAG,"Context Constructor Fired.");
     }
 
-    public Location getLocationByNetwork()
+    public Location getLocation()
     {
-        try
-        {
-            Log.v(TAG, "trying to get location from Wi-Fi or Cellular Towers");
-            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
-            geocoder = new Geocoder(mContext);
 
-            if(locationManager==null)
-            {
-                Log.v(TAG, "location manager returned null");
-            }
-            if (locationManager != null)
-            {
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if (location != null)
-                {
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    Log.v(TAG, "LAT: " + Double.toString(latitude));
-                    Log.v(TAG, "LONG: " + Double.toString(longitude));
-
+        locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (isGPSEnabled) {
+            try {
+                Log.v(TAG, "GPS Based Location Services are ENABLED");
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, updateInterval, distance, this);
+                if (locationManager != null) {
+                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (location != null) {
+                        Log.v(TAG, "LOCATION: GPS BASED");
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        Log.v(TAG, "LAT: " + Double.toString(latitude));
+                        Log.v(TAG, "LONG: " + Double.toString(longitude));
+                    }
                 }
-                else
-                {
-                    Log.v(TAG, "Location returned null");
-                }
+            } catch (SecurityException s) {
+                s.printStackTrace();
             }
-        }
-        catch(SecurityException s)
-        {
-            s.printStackTrace();
-        }
+        } else {
 
+            try {
+                Log.v(TAG, "trying to get location from Wi-Fi or Cellular Towers");
+                locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
+                geocoder = new Geocoder(mContext);
+
+                if (locationManager == null) {
+                    Log.v(TAG, "location manager returned null");
+                }
+                if (locationManager != null) {
+                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    if (location != null) {
+                        Log.v(TAG, "LOCATION: NETWORK BASED");
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        Log.v(TAG, "LAT: " + Double.toString(latitude));
+                        Log.v(TAG, "LONG: " + Double.toString(longitude));
+                    } else {
+                        Log.v(TAG, "Location returned null");
+                    }
+                }
+            } catch (SecurityException s) {
+                s.printStackTrace();
+            }
+
+
+        }
         return location;
     }
 
