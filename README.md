@@ -7,3 +7,7 @@ location based on NETWORK_PROVIDER (strictly), RSSI, current network state, data
 Stores them in SQLiteDB and exports to a CSV file on user request.
 
 ![alt tag](https://raw.githubusercontent.com/gautamgitspace/CellularNetworkMonitor/master/layout.png)
+
+License
+-----------
+This project is licensed under the GPL v3 license.
