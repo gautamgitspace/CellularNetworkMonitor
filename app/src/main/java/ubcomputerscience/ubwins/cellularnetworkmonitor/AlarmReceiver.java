@@ -7,16 +7,16 @@
  */
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
-import android.Manifest;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+
 import android.location.Location;
-import android.support.v4.app.ActivityCompat;
+
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
+
 
 
 public class AlarmReceiver extends BroadcastReceiver
@@ -26,7 +26,9 @@ public class AlarmReceiver extends BroadcastReceiver
     DBstore dbStore;
     Location location;
     MainActivity mainActivity;
+
     public final String TAG = "[CELNETMON-AlARMRCVR]";
+
 
     @Override
     public void onReceive(Context arg0, Intent arg1)
@@ -34,13 +36,10 @@ public class AlarmReceiver extends BroadcastReceiver
         Log.v(TAG, "inside onReceive");
         locationFinder = new LocationFinder(arg0);
 
-        location = locationFinder.getLocation();
-        if(location==null)
-        {
-            Log.v(TAG, "Location object returned null");
-        }
             final TelephonyManager telephonyManager = (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
             cdr = new CellularDataRecorder();
+            mainActivity = new MainActivity();
+            locationFinder = new LocationFinder(arg0);
             Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
             String timeStamp = cdr.getLocalTimeStamp();
             String cellularInfo = cdr.getCellularInfo(telephonyManager);
@@ -49,6 +48,13 @@ public class AlarmReceiver extends BroadcastReceiver
             String mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
             String fusedApiLatitude = mainActivity.FusedApiLatitude;
             String fusedApiLongitude = mainActivity.FusedApiLongitude;
+            String lmLatitude = Double.toString(locationFinder.latitude);
+            String lmLongitude = Double.toString(locationFinder.longitude);
+            String locationProvider = locationFinder.locationProvider;
+            String locationdata[] = {lmLatitude,lmLongitude,fusedApiLatitude,fusedApiLongitude,locationProvider};
+
+        Log.i(TAG, "onReceive: Location data is before inserting"+locationdata[0] +" "+ locationdata[1]+" "+ locationdata[2]+" "+ locationdata[3]);
+
 
             Log.v(TAG, "TIME STAMP: " + timeStamp);
             Log.v(TAG, "CELLULAR INFO: " + cellularInfo);
@@ -57,8 +63,10 @@ public class AlarmReceiver extends BroadcastReceiver
             Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
 
             dbStore = new DBstore(arg0);
-            dbStore.insertIntoDB(location, timeStamp, cellularInfo, dataActivity, dataState);
+            dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState);
 
 //
     }
+
+
 }

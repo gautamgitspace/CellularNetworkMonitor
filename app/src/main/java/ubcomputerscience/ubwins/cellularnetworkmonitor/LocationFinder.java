@@ -16,6 +16,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -30,22 +31,17 @@ import java.util.List;
 public class LocationFinder extends Service implements LocationListener
 {
     private final Context mContext;
-    public Geocoder geocoder;
 
-    Location location;
-    double latitude;
-    double longitude;
-    String locality;
-    String adminArea;
-    String countryCode;
-    String throughFare;
+    public static double latitude;
+    public static double longitude;
+    public static String locationProvider;
 
     private static final long distance = 10;
     private static final long updateInterval = 30000;
     boolean isGPSEnabled = false;
     static final String TAG = "[CELNETMON-LOCFINDER]";
     protected LocationManager locationManager;
-    protected LocationListener locationListener;
+
 
 
     public LocationFinder(Context context)
@@ -54,7 +50,7 @@ public class LocationFinder extends Service implements LocationListener
         Log.v(TAG,"Context Constructor Fired.");
     }
 
-    public Location getLocation()
+    public void getLocation()
     {
 
         locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
@@ -63,16 +59,16 @@ public class LocationFinder extends Service implements LocationListener
             try {
                 Log.v(TAG, "GPS Based Location Services are ENABLED");
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, updateInterval, distance, this);
-                if (locationManager != null) {
-                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if (location != null) {
-                        Log.v(TAG, "LOCATION: GPS BASED");
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                        Log.v(TAG, "LAT: " + Double.toString(latitude));
-                        Log.v(TAG, "LONG: " + Double.toString(longitude));
-                    }
-                }
+//                if (locationManager != null) {
+//                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//                    if (location != null) {
+//                        Log.v(TAG, "LOCATION: GPS BASED");
+//                        latitude = location.getLatitude();
+//                        longitude = location.getLongitude();
+//                        Log.v(TAG, "LAT: " + Double.toString(latitude));
+//                        Log.v(TAG, "LONG: " + Double.toString(longitude));
+//                    }
+//                }
             } catch (SecurityException s) {
                 s.printStackTrace();
             }
@@ -82,109 +78,147 @@ public class LocationFinder extends Service implements LocationListener
                 Log.v(TAG, "trying to get location from Wi-Fi or Cellular Towers");
                 locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
-                geocoder = new Geocoder(mContext);
 
-                if (locationManager == null) {
-                    Log.v(TAG, "location manager returned null");
-                }
-                if (locationManager != null) {
-                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    if (location != null) {
-                        Log.v(TAG, "LOCATION: NETWORK BASED");
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                        Log.v(TAG, "LAT: " + Double.toString(latitude));
-                        Log.v(TAG, "LONG: " + Double.toString(longitude));
-                    } else {
-                        Log.v(TAG, "Location returned null");
-                    }
-                }
+//                if (locationManager == null) {
+//                    Log.v(TAG, "location manager returned null");
+//                }
+//                if (locationManager != null) {
+//                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//                    if (location != null) {
+//                        Log.v(TAG, "LOCATION: NETWORK BASED");
+//                        latitude = location.getLatitude();
+//                        longitude = location.getLongitude();
+//                        Log.v(TAG, "LAT: " + Double.toString(latitude));
+//                        Log.v(TAG, "LONG: " + Double.toString(longitude));
+//                    } else {
+//                        Log.v(TAG, "Location returned null");
+//                    }
+//                }
             } catch (SecurityException s) {
                 s.printStackTrace();
             }
 
 
         }
-        return location;
     }
 
-    public void addressResolver(Location location)
-    {
-
-        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        geocoder = new Geocoder(mContext);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        try {
-            if (isConnected)
-            {
-                Log.v(TAG, "Attempting to resolve address");
-                List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                if (locationList.get(0).getLocality() != null)
-                {
-                    locality = locationList.get(0).getLocality();
-                    Log.v(TAG, "[LOCALITY]" + locality);
-                }
-                if (locationList.get(0).getAdminArea() != null)
-                {
-                    adminArea = locationList.get(0).getAdminArea();
-                    Log.v(TAG, "[ADMIN AREA]" + adminArea);
-                }
-                if (locationList.get(0).getCountryName() != null)
-                {
-                    countryCode = locationList.get(0).getCountryName();
-                    Log.v(TAG, "[COUNTRY]" + countryCode);
-                }
-                if (locationList.get(0).getThoroughfare() != null)
-                {
-                    throughFare = locationList.get(0).getThoroughfare();
-                    Log.v(TAG, "[THROUGH FARE]" + throughFare);
-                }
-            }
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-
-    public String getLocality()
-    {
-        return locality;
-    }
-    public String getCountryCode()
-    {
-        return countryCode;
-    }
-    public String getAdminArea()
-    {
-        return adminArea;
-    }
-    public String getThroughFare()
-    {
-        return throughFare;
-    }
-
+//    public void addressResolver(Location location)
+//    {
+//
+//        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        geocoder = new Geocoder(mContext);
+//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+//        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+//        try {
+//            if (isConnected)
+//            {
+//                Log.v(TAG, "Attempting to resolve address");
+//                List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+//                if (locationList.get(0).getLocality() != null)
+//                {
+//                    locality = locationList.get(0).getLocality();
+//                    Log.v(TAG, "[LOCALITY]" + locality);
+//                }
+//                if (locationList.get(0).getAdminArea() != null)
+//                {
+//                    adminArea = locationList.get(0).getAdminArea();
+//                    Log.v(TAG, "[ADMIN AREA]" + adminArea);
+//                }
+//                if (locationList.get(0).getCountryName() != null)
+//                {
+//                    countryCode = locationList.get(0).getCountryName();
+//                    Log.v(TAG, "[COUNTRY]" + countryCode);
+//                }
+//                if (locationList.get(0).getThoroughfare() != null)
+//                {
+//                    throughFare = locationList.get(0).getThoroughfare();
+//                    Log.v(TAG, "[THROUGH FARE]" + throughFare);
+//                }
+//            }
+//        } catch (IOException e)
+//        {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     @Override
     public void onLocationChanged(Location location)
     {
+        Log.i(TAG, "onLocationChanged for Location Manager: ");
+
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        locationProvider=location.getProvider();
+        Log.i(TAG, "onLocationChanged: latitude is " +latitude);
+        Log.i(TAG, "onLocationChanged: Longitude is  "+longitude);
+        Log.i(TAG, "onLocationChanged: Network provider is"+ locationProvider);
 
     }
 
     @Override
     public void onProviderDisabled(String provider)
     {
+        Log.v(TAG,"inside Provider disabled");
+        if (provider == LocationManager.GPS_PROVIDER){
+            Log.v(TAG,"GPS Provider disabled by user");
+
+            //can make toast here
+        }
+        else if(provider == LocationManager.NETWORK_PROVIDER){
+            Log.v(TAG,"NETWORK Provider disabled by user");
+
+            //can make toast here
+        }
     }
 
     @Override
     public void onProviderEnabled(String provider)
     {
+        Log.v(TAG,"inside Provider enabled");
+        if (provider == LocationManager.GPS_PROVIDER){
+            Log.v(TAG,"GPS Provider enabled by user");
+
+            //can make toast here
+        }
+        else if(provider == LocationManager.NETWORK_PROVIDER){
+            Log.v(TAG,"NETWORK Provider enabled by user");
+
+            //can make toast here
+        }
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras)
     {
+        Log.v(TAG,"inside Provider status changed");
+        if (provider == LocationManager.GPS_PROVIDER)
+        {
+            Log.v(TAG,"GPS Provider status changed");
+            if(status == LocationProvider.OUT_OF_SERVICE){
+                Log.v(TAG,"GPS Provider has gone out of service");
+            }
+            else if(status == LocationProvider.TEMPORARILY_UNAVAILABLE){
+                Log.v(TAG,"GPS Provider is temporarily unavailable");
+            }
+            else if (status == LocationProvider.AVAILABLE){
+                Log.v(TAG,"GPS Provider is available again");
+            }
+            //can make toast here
+        }
+        else if(provider == LocationManager.NETWORK_PROVIDER){
+            Log.v(TAG,"Network Provider status changed");
+            if(status == LocationProvider.OUT_OF_SERVICE){
+                Log.v(TAG,"Network Provider has gone out of service");
+            }
+            else if(status == LocationProvider.TEMPORARILY_UNAVAILABLE){
+                Log.v(TAG,"Network Provider is temporarily unavailable");
+            }
+            else if (status == LocationProvider.AVAILABLE){
+                Log.v(TAG,"Network Provider is available again");
+            }
+            //can make toast here
+        }
     }
 
     @Override

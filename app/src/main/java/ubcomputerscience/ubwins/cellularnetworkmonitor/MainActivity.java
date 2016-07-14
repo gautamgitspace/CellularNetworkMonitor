@@ -82,11 +82,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private static final int REQUEST_PHONE = 1;
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
+    LocationFinder locationFinder;
 
     private GoogleApiClient mGoogleApiClient;
     public LocationRequest mLocationRequest;
-    public String FusedApiLatitude;
-    public String FusedApiLongitude;
+    public static String FusedApiLatitude;
+    public static String FusedApiLongitude;
 
     //Exports SQLiteDB to CSV file in Phone Storage
     public void exportToCSV()
@@ -115,16 +116,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 DBHandler dbHandler = new DBHandler(getApplicationContext());
                 SQLiteDatabase sqLiteDatabase = dbHandler.getReadableDatabase();
                 Cursor curCSV = sqLiteDatabase.rawQuery("select * from cellRecords", null);
-                printWriter.println("Latitude,Longitude,locality,city,state,country,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI,DATA_STATE,DATA_ACTIVITY");
+                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI,DATA_STATE,DATA_ACTIVITY");
                 while(curCSV.moveToNext())
                 {
-                    Double latitude = curCSV.getDouble(curCSV.getColumnIndex("LAT"));
-                    Double longitude = curCSV.getDouble(curCSV.getColumnIndex("LONG"));
+                    String lmLatitude = curCSV.getString(curCSV.getColumnIndex("N_LAT"));
+                    String lmLongitude = curCSV.getString(curCSV.getColumnIndex("N_LONG"));
+                    String fLatitude = curCSV.getString(curCSV.getColumnIndex("F_LAT"));
+                    String fLongitude = curCSV.getString(curCSV.getColumnIndex("F_LONG"));
                     String networkProvider = curCSV.getString(curCSV.getColumnIndex("NETWORK_PROVIDER"));
-                    String locality = curCSV.getString(curCSV.getColumnIndex("LOCALITY"));
-                    String city = curCSV.getString(curCSV.getColumnIndex("CITY"));
-                    String stateName = curCSV.getString(curCSV.getColumnIndex("STATE"));
-                    String country = curCSV.getString(curCSV.getColumnIndex("COUNTRY"));
 
                     String timeStamp = curCSV.getString(curCSV.getColumnIndex("TIMESTAMP"));
                     String networkType = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE"));
@@ -133,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     String dataState = curCSV.getString(curCSV.getColumnIndex("DATA_STATE"));
                     String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
 
-                    String record = latitude + "," + longitude + "," + locality + "," + city + "," + stateName + "," + country + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI+ "," + dataState + "," + dataActivity;
+                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI+ "," + dataState + "," + dataActivity;
                     Log.v(TAG, "attempting to write to file");
                     printWriter.println(record);
                     Log.v(TAG, "data written to file");
@@ -169,9 +168,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     {
         File sd = Environment.getExternalStorageDirectory();
         File data = Environment.getDataDirectory();
-        FileChannel source = null;
-        FileChannel destination = null;
-        String currentDBPath = "/data/" + "ubwins.ubcomputerscience.netanalyzer" + "/databases/" + "mainTuple";
+        FileChannel source;
+        FileChannel destination;
+        String currentDBPath = "/data/" + "ubwins.ubcomputerscience.cellularnetworkmonitor" + "/databases/" + "mainTuple";
         String backupDBPath = "mainTuple";
         File currentDB = new File(data, currentDBPath);
         File backupDB = new File(sd, backupDBPath);
@@ -199,6 +198,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Creating googleApiClient for Fused Location Provider
+
+        buildGoogleApiClient();
+
+        //Finished creating the GoogleAPIClient
 
 
         mLayout = findViewById(R.id.myLayout);
@@ -248,17 +252,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     "Storage permission has already been granted.");
             //carry on
         }
-
-        //Creating googleApiClient for Fused Location Provider
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        //Finished creating the GoogleAPIClient
-
 
 
         Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
@@ -315,6 +308,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 @Override
                 public void onClick(View arg0)
                 {
+
+                    //connecting googleApiClient
+
+                    mGoogleApiClient.connect();
+
+                    //finished connecting API Client
+                    locationFinder = new LocationFinder(getApplicationContext());
+                    //calling getLocation() from Location provider
+                    locationFinder.getLocation();
+
+
+
                     alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                     int interval = 10000; // 10 seconds
 
@@ -339,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onStart(){
         super.onStart();
-        mGoogleApiClient.connect();
+
     }
 
     @Override
@@ -361,6 +366,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         Log.i(TAG,"Location data has changed");
         FusedApiLatitude = Double.toString(location.getLatitude());
         FusedApiLongitude = Double.toString(location.getLongitude());
+        Log.i(TAG,"apiLat is : "+FusedApiLatitude);
+        Log.i(TAG,"apiLong  is : "+FusedApiLongitude);
 
     }
 
@@ -373,6 +380,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult){
         Log.i(TAG,"Google Api client connection has failed");
+    }
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
 

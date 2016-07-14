@@ -19,41 +19,19 @@ public class DBstore
 {
     static final String TAG = "[CELNETMON-DBSTORE]";
     private final Context mContext;
-    LocationFinder locationFinder;
-    String locality;
-    String adminArea;
-    String countryCode;
-    String throughFare;
-    String providerType;
-    Double latitude;
-    Double longitude;
+
 
     public DBstore(Context context)
     {
         this.mContext=context;
     }
 
-    public void insertIntoDB(Location location, String timeStamp, String cellularInfo, String dataActivity, String dataState)
+    public void insertIntoDB(String[] locationdata, String timeStamp, String cellularInfo, String dataActivity, String dataState)
     {
         ContentValues contentValues = new ContentValues();
         DBHandler dbHandler = new DBHandler(mContext);
         SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
-        if(location!=null) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-        }
-        else
-        {
-            latitude=null;
-            longitude=null;
-        }
 
-        locationFinder = new LocationFinder(mContext);
-//        locationFinder.addressResolver(location);
-//        locality=locationFinder.getLocality();
-//        adminArea=locationFinder.getAdminArea();
-//        countryCode=locationFinder.getCountryCode();
-//        throughFare=locationFinder.getThroughFare();
 
         Log.v(TAG, "before split: " + cellularInfo);
         String[] splitter = cellularInfo.split("@");
@@ -67,13 +45,11 @@ public class DBstore
         String networkRSSI = splitter1[1];
 
         Log.v(TAG,"Trying to push to DB");
-        contentValues.put("LAT",latitude);
-        contentValues.put("LONG",longitude);
-        contentValues.put("NETWORK_PROVIDER", providerType);
-        contentValues.put("LOCALITY","");
-        contentValues.put("CITY","");
-        contentValues.put("STATE","");
-        contentValues.put("COUNTRY","");
+        contentValues.put("N_LAT",locationdata[0]);
+        contentValues.put("N_LONG",locationdata[1]);
+        contentValues.put("F_LAT",locationdata[2]);
+        contentValues.put("F_LONG",locationdata[3]);
+        contentValues.put("NETWORK_PROVIDER", locationdata[4]);
         contentValues.put("TIMESTAMP",timeStamp);
         contentValues.put("NETWORK_TYPE", networkType);
         contentValues.put("NETWORK_STATE", networkState);
