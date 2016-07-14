@@ -44,8 +44,16 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.design.widget.Snackbar;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
@@ -63,22 +71,22 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
 {
 
     public final String TAG = "[CELNETMON-ACTIVITY]";
-    //protected GoogleApiClient mGoogleApiClient;
     Button track;
-    DBstore dbStore;
-    CellularDataRecorder cdr;
-    LocationFinder locationFinder;
-    Location location;
     private View mLayout;
     private static final int REQUEST_LOCATION = 0;
     private static final int REQUEST_STORAGE = 2;
     private static final int REQUEST_PHONE = 1;
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
+
+    private GoogleApiClient mGoogleApiClient;
+    public LocationRequest mLocationRequest;
+    public String FusedApiLatitude;
+    public String FusedApiLongitude;
 
     //Exports SQLiteDB to CSV file in Phone Storage
     public void exportToCSV()
@@ -241,6 +249,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             //carry on
         }
 
+        //Creating googleApiClient for Fused Location Provider
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        //Finished creating the GoogleAPIClient
+
+
+
         Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarmIntent, 0);
 
@@ -313,6 +333,49 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             n.printStackTrace();
         }
     }
+
+    //create the overridden functions for FusedAPI
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop(){
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(10000);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location){
+        Log.i(TAG,"Location data has changed");
+        FusedApiLatitude = Double.toString(location.getLatitude());
+        FusedApiLongitude = Double.toString(location.getLongitude());
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i){
+        Log.i(TAG,"Google Api client has been suspended");
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult){
+        Log.i(TAG,"Google Api client connection has failed");
+    }
+
+
 
     public void cancelAlarm(View view)
     {

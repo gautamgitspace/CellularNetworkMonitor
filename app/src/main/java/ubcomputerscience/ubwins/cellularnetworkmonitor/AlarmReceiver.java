@@ -47,6 +47,8 @@ public class AlarmReceiver extends BroadcastReceiver
             String dataActivity = cdr.getCurrentDataActivity(telephonyManager);
             String dataState = cdr.getCurrentDataState(telephonyManager);
             String mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
+            String fusedApiLatitude = mainActivity.FusedApiLatitude;
+            String fusedApiLongitude = mainActivity.FusedApiLongitude;
 
             Log.v(TAG, "TIME STAMP: " + timeStamp);
             Log.v(TAG, "CELLULAR INFO: " + cellularInfo);
@@ -57,15 +59,6 @@ public class AlarmReceiver extends BroadcastReceiver
             dbStore = new DBstore(arg0);
             dbStore.insertIntoDB(location, timeStamp, cellularInfo, dataActivity, dataState);
 
-//                locationFinder.addressResolver(location);
-//                double latitude = location.getLatitude();
-//                double longitude = location.getLongitude();
-//                String countryCode = locationFinder.getCountryCode();
-//                String adminArea = locationFinder.getAdminArea();
-//                String locality = locationFinder.getLocality();
-//                String throughFare = locationFinder.getThroughFare();
 //
-//                Toast.makeText(getApplicationContext(), "You are at - " + throughFare + ", " + locality + ", " + adminArea + ", " + countryCode + "\n" +
-//                        "Latitude: " + latitude + "\nLongitude: " + longitude, Toast.LENGTH_LONG).show();
     }
 }
