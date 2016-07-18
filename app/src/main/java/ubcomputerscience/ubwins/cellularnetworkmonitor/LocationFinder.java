@@ -56,20 +56,13 @@ public class LocationFinder extends Service implements LocationListener
         locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if (isGPSEnabled) {
-            try {
+            try
+            {
                 Log.v(TAG, "GPS Based Location Services are ENABLED");
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, updateInterval, distance, this);
-//                if (locationManager != null) {
-//                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-//                    if (location != null) {
-//                        Log.v(TAG, "LOCATION: GPS BASED");
-//                        latitude = location.getLatitude();
-//                        longitude = location.getLongitude();
-//                        Log.v(TAG, "LAT: " + Double.toString(latitude));
-//                        Log.v(TAG, "LONG: " + Double.toString(longitude));
-//                    }
-//                }
-            } catch (SecurityException s) {
+            }
+            catch (SecurityException s)
+            {
                 s.printStackTrace();
             }
         } else {
@@ -79,22 +72,9 @@ public class LocationFinder extends Service implements LocationListener
                 locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
 
-//                if (locationManager == null) {
-//                    Log.v(TAG, "location manager returned null");
-//                }
-//                if (locationManager != null) {
-//                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//                    if (location != null) {
-//                        Log.v(TAG, "LOCATION: NETWORK BASED");
-//                        latitude = location.getLatitude();
-//                        longitude = location.getLongitude();
-//                        Log.v(TAG, "LAT: " + Double.toString(latitude));
-//                        Log.v(TAG, "LONG: " + Double.toString(longitude));
-//                    } else {
-//                        Log.v(TAG, "Location returned null");
-//                    }
-//                }
-            } catch (SecurityException s) {
+            }
+            catch (SecurityException s)
+            {
                 s.printStackTrace();
             }
 
@@ -102,45 +82,48 @@ public class LocationFinder extends Service implements LocationListener
         }
     }
 
-//    public void addressResolver(Location location)
-//    {
-//
-//        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-//        geocoder = new Geocoder(mContext);
-//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-//        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-//        try {
-//            if (isConnected)
-//            {
-//                Log.v(TAG, "Attempting to resolve address");
-//                List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-//                if (locationList.get(0).getLocality() != null)
-//                {
-//                    locality = locationList.get(0).getLocality();
-//                    Log.v(TAG, "[LOCALITY]" + locality);
-//                }
-//                if (locationList.get(0).getAdminArea() != null)
-//                {
-//                    adminArea = locationList.get(0).getAdminArea();
-//                    Log.v(TAG, "[ADMIN AREA]" + adminArea);
-//                }
-//                if (locationList.get(0).getCountryName() != null)
-//                {
-//                    countryCode = locationList.get(0).getCountryName();
-//                    Log.v(TAG, "[COUNTRY]" + countryCode);
-//                }
-//                if (locationList.get(0).getThoroughfare() != null)
-//                {
-//                    throughFare = locationList.get(0).getThoroughfare();
-//                    Log.v(TAG, "[THROUGH FARE]" + throughFare);
-//                }
-//            }
-//        } catch (IOException e)
-//        {
-//            e.printStackTrace();
-//        }
-//
-//    }
+    /* METHOD TO RESOLVE GEO COORDINATES
+    public void addressResolver(Location location)
+    {
+
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        geocoder = new Geocoder(mContext);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        try {
+            if (isConnected)
+            {
+                Log.v(TAG, "Attempting to resolve address");
+                List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                if (locationList.get(0).getLocality() != null)
+                {
+                    locality = locationList.get(0).getLocality();
+                    Log.v(TAG, "[LOCALITY]" + locality);
+                }
+                if (locationList.get(0).getAdminArea() != null)
+                {
+                    adminArea = locationList.get(0).getAdminArea();
+                    Log.v(TAG, "[ADMIN AREA]" + adminArea);
+                }
+                if (locationList.get(0).getCountryName() != null)
+                {
+                    countryCode = locationList.get(0).getCountryName();
+                    Log.v(TAG, "[COUNTRY]" + countryCode);
+                }
+                if (locationList.get(0).getThoroughfare() != null)
+                {
+                    throughFare = locationList.get(0).getThoroughfare();
+                    Log.v(TAG, "[THROUGH FARE]" + throughFare);
+                }
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    */
 
     @Override
     public void onLocationChanged(Location location)
@@ -162,7 +145,6 @@ public class LocationFinder extends Service implements LocationListener
         Log.v(TAG,"inside Provider disabled");
         if (provider == LocationManager.GPS_PROVIDER){
             Log.v(TAG,"GPS Provider disabled by user");
-
             //can make toast here
         }
         else if(provider == LocationManager.NETWORK_PROVIDER){

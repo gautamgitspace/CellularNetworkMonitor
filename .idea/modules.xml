@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CellNetMon-Final.iml" filepath="$PROJECT_DIR$/CellNetMon-Final.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CellularNetworkMonitor.iml" filepath="$PROJECT_DIR$/CellularNetworkMonitor.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
