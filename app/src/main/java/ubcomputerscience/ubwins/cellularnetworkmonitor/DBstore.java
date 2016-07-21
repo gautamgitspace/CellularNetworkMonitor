@@ -28,22 +28,27 @@ public class DBstore
 
     public void insertIntoDB(String[] locationdata, String timeStamp, String cellularInfo, String dataActivity, String dataState)
     {
+        String networkType = "";
+        String networkState = "";
+        String networkRSSI = "";
         ContentValues contentValues = new ContentValues();
         DBHandler dbHandler = new DBHandler(mContext);
         SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
 
+        if(!(cellularInfo.equals("")))
+        {
 
-        Log.v(TAG, "before split: " + cellularInfo);
-        String[] splitter = cellularInfo.split("@");
-        Log.v(TAG, "splitter of zero: "+splitter[0]);
-        Log.v(TAG, "splitter of one: "+splitter[1]);
-        String networkType = splitter[0];
-        String splitter1[] = splitter[1].split("_");
-        String networkState = splitter1[0];
-        Log.v(TAG,"splitter1 of zero: " + splitter1[0]);
-        Log.v(TAG,"splitter1 of one: " + splitter1[1]);
-        String networkRSSI = splitter1[1];
-
+            Log.v(TAG, "before split: " + cellularInfo);
+            String[] splitter = cellularInfo.split("@");
+            Log.v(TAG, "splitter of zero: " + splitter[0]);
+            Log.v(TAG, "splitter of one: " + splitter[1]);
+            networkType = splitter[0];
+            String splitter1[] = splitter[1].split("_");
+            networkState = splitter1[0];
+            Log.v(TAG, "splitter1 of zero: " + splitter1[0]);
+            Log.v(TAG, "splitter1 of one: " + splitter1[1]);
+            networkRSSI = splitter1[1];
+        }
         Log.v(TAG,"Trying to push to DB");
         contentValues.put("N_LAT",locationdata[0]);
         contentValues.put("N_LONG",locationdata[1]);

@@ -32,6 +32,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
@@ -82,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private AlarmManager alarmManager;
     private PendingIntent pendingIntent;
     LocationFinder locationFinder;
+    HandlerReceiver handlerReceiver;
+    Handler h = null;
 
     private GoogleApiClient mGoogleApiClient;
     public LocationRequest mLocationRequest;
@@ -203,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         //Finished creating the GoogleAPIClient
 
+        handlerReceiver = new HandlerReceiver();
 
         mLayout = findViewById(R.id.myLayout);
         //Ask for permissions here itself(both for final app and one write to storage for generating CSV file)
@@ -317,13 +321,28 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     //calling getLocation() from Location provider
                     locationFinder.getLocation();
 
+                     /*TESTING HANDLER*/
+                    h = new Handler();
+                    h.postDelayed(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            Log.v(TAG,"testing handler");
+                            handlerReceiver.onHandlerReceiver(getApplicationContext());
+                            h.postDelayed(this, 1000);
+                        }
+                    }, 500);
 
+                    Toast.makeText(getApplicationContext(), "Handler Set", Toast.LENGTH_SHORT).show();
 
+                    /*create alarm
                     alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                     int interval = 10000; // 10 seconds
 
                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
                     Toast.makeText(getApplicationContext(), "Alarm Set", Toast.LENGTH_SHORT).show();
+                    */
 
                     Log.v(TAG, "inside onClick");
 
@@ -347,7 +366,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop()
+    {
         mGoogleApiClient.disconnect();
         super.onStop();
     }
@@ -392,11 +412,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     public void cancelAlarm(View view)
     {
-        if (alarmManager != null) {
+        /*stop handler*/
+        h.removeCallbacksAndMessages(null);
+        /*to disconnect google api client*/
+        mGoogleApiClient.disconnect();
+        /* stop alarm
+        if (alarmManager != null)
+        {
             alarmManager.cancel(pendingIntent);
             Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
         }
-
+        */
     }
 
     public void requestLocationPermission()
