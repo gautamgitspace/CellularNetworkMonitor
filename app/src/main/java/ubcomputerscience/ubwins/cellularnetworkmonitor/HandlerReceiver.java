@@ -35,8 +35,8 @@ public class HandlerReceiver
      String dataActivity = cdr.getCurrentDataActivity(telephonyManager);
      String dataState = cdr.getCurrentDataState(telephonyManager);
      String mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
-     String fusedApiLatitude = mainActivity.FusedApiLatitude;
-     String fusedApiLongitude = mainActivity.FusedApiLongitude;
+     String fusedApiLatitude = ForegroundService.FusedApiLatitude;
+     String fusedApiLongitude = ForegroundService.FusedApiLongitude;
      String lmLatitude = Double.toString(locationFinder.latitude);
      String lmLongitude = Double.toString(locationFinder.longitude);
      String locationProvider = locationFinder.locationProvider;

@@ -18,12 +18,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver android:name=".AlarmReceiver"> </receiver>
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+                  android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <receiver android:name=".PhoneCallStateRecorder">
             <intent-filter>
@@ -33,6 +35,9 @@
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
             </intent-filter>
         </receiver>
+
+        <service android:name=".ForegroundService" >
+        </service>
     </application>
 
 </manifest>

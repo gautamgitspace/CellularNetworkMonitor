@@ -18,41 +18,36 @@ package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
+
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
+
 import android.support.annotation.NonNull;
-import android.os.StrictMode;
+
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Menu;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
+
 import android.widget.Toast;
 import android.support.design.widget.Snackbar;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+
 
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -71,7 +66,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback ,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback
 {
 
     public final String TAG = "[CELNETMON-ACTIVITY]";
@@ -80,119 +75,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private static final int REQUEST_LOCATION = 0;
     private static final int REQUEST_STORAGE = 2;
     private static final int REQUEST_PHONE = 1;
-    private AlarmManager alarmManager;
-    private PendingIntent pendingIntent;
-    LocationFinder locationFinder;
-    HandlerReceiver handlerReceiver;
-    Handler h = null;
 
-    private GoogleApiClient mGoogleApiClient;
-    public LocationRequest mLocationRequest;
+    Handler h = null;
     public static String FusedApiLatitude;
     public static String FusedApiLongitude;
 
     //Exports SQLiteDB to CSV file in Phone Storage
-    public void exportToCSV()
-    {
-
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state))
-        {
-            Toast.makeText(this, "MEDIA MOUNT ERROR!", Toast.LENGTH_LONG).show();
-        }
-        else
-        {
-            File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            if (!exportDir.exists())
-            {
-                exportDir.mkdirs();
-                Log.v(TAG, "Directory made");
-            }
-
-            File file = new File(exportDir, "CellularData.csv") ;
-            PrintWriter printWriter = null;
-            try
-            {
-                file.createNewFile();
-                printWriter = new PrintWriter(new FileWriter(file));
-                DBHandler dbHandler = new DBHandler(getApplicationContext());
-                SQLiteDatabase sqLiteDatabase = dbHandler.getReadableDatabase();
-                Cursor curCSV = sqLiteDatabase.rawQuery("select * from cellRecords", null);
-                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI,DATA_STATE,DATA_ACTIVITY");
-                while(curCSV.moveToNext())
-                {
-                    String lmLatitude = curCSV.getString(curCSV.getColumnIndex("N_LAT"));
-                    String lmLongitude = curCSV.getString(curCSV.getColumnIndex("N_LONG"));
-                    String fLatitude = curCSV.getString(curCSV.getColumnIndex("F_LAT"));
-                    String fLongitude = curCSV.getString(curCSV.getColumnIndex("F_LONG"));
-                    String networkProvider = curCSV.getString(curCSV.getColumnIndex("NETWORK_PROVIDER"));
-
-                    String timeStamp = curCSV.getString(curCSV.getColumnIndex("TIMESTAMP"));
-                    String networkType = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE"));
-                    String networkState = curCSV.getString(curCSV.getColumnIndex("NETWORK_STATE"));
-                    String networkRSSI = curCSV.getString(curCSV.getColumnIndex("NETWORK_RSSI"));
-                    String dataState = curCSV.getString(curCSV.getColumnIndex("DATA_STATE"));
-                    String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
-
-                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI+ "," + dataState + "," + dataActivity;
-                    Log.v(TAG, "attempting to write to file");
-                    printWriter.println(record);
-                    Log.v(TAG, "data written to file");
-                }
-                curCSV.close();
-                sqLiteDatabase.close();
-            }
-
-            catch(Exception exc)
-            {
-                exc.printStackTrace();
-                Toast.makeText(this, "ERROR!", Toast.LENGTH_LONG).show();
-            }
-            finally
-            {
-                if(printWriter != null) printWriter.close();
-            }
-
-            //If there are no errors, return true.
-            Toast.makeText(this, "DB Exported to CSV file!", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void deleteDB()
-    {
-        boolean result = this.deleteDatabase("mainTuple");
-        if (result==true)
-        {
-            Toast.makeText(this, "DB Deleted!", Toast.LENGTH_LONG).show();
-        }
-    }
-    private void exportDB()
-    {
-        File sd = Environment.getExternalStorageDirectory();
-        File data = Environment.getDataDirectory();
-        FileChannel source;
-        FileChannel destination;
-        String currentDBPath = "/data/" + "ubwins.ubcomputerscience.cellularnetworkmonitor" + "/databases/" + "mainTuple";
-        String backupDBPath = "mainTuple";
-        File currentDB = new File(data, currentDBPath);
-        File backupDB = new File(sd, backupDBPath);
-        if (currentDB.exists())
-        {
-            try
-            {
-                source = new FileInputStream(currentDB).getChannel();
-                destination = new FileOutputStream(backupDB).getChannel();
-                destination.transferFrom(source, 0, source.size());
-                source.close();
-                destination.close();
-                Toast.makeText(this, "DB Exported!", Toast.LENGTH_LONG).show();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
 
 
     @Override
@@ -202,15 +90,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         setContentView(R.layout.activity_main);
         //Creating googleApiClient for Fused Location Provider
 
-        buildGoogleApiClient();
-
-        //Finished creating the GoogleAPIClient
-
-        handlerReceiver = new HandlerReceiver();
-
         mLayout = findViewById(R.id.myLayout);
         //Ask for permissions here itself(both for final app and one write to storage for generating CSV file)
-
         //First, read location permission
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -257,9 +138,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
 
 
-        Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarmIntent, 0);
-
         Log.v(TAG,"NetAnalyzer Service Started");
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -271,6 +149,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             assert button!=null;
             button.setEnabled(false);
         }
+        ImageButton imageButton = (ImageButton) findViewById(R.id.btnShowLocation);
+        Button cancelAlarmButton = (Button)findViewById(R.id.button5);
+
+        imageButton.setOnClickListener(this);
+        cancelAlarmButton.setOnClickListener(this);
 
         track = (Button) findViewById(R.id.button1);
         track.setOnClickListener(new View.OnClickListener() {
@@ -301,128 +184,31 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
-        ImageButton imageButton = (ImageButton) findViewById(R.id.btnShowLocation);
+
 
         assert imageButton!=null;
+    }
 
-        try {
-            imageButton.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View arg0)
-                {
+    //create the overridden function for onClickListener
 
-                    //connecting googleApiClient
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnShowLocation:
+                Intent startIntent = new Intent(MainActivity.this, ForegroundService.class);
+                startIntent.setAction("startforeground");
+                startService(startIntent);
+                break;
+            case R.id.button5:
+                Intent stopIntent = new Intent(MainActivity.this, ForegroundService.class);
+                stopIntent.setAction("stopforeground");
+                startService(stopIntent);
+                break;
 
-                    mGoogleApiClient.connect();
-
-                    //finished connecting API Client
-                    locationFinder = new LocationFinder(getApplicationContext());
-                    //calling getLocation() from Location provider
-                    locationFinder.getLocation();
-
-                     /*TESTING HANDLER*/
-                    h = new Handler();
-                    h.postDelayed(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            Log.v(TAG,"testing handler");
-                            handlerReceiver.onHandlerReceiver(getApplicationContext());
-                            h.postDelayed(this, 1000);
-                        }
-                    }, 500);
-
-                    Toast.makeText(getApplicationContext(), "Handler Set", Toast.LENGTH_SHORT).show();
-
-                    /*create alarm
-                    alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-                    int interval = 10000; // 10 seconds
-
-                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-                    Toast.makeText(getApplicationContext(), "Alarm Set", Toast.LENGTH_SHORT).show();
-                    */
-
-                    Log.v(TAG, "inside onClick");
-
-                }
-
-
-            });
+            default:
+                break;
         }
-        catch (NullPointerException n)
-        {
-            n.printStackTrace();
-        }
-    }
 
-    //create the overridden functions for FusedAPI
-
-    @Override
-    protected void onStart(){
-        super.onStart();
-
-    }
-
-    @Override
-    protected void onStop()
-    {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(10000);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest, this);
-    }
-
-    @Override
-    public void onLocationChanged(Location location){
-        Log.i(TAG,"Location data has changed");
-        FusedApiLatitude = Double.toString(location.getLatitude());
-        FusedApiLongitude = Double.toString(location.getLongitude());
-        Log.i(TAG,"apiLat is : "+FusedApiLatitude);
-        Log.i(TAG,"apiLong  is : "+FusedApiLongitude);
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i){
-        Log.i(TAG,"Google Api client has been suspended");
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult){
-        Log.i(TAG,"Google Api client connection has failed");
-    }
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-    }
-
-
-
-    public void cancelAlarm(View view)
-    {
-        /*stop handler*/
-        h.removeCallbacksAndMessages(null);
-        /*to disconnect google api client*/
-        mGoogleApiClient.disconnect();
-        /* stop alarm
-        if (alarmManager != null)
-        {
-            alarmManager.cancel(pendingIntent);
-            Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
-        }
-        */
     }
 
     public void requestLocationPermission()
@@ -535,12 +321,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     {
         return android.os.Build.VERSION.RELEASE;
-    }
-
-    private void enableStrictMode()
-    {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException
@@ -660,7 +440,108 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    public void exportToCSV()
+    {
+
+        String state = Environment.getExternalStorageState();
+        if (!Environment.MEDIA_MOUNTED.equals(state))
+        {
+            Toast.makeText(this, "MEDIA MOUNT ERROR!", Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!exportDir.exists())
+            {
+                exportDir.mkdirs();
+                Log.v(TAG, "Directory made");
+            }
+
+            File file = new File(exportDir, "CellularData.csv") ;
+            PrintWriter printWriter = null;
+            try
+            {
+                file.createNewFile();
+                printWriter = new PrintWriter(new FileWriter(file));
+                DBHandler dbHandler = new DBHandler(getApplicationContext());
+                SQLiteDatabase sqLiteDatabase = dbHandler.getReadableDatabase();
+                Cursor curCSV = sqLiteDatabase.rawQuery("select * from cellRecords", null);
+                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI,DATA_STATE,DATA_ACTIVITY");
+                while(curCSV.moveToNext())
+                {
+                    String lmLatitude = curCSV.getString(curCSV.getColumnIndex("N_LAT"));
+                    String lmLongitude = curCSV.getString(curCSV.getColumnIndex("N_LONG"));
+                    String fLatitude = curCSV.getString(curCSV.getColumnIndex("F_LAT"));
+                    String fLongitude = curCSV.getString(curCSV.getColumnIndex("F_LONG"));
+                    String networkProvider = curCSV.getString(curCSV.getColumnIndex("NETWORK_PROVIDER"));
+
+                    String timeStamp = curCSV.getString(curCSV.getColumnIndex("TIMESTAMP"));
+                    String networkType = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE"));
+                    String networkState = curCSV.getString(curCSV.getColumnIndex("NETWORK_STATE"));
+                    String networkRSSI = curCSV.getString(curCSV.getColumnIndex("NETWORK_RSSI"));
+                    String dataState = curCSV.getString(curCSV.getColumnIndex("DATA_STATE"));
+                    String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
+
+                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI+ "," + dataState + "," + dataActivity;
+                    printWriter.println(record);
+                }
+                curCSV.close();
+                sqLiteDatabase.close();
+            }
+
+            catch(Exception exc)
+            {
+                exc.printStackTrace();
+                Toast.makeText(this, "ERROR!", Toast.LENGTH_LONG).show();
+            }
+            finally
+            {
+                if(printWriter != null) printWriter.close();
+            }
+
+            //If there are no errors, return true.
+            Toast.makeText(this, "DB Exported to CSV file!", Toast.LENGTH_LONG).show();
+        }
     }
+
+    private void deleteDB()
+    {
+        boolean result = this.deleteDatabase("mainTuple");
+        if (result==true)
+        {
+            Toast.makeText(this, "DB Deleted!", Toast.LENGTH_LONG).show();
+        }
+    }
+    private void exportDB()
+    {
+        File sd = Environment.getExternalStorageDirectory();
+        File data = Environment.getDataDirectory();
+        FileChannel source;
+        FileChannel destination;
+        String currentDBPath = "/data/" + "ubcomputerscience.ubwins.cellularnetworkmonitor" + "/databases/" + "mainTuple";
+        String backupDBPath = "mainTuple";
+        File currentDB = new File(data, currentDBPath);
+        File backupDB = new File(sd, backupDBPath);
+        if (currentDB.exists())
+        {
+            try
+            {
+                source = new FileInputStream(currentDB).getChannel();
+                destination = new FileOutputStream(backupDB).getChannel();
+                destination.transferFrom(source, 0, source.size());
+                source.close();
+                destination.close();
+                Toast.makeText(this, "DB Exported!", Toast.LENGTH_LONG).show();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+}
 
 
 
