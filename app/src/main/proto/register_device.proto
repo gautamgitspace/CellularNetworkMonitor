@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option java_package = "edu.buffalo.cse.ubwins.cellmon";
+
+message RegisterDevice {
+    string IMEI_HASH = 1;
+    
+    /* https://developer.android.com/reference/android/os/Build.html */
+    string BOARD = 2;
+    string BRAND = 3;
+    string DEVICE = 4;
+    string HARDWARE = 5;
+    string MANUFACTURER = 6;
+    string MODEL = 7;
+    string PRODUCT = 8;
+
+    /* https://developer.android.com/reference/android/telephony/TelephonyManager.html */
+    string NETWORK_COUNTRY_ISO = 9;
+    string NETWORK_OPERATOR_CODE = 10;
+    string NETWORK_OPERATOR_NAME = 11;
+    string PHONE_TYPE = 12;
+    string SIM_COUNTRY_ISO = 13;
+    string SIM_OPERATOR = 14;
+    string SIM_OPERATOR_NAME = 15;
+
+    /* https://developer.android.com/reference/android/os/Build.VERSION.html */
+    string RELEASE = 16;
+    string SDK_INT = 17;
+}

@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+option java_package = "edu.buffalo.cse.ubwins.cellmon";
+
+message DataEntry {
+    /* Timestamp */
+    uint64 TIMESTAMP = 1;
+    
+    /* Location */
+    double NETWORK_LAT = 2;
+    double NETWORK_LONG = 3;
+    double FUSED_LAT = 4;
+    double FUSED_LONG = 5;
+    enum LocProvider {
+        NETWORK_PROVIDER = 0;
+        GPS_PROVIDER = 1;
+    }
+    LocProvider LOCATION_PROVIDER = 6;
+
+    /* https://developer.android.com/reference/android/telephony/TelephonyManager.html */
+    enum NetType {
+        NETWORK_TYPE_UNKNOWN = 0;
+        NETWORK_TYPE_GPRS = 1;
+        NETWORK_TYPE_EDGE = 2;
+        NETWORK_TYPE_UMTS = 3; 
+        NETWORK_TYPE_HSDPA = 4;
+        NETWORK_TYPE_HSUPA = 5;
+        NETWORK_TYPE_HSPA = 6;
+        NETWORK_TYPE_CDMA = 7;
+        NETWORK_TYPE_EVDO_0 = 8;
+        NETWORK_TYPE_EVDO_A = 9;
+        NETWORK_TYPE_EVDO_B = 10;
+        NETWORK_TYPE_1xRTT = 11;
+        NETWORK_TYPE_IDEN = 12;
+        NETWORK_TYPE_LTE = 13;
+        NETWORK_TYPE_EHRPD = 14;
+    }
+    NetType NETWORK_TYPE = 7;
+
+    /* https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() */
+    enum CellType {
+        GSM = 0;
+        CDMA = 1;
+        WCDMA = 2;
+        LTE = 3;
+    }
+    CellType NETWORK_CELL_TYPE = 8;
+
+    /* Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() */
+    int32 NETWORK_PARAM_1 = 9;
+    int32 NETWORK_PARAM_2 = 10;
+    int32 NETWORK_PARAM_3 = 11;
+    int32 NETWORK_PARAM_4 = 12;
+
+    /* https://developer.android.com/reference/android/telephony/CellSignalStrength.html */
+    int32 SIGNAL_ASU_LEVEL = 13;
+    sint32 SIGNAL_DBM = 14;
+    int32 SIGNAL_LEVEL = 15;
+    
+    /* https://developer.android.com/reference/android/net/NetworkInfo.DetailedState.html */
+    enum NetState {
+        UNKNOWN = 0;
+        IDLE = 1;
+        SCANNING = 2; 
+        CONNECTING = 3;
+        AUTHENTICATING = 4;
+        OBTAINING_IPADDR = 5;
+        CONNECTED = 6;
+        SUSPENDED = 7;
+        DISCONNECTING = 8;
+        DISCONNECTED = 9;
+        FAILED = 10;
+    }
+    NetState NETWORK_STATE = 16;
+
+    /* https://developer.android.com/reference/android/telephony/TelephonyManager.html#getDataActivity() */
+    enum DataActivity {
+        DATA_ACTIVITY_NONE = 0;
+        DATA_ACTIVITY_IN = 1;
+        DATA_ACTIVITY_OUT = 2;
+        DATA_ACTIVITY_INOUT = 3;
+        DATA_ACTIVITY_DORMANT = 4;
+        DATA_ACTIVITY_UNKNOWN = 5;
+    }
+    DataActivity NETWORK_DATA_ACTIVITY = 17;
+
+    /* https://developer.android.com/reference/android/telephony/TelephonyManager.html */
+    enum VoiceCallActivity {
+        CALL_STATE_IDLE = 0;
+        CALL_STATE_RINGING = 1;
+        CALL_STATE_OFFHOOK = 2;
+    }
+    VoiceCallActivity VOICE_CALL_STATE = 18;
+}
+
+message DataRecord {
+    string IMEI_HASH = 1;
+    string NETWORK_OPERATOR_CODE = 2;
+    string NETWORK_OPERATOR_NAME = 3;
+
+    repeated DataEntry ENTRY = 4;
+}
