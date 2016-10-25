@@ -59,6 +59,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import android.util.Base64;
+import android.app.ActivityManager;
+
+import com.pushlink.android.PushLink;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback
 {
@@ -102,14 +105,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mLayout = findViewById(R.id.myLayout);
         /*Ask for permissions here itself(both for final app and one write to storage for generating CSV file)*/
 
-
+        if(isMyServiceRunning(ForegroundService.class)){
+            startTrackingButton.setEnabled(false);
+            stopTrackingButton.setEnabled(true);
+        }
+        else{
+            startTrackingButton.setEnabled(true);
+            stopTrackingButton.setEnabled(false);
+        }
 
         /*DECLARE EDITOR FOR PERMISSIONS */
-        SharedPreferences.Editor editor = preferences.edit();
-        if(preferences.getBoolean("FIRST_LAUNCH",false)&&preferences.getBoolean("TRACKING",false)==false) {
-            editor.putBoolean("TRACKING", false);
-            editor.commit();
-        }
+       SharedPreferences.Editor editor = preferences.edit();
+//        if(preferences.getBoolean("FIRST_LAUNCH",false)&&preferences.getBoolean("TRACKING",false)==false) {
+//            editor.putBoolean("TRACKING", false);
+//            editor.commit();
+//        }
 
         /*First read location permission*/
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -159,27 +169,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
 
-        if(!preferences.getBoolean("FIRST_LAUNCH",false))
-        {
-            /*THIS IS THE FIRST LAUNCH*/
-            editor.putBoolean("FIRST_LAUNCH", true);
-            editor.commit();
-            stopTrackingButton.setEnabled(false);
-        }
-        else
-        {
-            /*THIS IS THE TIME USER AGAIN LAUNCHES APP*/
-            if(preferences.getBoolean("TRACKING", true))
-            {
-                stopTrackingButton.setEnabled(true);
-                startTrackingButton.setEnabled(false);
-            }
-            else
-            {
-                startTrackingButton.setEnabled(true);
-                stopTrackingButton.setEnabled(false);
-            }
-        }
+//        if(!preferences.getBoolean("FIRST_LAUNCH",false))
+//        {
+//            /*THIS IS THE FIRST LAUNCH*/
+//            editor.putBoolean("FIRST_LAUNCH", true);
+//            editor.commit();
+//            stopTrackingButton.setEnabled(false);
+//        }
+//        else
+//        {
+//            /*THIS IS THE TIME USER AGAIN LAUNCHES APP*/
+//            if(preferences.getBoolean("TRACKING", true))
+//            {
+//                stopTrackingButton.setEnabled(true);
+//                startTrackingButton.setEnabled(false);
+//            }
+//            else
+//            {
+//                startTrackingButton.setEnabled(true);
+//                stopTrackingButton.setEnabled(false);
+//            }
+//        }
 
 
         /* CALL TO REGISTER DEVICE*/
@@ -193,6 +203,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         /*Call only after all 3 permissions are granted*/
         if(!isRegistered && locPermission && storagePermission && phonePermission)
         {
+            /* PushLink Registration */
+            PushLink.start(this, R.mipmap.ic_launcher, "td6pjldtieedf3is", getIMEI());
             onRegisterClicked();
         }
         else if(isRegistered)
@@ -212,8 +224,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             button.setEnabled(false);
         }
 
-
-
         startTrackingButton.setOnClickListener(this);
         stopTrackingButton.setOnClickListener(this);
 
@@ -226,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 deleteDB();
             }
         });
+
         //TRACK BUTTON 2 - EXPORT DB
         track = (Button) findViewById(R.id.button2);
         track.setOnClickListener(new View.OnClickListener() {
@@ -234,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 exportDB();
             }
         });
+
         //TRACK BUTTON 3 - EXPORT CSV
         track = (Button) findViewById(R.id.button3);
         track.setOnClickListener(new View.OnClickListener() {
@@ -272,26 +284,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v)
     {
-        SharedPreferences.Editor editor = preferences.edit();
+//        SharedPreferences.Editor editor = preferences.edit();
         Log.e(TAG, "inside on click");
         switch (v.getId()) {
             case R.id.button4:
                 Intent startIntent = new Intent(MainActivity.this, ForegroundService.class);
                 startIntent.setAction("startforeground");
                 startService(startIntent);
-                editor.putBoolean("TRACKING", true);
-                editor.commit();
+//                editor.putBoolean("TRACKING", true);
+//                editor.commit();
                 stopTrackingButton.setEnabled(true);
                 startTrackingButton.setEnabled(false);
                 break;
             case R.id.button5:
+                if(isMyServiceRunning(ForegroundService.class))
+                {
+                    Log.v("STOP Button","Stopped");
                 Intent stopIntent = new Intent(MainActivity.this, ForegroundService.class);
                 stopIntent.setAction("stopforeground");
-                startService(stopIntent);
+                startService(stopIntent);}
                 startTrackingButton.setEnabled(true);
                 stopTrackingButton.setEnabled(false);
-                editor.putBoolean("TRACKING", false);
-                editor.commit();
+//                editor.putBoolean("TRACKING", false);
+//                editor.commit();
                 break;
             default:
                 break;
@@ -361,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     onRegisterClicked();
                 }
             } else {
-                //Log.i(TAG, "Storage permission was NOT granted.");
+               //Log.i(TAG, "Storage permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
             }
@@ -493,10 +508,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-        else
-            return false;
+        return networkInfo != null && networkInfo.isConnected();
     }
 
 
@@ -506,58 +518,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int statusCode;
         String result = "";
 
-        try {
+            try {
 
-            String IMEI = getIMEI();
-            IMEI_TO_POST = genHash(IMEI);
+                String IMEI = getIMEI();
+                IMEI_TO_POST = genHash(IMEI);
 
 
                 /*FETCH OTHER PARAMS*/
-            String board = getBoard();
-            String brand = getBrand();
-            String device = getDevice();
-            String hardware = getHardware();
-            String manufacturer = getManufacturer();
-            String modelMake = getModel();
-            String product = getProduct();
+                String board = getBoard();
+                String brand = getBrand();
+                String device = getDevice();
+                String hardware = getHardware();
+                String manufacturer = getManufacturer();
+                String modelMake = getModel();
+                String product = getProduct();
 
-            String networkCountryISO = getNetworkCountryISO();
-            String networkOperatorCode = getNetworkOperatorCode();
-            String networkOperatorName = getNetworkOperatorName();
-            String phoneType = getPhoneType();
-            String simCountryISO = getSimCountryISO();
-            String simOperator = getSimOperator();
-            String simOperatorName = getSimOperatorName();
+                String networkCountryISO = getNetworkCountryISO();
+                String networkOperatorCode = getNetworkOperatorCode();
+                String networkOperatorName = getNetworkOperatorName();
+                String phoneType = getPhoneType();
+                String simCountryISO = getSimCountryISO();
+                String simOperator = getSimOperator();
+                String simOperatorName = getSimOperatorName();
 
-            String release = getRelease();
-            String sdkInt = getSdkInt();
+                String release = getRelease();
+                String sdkInt = getSdkInt();
 
                 /*SERIALIZATION*/
-            RegisterDeviceOuterClass.RegisterDevice registerDevice = RegisterDeviceOuterClass.RegisterDevice.newBuilder()
-                    .setIMEIHASH(IMEI_TO_POST)
-                    .setBOARD(board)
-                    .setBRAND(brand)
-                    .setDEVICE(device)
-                    .setHARDWARE(hardware)
-                    .setMANUFACTURER(manufacturer)
-                    .setMODEL(modelMake)
-                    .setPRODUCT(product)
-                    .setNETWORKCOUNTRYISO(networkCountryISO)
-                    .setNETWORKOPERATORCODE(networkOperatorCode)
-                    .setNETWORKOPERATORNAME(networkOperatorName)
-                    .setPHONETYPE(phoneType)
-                    .setSIMCOUNTRYISO(simCountryISO)
-                    .setSIMOPERATOR(simOperator)
-                    .setSIMOPERATORNAME(simOperatorName)
-                    .setRELEASE(release)
-                    .setSDKINT(sdkInt).build();
+                RegisterDeviceOuterClass.RegisterDevice registerDevice = RegisterDeviceOuterClass.RegisterDevice.newBuilder()
+                        .setIMEIHASH(IMEI_TO_POST)
+                        .setBOARD(board)
+                        .setBRAND(brand)
+                        .setDEVICE(device)
+                        .setHARDWARE(hardware)
+                        .setMANUFACTURER(manufacturer)
+                        .setMODEL(modelMake)
+                        .setPRODUCT(product)
+                        .setNETWORKCOUNTRYISO(networkCountryISO)
+                        .setNETWORKOPERATORCODE(networkOperatorCode)
+                        .setNETWORKOPERATORNAME(networkOperatorName)
+                        .setPHONETYPE(phoneType)
+                        .setSIMCOUNTRYISO(simCountryISO)
+                        .setSIMOPERATOR(simOperator)
+                        .setSIMOPERATORNAME(simOperatorName)
+                        .setRELEASE(release)
+                        .setSDKINT(sdkInt).build();
 
-            byte infoToSend[] = registerDevice.toByteArray();
+                byte infoToSend[] = registerDevice.toByteArray();
 
                 /*POST LOGGING BLOCK
                 Log.v(TAG,"######################################################");
                 Log.v(TAG, "Phone Info #1: IMEI: " + IMEI);
                 Log.v(TAG, "Phone Info #1B: IMEI_BASE64_HASH: " + IMEI_TO_POST);
+
                 Log.v(TAG, "Phone Info #2: BOARD: " + board);
                 Log.v(TAG, "Phone Info #3: BRAND: " + brand);
                 Log.v(TAG, "Phone Info #4: DEVICE: " + device);
@@ -565,6 +578,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.v(TAG, "Phone Info #6: MANUFACTURER: " + manufacturer);
                 Log.v(TAG, "Phone Info #7: MODEL: " + modelMake);
                 Log.v(TAG, "Phone Info #8: PRODUCT: " + product);
+
+
                 Log.v(TAG,"Phone Info #9: NETWORK_COUNTRY_ISO: " + networkCountryISO);
                 Log.v(TAG,"Phone Info #10: NETWORK_OPERATOR_CODE: " + networkOperatorCode);
                 Log.v(TAG,"Phone Info #11: NETWORK_OPERATOR_NAME: " + networkOperatorName);
@@ -572,66 +587,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.v(TAG,"Phone Info #13: SIM_COUNTRY_ISO: " + simCountryISO);
                 Log.v(TAG,"Phone Info #14: SIM_OPERATOR: " + simOperator);
                 Log.v(TAG,"Phone Info #15: SIM_OPERATOR_NAME: " + simOperatorName);
+
                 Log.v(TAG,"Phone Info #16: RELEASE: " + release);
                 Log.v(TAG,"Phone Info #17: SDK_INT: " + sdkInt);
                 Log.v(TAG,"######################################################");
+
                 */
 
                 /*1. create HttpClient*/
-            HttpClient httpclient = new DefaultHttpClient();
+                HttpClient httpclient = new DefaultHttpClient();
 
                 /*2. make POST request to the given URL*/
-            HttpPost httpPost = new HttpPost(url);
+                HttpPost httpPost = new HttpPost(url);
 
                 /*5. Build ByteArrayEntity*/
-            //StringEntity se = new StringEntity(json);
-            ByteArrayEntity byteArrayEntity = new ByteArrayEntity(infoToSend);
+                //StringEntity se = new StringEntity(json);
+                ByteArrayEntity byteArrayEntity = new ByteArrayEntity(infoToSend);
 
                 /*6. Set httpPost Entity*/
-            httpPost.setEntity(byteArrayEntity);
-            //httpPost.setEntity(inputStreamEntity);
+                httpPost.setEntity(byteArrayEntity);
+                //httpPost.setEntity(inputStreamEntity);
 
                 /*7. Set some headers to inform server about the type of the content*/
-            //httpPost.setHeader("Accept", "application/json");
-            //httpPost.setHeader("Content-type", "application/json");
+                //httpPost.setHeader("Accept", "application/json");
+                //httpPost.setHeader("Content-type", "application/json");
 
                 /*8. Execute POST request to the given URL*/
-            HttpResponse httpResponse = httpclient.execute(httpPost);
+                HttpResponse httpResponse = httpclient.execute(httpPost);
 
                 /*9. receive response as inputStream*/
-            statusCode = httpResponse.getStatusLine().getStatusCode();
+                statusCode = httpResponse.getStatusLine().getStatusCode();
 
                 /*CONVERT INPUT STREAM TO STRING*/
-            responsePhrase = EntityUtils.toString(httpResponse.getEntity());
-            Log.v(TAG, "RESPONSE" + responsePhrase);
+                responsePhrase = EntityUtils.toString(httpResponse.getEntity());
+                Log.v(TAG, "RESPONSE" + responsePhrase);
 
                 /*PARSE JSON RESPONSE*/
-            JSONObject jsonObject = new JSONObject(responsePhrase);
-            reasonPhrase= jsonObject.getString("reason");
-            statusPhrase= jsonObject.getString("status");
+                JSONObject jsonObject = new JSONObject(responsePhrase);
+                reasonPhrase= jsonObject.getString("reason");
+                statusPhrase= jsonObject.getString("status");
 
-            //Log.e(TAG, reasonPhrase);
-            //Log.e(TAG, statusPhrase);
+                //Log.e(TAG, reasonPhrase);
+                //Log.e(TAG, statusPhrase);
 
-            if(statusCode!=404)
-            {
-                result = Integer.toString(statusCode);
-                Log.v(TAG, "STATUS CODE: " + result);
+                if(statusCode!=404)
+                {
+                    result = Integer.toString(statusCode);
+                    Log.v(TAG, "STATUS CODE: " + result);
+                }
+
+                else
+                {
+                    result = Integer.toString(statusCode);
+                    //Log.v(TAG, "STATUS CODE: " + result);
+                }
+
             }
-
-            else
+            catch (Exception e)
             {
-                result = Integer.toString(statusCode);
-                //Log.v(TAG, "STATUS CODE: " + result);
+                Log.d("InputStream", e.getLocalizedMessage());
             }
-
-        }
-        catch (Exception e)
-        {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
         return result;
-    }
+        }
 
     public void onRegisterClicked()
     {
@@ -651,21 +668,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 receiver = new NetworkStateReceiver();
                 receiver.addListener(new NetworkStateReceiver.NetworkStateReceiverListener() {
-                    @Override
-                    public void networkAvailable() {
-                        //Log.v("AUTOMATE", "NETWORK IS AVAILABLE");
+                @Override
+                public void networkAvailable() {
+                    //Log.v("AUTOMATE", "NETWORK IS AVAILABLE");
 
                         onRegisterClicked();
 
-                    }
+                }
 
-                    @Override
-                    public void networkUnavailable() {
-                        //Log.v("AUTOMATE", "NETWORK IS UNAVAILABLE");
-                    }
+                @Override
+                public void networkUnavailable() {
+                    //Log.v("AUTOMATE", "NETWORK IS UNAVAILABLE");
+                }
 
-                });
-                registerReceiver(receiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+            });
+            registerReceiver(receiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
             }
         }
     }
@@ -707,6 +724,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /* EXPORT TO CSV BLOCK
     public void exportToCSV()
     {
+
         String state = Environment.getExternalStorageState();
         if (!Environment.MEDIA_MOUNTED.equals(state))
         {
@@ -720,6 +738,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 exportDir.mkdirs();
                 Log.v(TAG, "Directory made");
             }
+
             File file = new File(exportDir, "CellularData.csv") ;
             PrintWriter printWriter = null;
             try
@@ -737,6 +756,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String fLatitude = curCSV.getString(curCSV.getColumnIndex("F_LAT"));
                     String fLongitude = curCSV.getString(curCSV.getColumnIndex("F_LONG"));
                     String locationProvider = curCSV.getString(curCSV.getColumnIndex("LOCATION_PROVIDER"));
+
                     String timeStamp = curCSV.getString(curCSV.getColumnIndex("TIMESTAMP"));
                     String networkType = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE"));
                     String networkType2 = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE2"));
@@ -744,18 +764,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String networkParam2 = curCSV.getString(curCSV.getColumnIndex("NETWORK_PARAM2"));
                     String networkParam3 = curCSV.getString(curCSV.getColumnIndex("NETWORK_PARAM3"));
                     String networkParam4 = curCSV.getString(curCSV.getColumnIndex("NETWORK_PARAM4"));
+
                     String dbm = curCSV.getString(curCSV.getColumnIndex("DBM"));
                     String networklevel = curCSV.getString(curCSV.getColumnIndex("NETWORK_LEVEL"));
                     String asulevel = curCSV.getString(curCSV.getColumnIndex("ASU_LEVEL"));
                     String dataState = curCSV.getString(curCSV.getColumnIndex("DATA_STATE"));
                     String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
                     String callState = curCSV.getString(curCSV.getColumnIndex("CALL_STATE"));
+
                     String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + locationProvider + "," + timeStamp + "," + networkType + ","  + networkType2 + "," + networkParam1 + "," + networkParam2 + ","  + networkParam3 + ","  + networkParam4 + ","  + dbm + ","  + networklevel+ ","  + asulevel + "," + dataState + "," + dataActivity + "," + callState;
                     printWriter.println(record);
                 }
                 curCSV.close();
                 sqLiteDatabase.close();
             }
+
             catch(Exception exc)
             {
                 exc.printStackTrace();
@@ -788,7 +811,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         File data = Environment.getDataDirectory();
         FileChannel source;
         FileChannel destination;
-        String currentDBPath = "/data/" + "ubcomputerscience.ubwins.cellularnetworkmonitor" + "/databases/" + "mainTuple";
+        String currentDBPath = "/data/" + "ubcomputerscience.edu.buffalo.cse.ubwins.cellmon.cellularnetworkmonitor" + "/databases/" + "mainTuple";
         String backupDBPath = "mainTuple";
         File currentDB = new File(data, currentDBPath);
         File backupDB = new File(sd, backupDBPath);
@@ -821,11 +844,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             IMEI_Base64 = Base64.encodeToString(sha256Hash, Base64.DEFAULT);
             IMEI_Base64=IMEI_Base64.replaceAll("\n", "");
         }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
         return IMEI_Base64;
+    }
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

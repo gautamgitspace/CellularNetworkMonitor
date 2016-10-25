@@ -1,4 +1,11 @@
+plugins {
+    id "com.google.protobuf" version "0.8.0"
+}
 apply plugin: 'com.android.application'
+
+repositories {
+    maven { url "https://jitpack.io" }
+}
 
 android {
     compileSdkVersion 23
@@ -27,6 +34,34 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.google.android.gms:play-services:9.2.1'
     compile 'com.android.support:design:23.0.1'
-    compile 'com.google.protobuf:protobuf-java:3.0.0'
     compile 'com.android.support:multidex:1.0.1'
+    compile 'com.google.protobuf:protobuf-lite:3.0.0'
+    compile 'com.pushlink:pushlink-android:5.5.0'
+}
+
+protobuf {
+    plugins {
+        javalite {
+            // The codegen for lite comes as a separate artifact
+            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
+        }
+
+    }
+    protoc
+            {
+                path = '/usr/bin/protoc'
+                path = '/usr/local/bin/protoc'
+            }
+
+    generatedFilesBaseDir = "$projectDir/src/protobuf_autogen"
+
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                javalite {
+                    outputSubDir = 'java'
+                }
+            }
+        }
+    }
 }

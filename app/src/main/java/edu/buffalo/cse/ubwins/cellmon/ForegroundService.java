@@ -89,6 +89,14 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+
+        if(null == intent){
+            return START_STICKY;
+        }
+        else if(null == intent.getAction()){
+            return START_STICKY;
+        }
+
         if (intent.getAction().equals("startforeground"))
         {
             Log.i(LOG_TAG, "Received Start Foreground Intent ");
@@ -136,7 +144,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             }
             //Log.v(LOG_TAG, "Releasing WakeLock");
 
-            scheduler.stopScheduler();
+            Scheduler.stopScheduler();
 
             //Log.v(LOG_TAG, "Beeping Service Stoppped");
 
@@ -230,21 +238,21 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 chargingtrue = true;
                 int count = 0;
 
-                /*UPLOAD 50 HOURS OF DATA IN ONE GO*/
+                /*UPLOAD 40 HOURS OF DATA IN ONE GO*/
                 while (chargingtrue && count <= 15)
                 {
                     //Log.e("FS","Charging: inside while loop");
                     int status = getConnectivityStatus(getApplicationContext());
                     if(status == TYPE_WIFI)
                     {
-                        String res = onFetchClicked();
-                        if(res.equals("DB_EMPTY")||res.equals("Data not stale enough"))
-                        {
-                            //Log.e("FS","Charging: breaking the loop");
+                           String res = onFetchClicked();
+                           if(res.equals("DB_EMPTY")||res.equals("Data not stale enough"))
+                           {
+                               //Log.e("FS","Charging: breaking the loop");
 
-                            break;
+                               break;
 
-                        }
+                           }
 
                         count += 1;
                     }
@@ -334,12 +342,11 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         boolean uploadflag = true;
 
         if(cursor.moveToFirst()) {
-            String timeGap = DateUtils.getRelativeTimeSpanString(cursor.getLong(6), System.currentTimeMillis(), HOUR_IN_MILLIS).toString();
-            //Log.e("TIMEGAP", timeGap);
-            String timeHoursarray[] = timeGap.split(" ");
-            int hours = Integer.parseInt(timeHoursarray[0]);
-            //Log.e("TIMEGAP", "Gap in hours " + hours);
-            if(hours <= 1){
+            long timeStamp = cursor.getLong(6);
+            long currTimestamp = System.currentTimeMillis();
+            long timeGap = currTimestamp - timeStamp;
+            if(timeGap < 5*60*60*1000)
+            {
                 uploadflag = false;
                 result = "Data not stale enough";
             }
@@ -410,7 +417,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
             byte[] logToSend = recordToSend.toByteArray();
             int len = logToSend.length;
-            Log.e("SIZE","Length of the entries is : "+len);
+            Log.e("SIZE","Length of 5 entries is : "+len);
 
 
 
@@ -527,9 +534,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-        else
-            return false;
+        return networkInfo != null && networkInfo.isConnected();
     }
 }
