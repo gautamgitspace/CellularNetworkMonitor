@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,6 +16,7 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -66,8 +68,13 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     String statusPhraseLogger;
     String recordsPhraseLogger;
     String IMEI_TO_POST;
+    private final Context mContext;
+    ContentValues contentValues = new ContentValues();
 
-
+    public ForegroundService(Context context)
+    {
+        this.mContext=context;
+    }
 
 
     @Override
@@ -136,8 +143,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         }
         else if (intent.getAction().equals("stopforeground"))
         {
-            //Log.i(LOG_TAG, "Received Stop Foreground Intent");
-
             /*CANCEL SCHEDULER AND RELEASE WAKELOCK*/
             if(wakeLock.isHeld()) {
                 wakeLock.release();
@@ -145,7 +150,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             //Log.v(LOG_TAG, "Releasing WakeLock");
 
             Scheduler.stopScheduler();
-
             //Log.v(LOG_TAG, "Beeping Service Stoppped");
 
             /*to disconnect google api client*/
@@ -215,64 +219,66 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 .build();
     }
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver()
+    {
+        DBHandler dbHandler = new DBHandler(mContext);
+        SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
         boolean chargingtrue = false;
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if(action.equals("android.intent.action.ACTION_POWER_CONNECTED")){
-                //action for Charging connected
+            if(action.equals("android.intent.action.ACTION_POWER_CONNECTED"))
+            {
+                /*ACTION: CHARGING*/
                 Log.e("FS","Charging");
-                Handler handler = new Handler(Looper.getMainLooper());
 
-                handler.post(new Runnable() {
+                /*LOG BATTERY STATUS*/
+                Long timeStamp = System.currentTimeMillis();
+                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                contentValues.put("TIMESTAMP", timeStamp);
+                contentValues.put("BATTERY_LEVEL", level);
+                sqLiteDatabase.insert("batteryStatus", null, contentValues);
+                sqLiteDatabase.close();
 
-                    @Override
-                    public void run() {
-                        //Toast.makeText(ForegroundService.this.getApplicationContext(),"Charging",Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                //boolean isRegistered = preferences.getBoolean("isRegistered", false);
-                //now check for Wifi
+                /*CHECK FOR WIFI*/
                 chargingtrue = true;
                 int count = 0;
 
                 /*UPLOAD 40 HOURS OF DATA IN ONE GO*/
                 while (chargingtrue && count <= 15)
                 {
-                    //Log.e("FS","Charging: inside while loop");
+                    //Log.v("FS","Charging: inside while loop");
                     int status = getConnectivityStatus(getApplicationContext());
                     if(status == TYPE_WIFI)
                     {
                            String res = onFetchClicked();
                            if(res.equals("DB_EMPTY")||res.equals("Data not stale enough"))
                            {
-                               //Log.e("FS","Charging: breaking the loop");
-
                                break;
-
                            }
-
                         count += 1;
                     }
-                    else if(status == TYPE_MOBILE || status == TYPE_NOT_CONNECTED){
-                        //wifi disconnected
-                        //Stop uploading here
+                    else if(status == TYPE_MOBILE || status == TYPE_NOT_CONNECTED)
+                    {
+                        /*WI-FI DISCONNECTED. STOP UPLOADING HERE*/
                         break;
                     }
                 }
             }
-            else if(action.equals("android.intent.action.ACTION_POWER_DISCONNECTED")){
-                //action for Charging disconnected
+            else if(action.equals("android.intent.action.ACTION_POWER_DISCONNECTED"))
+            {
+                /*ACTION: NOT CHARGING*/
                 Log.e("FS","Not Charging");
                 chargingtrue =false;
-
-
+                /*LOG BATTERY STATUS*/
+                Long timeStamp = System.currentTimeMillis();
+                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                contentValues.put("TIMESTAMP", timeStamp);
+                contentValues.put("BATTERY_LEVEL", level);
+                sqLiteDatabase.insert("batteryStatus", null, contentValues);
+                sqLiteDatabase.close();
             }
-
         }
-
     };
 
     public static int getConnectivityStatus(Context context)
@@ -350,7 +356,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 uploadflag = false;
                 result = "Data not stale enough";
             }
-
         }
 
         if (cursor.moveToFirst() && uploadflag==true)
