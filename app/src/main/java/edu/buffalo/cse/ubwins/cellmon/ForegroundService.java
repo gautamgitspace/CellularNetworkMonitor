@@ -18,6 +18,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -33,6 +34,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -42,6 +44,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -68,12 +74,40 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     String statusPhraseLogger;
     String recordsPhraseLogger;
     String IMEI_TO_POST;
-    private final Context mContext;
+    private Context mContext;
+    PrintWriter printWriter = null;
     ContentValues contentValues = new ContentValues();
+    public final String TAG = "[CELMON-FRGRNDSRVC]";
 
     public ForegroundService(Context context)
     {
         this.mContext=context;
+
+        String state = Environment.getExternalStorageState();
+        if (!Environment.MEDIA_MOUNTED.equals(state))
+        {
+            Log.v(TAG, "MEDIA MOUNT ERROR!");
+        }
+        else {
+            File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!exportDir.exists())
+            {
+                exportDir.mkdirs();
+                Log.v(TAG, "Directory made");
+            }
+
+            File file = new File(exportDir, "BatteryLevel.csv");
+            try {
+                file.createNewFile();
+                printWriter = new PrintWriter(new FileWriter(file));
+                printWriter.println("TIMESTAMP, BATTERY_LEVEL");
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
     }
 
 
@@ -225,20 +259,32 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
         boolean chargingtrue = false;
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context context, Intent intent)
+        {
+            Long timeStamp;
             String action = intent.getAction();
             if(action.equals("android.intent.action.ACTION_POWER_CONNECTED"))
             {
                 /*ACTION: CHARGING*/
                 Log.e("FS","Charging");
 
-                /*LOG BATTERY STATUS*/
-                Long timeStamp = System.currentTimeMillis();
-                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-                contentValues.put("TIMESTAMP", timeStamp);
-                contentValues.put("BATTERY_LEVEL", level);
-                sqLiteDatabase.insert("batteryStatus", null, contentValues);
-                sqLiteDatabase.close();
+                /*LOG BATTERY STATUS - WRITE TO CSV DIRECTLY*/
+                try
+                {
+                    timeStamp = System.currentTimeMillis();
+                    int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+
+                    String record = timeStamp + "," + batteryLevel;
+                    printWriter.append(record);
+                }
+                catch(Exception exc)
+                {
+                    exc.printStackTrace();
+                }
+                finally
+                {
+                    if(printWriter != null) printWriter.close();
+                }
 
                 /*CHECK FOR WIFI*/
                 chargingtrue = true;
@@ -270,13 +316,24 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 /*ACTION: NOT CHARGING*/
                 Log.e("FS","Not Charging");
                 chargingtrue =false;
-                /*LOG BATTERY STATUS*/
-                Long timeStamp = System.currentTimeMillis();
-                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-                contentValues.put("TIMESTAMP", timeStamp);
-                contentValues.put("BATTERY_LEVEL", level);
-                sqLiteDatabase.insert("batteryStatus", null, contentValues);
-                sqLiteDatabase.close();
+
+                /*WRITE TO CSV DIRECTLY*/
+                try
+                {
+                    timeStamp = System.currentTimeMillis();
+                    int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+
+                    String record = timeStamp + "," + batteryLevel;
+                    printWriter.append(record);
+                }
+                catch(Exception exc)
+                {
+                    exc.printStackTrace();
+                }
+                finally
+                {
+                    if(printWriter != null) printWriter.close();
+                }
             }
         }
     };
