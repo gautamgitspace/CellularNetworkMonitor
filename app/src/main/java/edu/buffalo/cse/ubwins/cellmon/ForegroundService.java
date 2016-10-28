@@ -74,14 +74,26 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     String statusPhraseLogger;
     String recordsPhraseLogger;
     String IMEI_TO_POST;
-    private Context mContext;
     PrintWriter printWriter = null;
     ContentValues contentValues = new ContentValues();
     public final String TAG = "[CELMON-FRGRNDSRVC]";
 
-    public ForegroundService(Context context)
+
+
+    @Override
+    public void onCreate()
     {
-        this.mContext=context;
+        super.onCreate();
+        buildGoogleApiClient();
+        scheduleIntentReceiver = new ScheduleIntentReceiver();
+        scheduler = new Scheduler();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.ACTION_POWER_CONNECTED");
+        filter.addAction("android.intent.action.ACTION_POWER_DISCONNECTED");
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+
+        registerReceiver(receiver, filter);
 
         String state = Environment.getExternalStorageState();
         if (!Environment.MEDIA_MOUNTED.equals(state))
@@ -107,24 +119,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 e.printStackTrace();
             }
         }
-
-    }
-
-
-    @Override
-    public void onCreate()
-    {
-        super.onCreate();
-        buildGoogleApiClient();
-        scheduleIntentReceiver = new ScheduleIntentReceiver();
-        scheduler = new Scheduler();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.intent.action.ACTION_POWER_CONNECTED");
-        filter.addAction("android.intent.action.ACTION_POWER_DISCONNECTED");
-        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
-
-        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -226,17 +220,15 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     }
 
     @Override
-    public void onLocationChanged(Location location){
-        //Log.i(LOG_TAG,"Location data has changed");
+    public void onLocationChanged(Location location)
+    {
         FusedApiLatitude = location.getLatitude();
         FusedApiLongitude = location.getLongitude();
-        //Log.i(LOG_TAG,"apiLat is : "+FusedApiLatitude);
-        //Log.i(LOG_TAG,"apiLong  is : "+FusedApiLongitude);
-
     }
 
     @Override
-    public void onConnectionSuspended(int i){
+    public void onConnectionSuspended(int i)
+    {
         Log.i(LOG_TAG,"Google Api client has been suspended");
         mGoogleApiClient.connect();
     }
@@ -255,8 +247,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
     private final BroadcastReceiver receiver = new BroadcastReceiver()
     {
-        DBHandler dbHandler = new DBHandler(mContext);
-        SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
         boolean chargingtrue = false;
         @Override
         public void onReceive(Context context, Intent intent)
