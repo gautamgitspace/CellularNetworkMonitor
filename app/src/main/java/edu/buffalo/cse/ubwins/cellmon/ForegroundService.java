@@ -45,6 +45,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -74,10 +75,24 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     String statusPhraseLogger;
     String recordsPhraseLogger;
     String IMEI_TO_POST;
-    PrintWriter printWriter = null;
+    static PrintWriter printWriter = null;
+    static FileWriter fileWriter = null;
+    static File file = null;
+    File exportDir;
     ContentValues contentValues = new ContentValues();
     public final String TAG = "[CELMON-FRGRNDSRVC]";
 
+    public static void initPrintWriter(File file)
+    {
+        try
+        {
+            printWriter = new PrintWriter(new FileWriter(file,true));
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
 
     @Override
@@ -101,23 +116,31 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             Log.v(TAG, "MEDIA MOUNT ERROR!");
         }
         else {
-            File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+
             if (!exportDir.exists())
             {
                 exportDir.mkdirs();
                 Log.v(TAG, "Directory made");
             }
 
-            File file = new File(exportDir, "BatteryLevel.csv");
-            try {
-                file.createNewFile();
-                printWriter = new PrintWriter(new FileWriter(file));
-                printWriter.println("TIMESTAMP, BATTERY_LEVEL");
-            }
-            catch(IOException e)
+            File file = new File(exportDir.getAbsolutePath() + "BatteryLevel.csv");
+
+            if(!file.exists())
             {
-                e.printStackTrace();
+                try
+                {
+                    Log.v(TAG, "CREATING FILE at " + exportDir.getAbsolutePath());
+                    file.createNewFile();
+                    initPrintWriter(file);
+                    printWriter.write("TIMESTAMP, BATTERY_LEVEL");
+                }
+                catch(IOException ex)
+                {
+                    ex.printStackTrace();
+                }
             }
+
         }
     }
 
@@ -263,9 +286,17 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 {
                     timeStamp = System.currentTimeMillis();
                     int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                    int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                    float batteryPct = batteryLevel / (float)scale;
 
-                    String record = timeStamp + "," + batteryLevel;
-                    printWriter.append(record);
+                    String record = timeStamp + "," + batteryPct;
+                    Log.v(TAG, "attempting to write battery status to log file");
+                    File file = new File(exportDir.getAbsolutePath() + "BatteryLevel.csv");
+                    if(file.exists())
+                    {
+                        initPrintWriter(file);
+                        printWriter.println(record);
+                    }
                 }
                 catch(Exception exc)
                 {
@@ -312,9 +343,18 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 {
                     timeStamp = System.currentTimeMillis();
                     int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                    int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                    float batteryPct = batteryLevel / (float)scale;
 
-                    String record = timeStamp + "," + batteryLevel;
-                    printWriter.append(record);
+
+                    String record = timeStamp + "," + batteryPct;
+                    Log.v(TAG, "attempting to write battery status to log file");
+                    File file = new File(exportDir.getAbsolutePath() + "BatteryLevel.csv");
+                    if(file.exists())
+                    {
+                        initPrintWriter(file);
+                        printWriter.println(record);
+                    }
                 }
                 catch(Exception exc)
                 {
