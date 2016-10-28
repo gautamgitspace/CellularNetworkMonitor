@@ -284,10 +284,17 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 /*LOG BATTERY STATUS - WRITE TO CSV DIRECTLY*/
                 try
                 {
+                    IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                    Intent batteryStatus = context.registerReceiver(null, ifilter);
+
                     timeStamp = System.currentTimeMillis();
-                    int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-                    int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                    int batteryLevel = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                    int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
                     float batteryPct = batteryLevel / (float)scale;
+
+                    String batteryPctStr = String.valueOf(batteryPct);
+
+                    Toast.makeText(getApplicationContext(), batteryPctStr , Toast.LENGTH_SHORT).show();
 
                     String record = timeStamp + "," + batteryPct;
                     Log.v(TAG, "attempting to write battery status to log file");
@@ -341,11 +348,17 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 /*WRITE TO CSV DIRECTLY*/
                 try
                 {
-                    timeStamp = System.currentTimeMillis();
-                    int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-                    int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-                    float batteryPct = batteryLevel / (float)scale;
+                    IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                    Intent batteryStatus = context.registerReceiver(null, ifilter);
 
+                    timeStamp = System.currentTimeMillis();
+
+                    int batteryLevel = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                    int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+                    float batteryPct = batteryLevel / (float)scale;
+                    String batteryPctStr = String.valueOf(batteryPct);
+
+                    Toast.makeText(getApplicationContext(), batteryPctStr , Toast.LENGTH_SHORT).show();
 
                     String record = timeStamp + "," + batteryPct;
                     Log.v(TAG, "attempting to write battery status to log file");
