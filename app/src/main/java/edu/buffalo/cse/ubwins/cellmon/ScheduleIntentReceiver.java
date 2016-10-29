@@ -3,6 +3,7 @@ package edu.buffalo.cse.ubwins.cellmon;
 import android.content.Context;
 import android.location.Location;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 /**
  * Created by Gautam on 7/18/16.
@@ -19,8 +20,11 @@ public class ScheduleIntentReceiver
     DBstore dbStore;
     Location location;
     public final String TAG = "[CELNETMON-HNDLRCVR]";
+    int keepAlive = 0;
  public void onScheduleIntentReceiver(Context arg0)
  {
+     keepAlive++;
+     //Log.e(TAG, "KEEPALIVE: " + keepAlive);
      //Log.v(TAG, "inside onReceive");
      locationFinder = new LocationFinder(arg0);
 
@@ -61,6 +65,13 @@ public class ScheduleIntentReceiver
 
      dbStore = new DBstore(arg0);
      dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState, phoneCallState, mobileNetworkType, locationProvider);
+
+
+     if(keepAlive == 1200)
+     {
+         keepAlive = 0;
+         //TODO KEEP-ALIVE POST
+     }
  }
 
 }
