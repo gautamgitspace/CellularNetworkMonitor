@@ -290,7 +290,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                     timeStamp = System.currentTimeMillis();
                     int batteryLevel = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
                     int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-                    float batteryPct = batteryLevel / (float)scale;
+                    float batteryPct = (batteryLevel / (float)scale)*100;
 
                     String batteryPctStr = String.valueOf(batteryPct);
 
@@ -355,7 +355,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
                     int batteryLevel = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
                     int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-                    float batteryPct = batteryLevel / (float)scale;
+                    float batteryPct = (batteryLevel / (float)scale)*100;
                     String batteryPctStr = String.valueOf(batteryPct);
 
                     Toast.makeText(getApplicationContext(), batteryPctStr , Toast.LENGTH_SHORT).show();
