@@ -70,7 +70,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
     public static int TYPE_NOT_CONNECTED = 0;
-    String URL_UPLOAD = "http://104.196.177.7:8000/aggregator/upload/";
+    String URL_UPLOAD = "http://104.196.177.7:80/aggregator/upload/";
     String responsePhrase;
     String statusPhraseLogger;
     String recordsPhraseLogger;
