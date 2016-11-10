@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_STORAGE = 2;
     private static final int REQUEST_PHONE = 1;
     private static final int REQUEST_WAKELOCK = 3;
-    String URL = "http://104.196.177.7:8000/aggregator/register/";
+    String URL = "http://104.196.177.7:80/aggregator/register/";
     String fileName = "device_registration_details";
     File file;
     String responsePhrase;
