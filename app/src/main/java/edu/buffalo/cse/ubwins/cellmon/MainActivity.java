@@ -116,10 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         /*DECLARE EDITOR FOR PERMISSIONS */
        SharedPreferences.Editor editor = preferences.edit();
-//        if(preferences.getBoolean("FIRST_LAUNCH",false)&&preferences.getBoolean("TRACKING",false)==false) {
-//            editor.putBoolean("TRACKING", false);
-//            editor.commit();
-//        }
+
 
         /*First read location permission*/
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -167,30 +164,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             editor.commit();
             //Log.v(TAG, "Wakelock permission has already been granted.");
         }
-
-
-//        if(!preferences.getBoolean("FIRST_LAUNCH",false))
-//        {
-//            /*THIS IS THE FIRST LAUNCH*/
-//            editor.putBoolean("FIRST_LAUNCH", true);
-//            editor.commit();
-//            stopTrackingButton.setEnabled(false);
-//        }
-//        else
-//        {
-//            /*THIS IS THE TIME USER AGAIN LAUNCHES APP*/
-//            if(preferences.getBoolean("TRACKING", true))
-//            {
-//                stopTrackingButton.setEnabled(true);
-//                startTrackingButton.setEnabled(false);
-//            }
-//            else
-//            {
-//                startTrackingButton.setEnabled(true);
-//                stopTrackingButton.setEnabled(false);
-//            }
-//        }
-
 
         /* CALL TO REGISTER DEVICE*/
         /*FETCH ALL CONDITIONS TO CHECK FROM SHAREDPREF*/
@@ -284,15 +257,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v)
     {
-//        SharedPreferences.Editor editor = preferences.edit();
+       SharedPreferences.Editor editor = preferences.edit();
         Log.e(TAG, "inside on click");
         switch (v.getId()) {
             case R.id.button4:
                 Intent startIntent = new Intent(MainActivity.this, ForegroundService.class);
                 startIntent.setAction("startforeground");
                 startService(startIntent);
-//                editor.putBoolean("TRACKING", true);
-//                editor.commit();
+                editor.putBoolean("TRACKING", true);
+                editor.commit();
                 stopTrackingButton.setEnabled(true);
                 startTrackingButton.setEnabled(false);
                 break;
@@ -305,8 +278,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startService(stopIntent);}
                 startTrackingButton.setEnabled(true);
                 stopTrackingButton.setEnabled(false);
-//                editor.putBoolean("TRACKING", false);
-//                editor.commit();
+                editor.putBoolean("TRACKING", false);
+                editor.commit();
                 break;
             default:
                 break;
