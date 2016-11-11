@@ -102,6 +102,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         buildGoogleApiClient();
         scheduleIntentReceiver = new ScheduleIntentReceiver();
         scheduler = new Scheduler();
+        Log.v(LOG_TAG, "Creating Scheduler Instance");
 
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.intent.action.ACTION_POWER_CONNECTED");
@@ -441,7 +442,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         int statusCode;
         String result = "";
 
-        Cursor cursor = fetchTop100FromDB();
+        Cursor cursor = fetchTop12000FromDB();
         int count = cursor.getCount();
         DataRecordOuterClass.DataRecord.Builder dataRecord = DataRecordOuterClass.DataRecord.newBuilder();
         DataRecordOuterClass.DataRecord recordToSend;
@@ -626,7 +627,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         }
         return IMEI_Base64;
     }
-    private Cursor fetchTop100FromDB()
+    private Cursor fetchTop12000FromDB()
     {
         String rawQuery = "SELECT * FROM cellRecords LIMIT 12000";
         DBHandler dbHandler = new DBHandler(getApplicationContext());
