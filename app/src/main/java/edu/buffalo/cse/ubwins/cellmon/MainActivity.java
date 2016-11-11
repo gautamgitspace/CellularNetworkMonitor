@@ -679,7 +679,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.putBoolean("isRegistered", true);
                 editor.commit();
             }
-            else
+            else if(statusPhrase.equals("SUCCESS"))
             {
                 TextView textView = (TextView) findViewById(R.id.textView30);
                 textView.setText("Device Registered!");
@@ -688,7 +688,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.commit();
                 boolean temp = preferences.getBoolean("isRegistered", false);
                 Log.e(TAG, "isRegistered value [temp]: " + temp);
-
+            }
+            else
+            {
+                TextView textView = (TextView) findViewById(R.id.textView30);
+                textView.setText("Device Registration Failed!");
             }
         }
     }
