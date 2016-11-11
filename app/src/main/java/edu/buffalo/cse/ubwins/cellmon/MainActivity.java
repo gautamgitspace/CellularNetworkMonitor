@@ -49,6 +49,7 @@ import android.widget.Toast;
 import android.support.design.widget.Snackbar;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.File;
 import java.io.InputStream;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     File file;
     String responsePhrase;
     String reasonPhrase;
+    JSONObject jsonObject;
     String statusPhrase;
     String IMEI_TO_POST;
     NetworkStateReceiver receiver;
@@ -596,12 +598,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.v(TAG, "RESPONSE" + responsePhrase);
 
                 /*PARSE JSON RESPONSE*/
-                JSONObject jsonObject = new JSONObject(responsePhrase);
-                reasonPhrase= jsonObject.getString("reason");
-                statusPhrase= jsonObject.getString("status");
 
-                //Log.e(TAG, reasonPhrase);
-                //Log.e(TAG, statusPhrase);
 
                 if(statusCode!=404)
                 {
@@ -671,15 +668,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(String result)
         {
-            if(statusPhrase!=null && statusPhrase.equals("FAIL") && reasonPhrase.equals("Given IMEI_HASH already exists"))
-            {
-                TextView textView = (TextView) findViewById(R.id.textView30);
-                textView.setText("Device Already Registered!");
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean("isRegistered", true);
-                editor.commit();
+            try {
+                jsonObject = new JSONObject(responsePhrase);
+                statusPhrase = jsonObject.getString("status");
             }
-            else if(statusPhrase.equals("SUCCESS"))
+            catch (JSONException j)
+            {
+                j.printStackTrace();
+            }
+
+            //Log.e(TAG, "STATUS PHRASE: " + statusPhrase);
+            if(statusPhrase!=null && statusPhrase.equals("SUCCESS"))
             {
                 TextView textView = (TextView) findViewById(R.id.textView30);
                 textView.setText("Device Registered!");
@@ -689,10 +688,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 boolean temp = preferences.getBoolean("isRegistered", false);
                 Log.e(TAG, "isRegistered value [temp]: " + temp);
             }
-            else
+            else if(statusPhrase!=null && statusPhrase.equals("FAIL"))
             {
-                TextView textView = (TextView) findViewById(R.id.textView30);
-                textView.setText("Device Registration Failed!");
+                try {
+                    reasonPhrase = jsonObject.getString("reason");
+                    //Log.e(TAG, "REASON PHRASE: " + reasonPhrase);
+                }
+                catch (JSONException j)
+                {
+                    j.printStackTrace();
+                }
+                if(reasonPhrase.equals("Given IMEI_HASH configuration already exists"))
+                {
+                    TextView textView = (TextView) findViewById(R.id.textView30);
+                    textView.setText("Device Already Registered!");
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("isRegistered", true);
+                    editor.commit();
+                }
+                else
+                {
+                    TextView textView = (TextView) findViewById(R.id.textView30);
+                    textView.setText("Device Registration Failed!");
+                }
             }
         }
     }
