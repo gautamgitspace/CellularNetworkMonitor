@@ -9,4 +9,6 @@ Stores them in SQLiteDB and exports to a CSV file on user request.
 
 
 #License
-This project is licensed under the GPL v3 license.
+This project is licensed under the MIT License.
+
+Copyright (c) 2016 [Abhishek Gautam](http://www.acsu.buffalo.edu/~agautam2/), [Armaan Goyal](http://www.acsu.buffalo.edu/~armaango/) and [UB Computer Science](https://www.cse.buffalo.edu/)
