@@ -1,14 +1,23 @@
 # CellularNetworkMonitor
 
-An Android application that registers your device on to a server keeping IMEI, 
-carrier service, model make and Android Version as phone identifiers using a JSON POST.
-The app is also used to monitor different cellular network parameters such as
-location based on NETWORK_PROVIDER (strictly), RSSI, current network state, data activity etc.
-Stores them in SQLiteDB and exports to a CSV file on user request.
+An Android application that registers your device on to a Django based server keeping IMEI, 
+carrier service, model make and Android Version as phone identifiers using a HTTP POST. 
+Serialization of data sent over the network is achieved using [Google Protocol Buffers](https://github.com/google/protobuf) 
 
+# Features:  
+1. Tracks location based on NETWORK_PROVIDER (strict and relaxed) and Fused API  
+2. Monitors [RSSI](https://en.wikipedia.org/wiki/Received_signal_strength_indication)   
+3. Current network state  
+4. Data activity  
+5. Stores all data in SQLite DB on local device storage  
+6. Reports can be exported in the form of CSV files  
+ 
+# More to come:
+7. Statistical Analysis in the form of UI  
+8. Map UI integration lets you know in what areas you get what Network Reception(both RSSI and data type)
 
 
 #License
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](https://en.wikipedia.org/wiki/MIT_License).
 
 Copyright (c) 2016 [Abhishek Gautam](http://www.acsu.buffalo.edu/~agautam2/), [Armaan Goyal](http://www.acsu.buffalo.edu/~armaango/) and [UB Computer Science](https://www.cse.buffalo.edu/)
