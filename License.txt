@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2016 [Abhishek Gautam](http://www.acsu.buffalo.edu/~agautam2/) and [Armaan Goyal](http://www.acsu.buffalo.edu/~armaango/)
+Copyright (c) 2016 Abhishek Gautam, Armaan Goyal and UB Computer Science.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
