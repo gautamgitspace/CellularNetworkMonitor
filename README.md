@@ -1,6 +1,6 @@
 # CellularNetworkMonitor
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](License.txt)
 
 An Android application that registers your device on to a Django based server keeping IMEI, 
 carrier service, model make and Android Version as phone identifiers using a HTTP POST. 
