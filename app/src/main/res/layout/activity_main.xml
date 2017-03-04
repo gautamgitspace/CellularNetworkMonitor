@@ -56,6 +56,16 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="62dp" />
 
+    <Button
+        android:id="@+id/ping"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_below="@+id/textView30"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ping Server"
+        android:layout_marginTop="14dp"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -87,7 +87,7 @@ public class ScheduleIntentReceiver extends Service
 
      dbStore = new DBstore(arg0);
      dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState, phoneCallState, mobileNetworkType, locationProvider);
-     //Log.e(TAG, "KEEPALIVE: " + keepAlive);
+//     Log.e(TAG, "KEEPALIVE: " + keepAlive);
      if(keepAlive == 1200)
      {
          /*GET IMEI*/
@@ -109,7 +109,9 @@ public class ScheduleIntentReceiver extends Service
              HttpGet request = new HttpGet();
              String customURL = "http://104.196.177.7/aggregator/ping?imei_hash=" + URLEncoder.encode(IMEI_HASH, "UTF-8");
              request.setURI(new URI(customURL));
+             Log.d(TAG, "Prerequest time: " + System.currentTimeMillis());
              response = client.execute(request);
+             Log.d(TAG, "Postrequest time: " + System.currentTimeMillis());
              Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: " + response.getStatusLine().getReasonPhrase());
              Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: " + response.getStatusLine().getStatusCode());
          }

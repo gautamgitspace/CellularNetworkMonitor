@@ -47,16 +47,24 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.design.widget.Snackbar;
+
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import android.util.Base64;
@@ -201,7 +209,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         startTrackingButton.setOnClickListener(this);
         stopTrackingButton.setOnClickListener(this);
-
+        Button ping = (Button) findViewById(R.id.ping);
+        ping.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "Ping pressed");
+                new PingTask().execute();
+            }
+        });
         /*
         //TRACK BUTTON 1 - DELETE DB
         track = (Button) findViewById(R.id.button1);
@@ -236,7 +251,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+class PingTask extends AsyncTask<String, Void, Void>{
 
+    protected Void doInBackground(String... urls){
+        final TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        String IMEI_HASH = telephonyManager.getDeviceId();
+        try {
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] sha256Hash = sha256.digest(IMEI_HASH.getBytes("UTF-8"));
+            IMEI_HASH = Base64.encodeToString(sha256Hash, Base64.DEFAULT);
+            IMEI_HASH=IMEI_HASH.replaceAll("\n", "");
+
+        }
+
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        Log.v(TAG, "GENERATED IMEI HASH");
+        //TODO KEEP-ALIVE GET
+        HttpResponse response = null;
+        try
+        {
+            HttpClient client = new DefaultHttpClient();
+            HttpGet request = new HttpGet();
+            String customURL = "http://104.196.177.7/aggregator/ping?imei_hash=" + URLEncoder.encode(IMEI_HASH, "UTF-8");
+            Log.d(TAG, customURL);
+            request.setURI(new URI(customURL));
+            Log.d(TAG, "Prerequest time: " + System.currentTimeMillis());
+            response = client.execute(request);
+            Log.d(TAG, "Postrequest time: " + System.currentTimeMillis());
+            Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: " + response.getStatusLine().getReasonPhrase());
+            Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: " + response.getStatusLine().getStatusCode());
+//            Log.d(TAG, new JSONObject(response).toString());
+        }
+        catch (URISyntaxException e)
+        {
+            e.printStackTrace();
+        }
+        catch (ClientProtocolException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater mMenuInfater = getMenuInflater();
@@ -489,6 +552,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public String POST(String url)
     {
+        Log.d(TAG, "Registering device...");
+
         InputStream inputStream = null;
         int statusCode;
         String result = "";
@@ -596,7 +661,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 /*CONVERT INPUT STREAM TO STRING*/
                 responsePhrase = EntityUtils.toString(httpResponse.getEntity());
                 Log.v(TAG, "RESPONSE" + responsePhrase);
-
+                Log.d(TAG, httpResponse.toString());
                 /*PARSE JSON RESPONSE*/
 
 
@@ -708,6 +773,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 else
                 {
+                    Log.d(TAG, reasonPhrase);
                     TextView textView = (TextView) findViewById(R.id.textView30);
                     textView.setText("Device Registration Failed!");
                 }
