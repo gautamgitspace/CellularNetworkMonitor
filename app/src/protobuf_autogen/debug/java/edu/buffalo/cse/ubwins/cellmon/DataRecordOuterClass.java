@@ -26,49 +26,35 @@ public final class DataRecordOuterClass {
      * Location 
      * </pre>
      *
-     * <code>optional double NETWORK_LAT = 2;</code>
-     */
-    double getNETWORKLAT();
-
-    /**
-     * <code>optional double NETWORK_LONG = 3;</code>
-     */
-    double getNETWORKLONG();
-
-    /**
-     * <code>optional double FUSED_LAT = 4;</code>
+     * <code>optional double FUSED_LAT = 2;</code>
      */
     double getFUSEDLAT();
 
     /**
-     * <code>optional double FUSED_LONG = 5;</code>
+     * <code>optional double FUSED_LONG = 3;</code>
      */
     double getFUSEDLONG();
 
     /**
-     * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
+     * <code>optional bool STALE = 4;</code>
      */
-    int getLOCATIONPROVIDERValue();
-    /**
-     * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
-     */
-    edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider getLOCATIONPROVIDER();
+    boolean getSTALE();
 
     /**
-     * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+     * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
      */
     int getNETWORKTYPEValue();
     /**
-     * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+     * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
      */
     edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType getNETWORKTYPE();
 
     /**
-     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
      */
     int getNETWORKCELLTYPEValue();
     /**
-     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
      */
     edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType getNETWORKCELLTYPE();
 
@@ -77,22 +63,22 @@ public final class DataRecordOuterClass {
      * Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() 
      * </pre>
      *
-     * <code>optional int32 NETWORK_PARAM_1 = 9;</code>
+     * <code>optional int32 NETWORK_PARAM_1 = 7;</code>
      */
     int getNETWORKPARAM1();
 
     /**
-     * <code>optional int32 NETWORK_PARAM_2 = 10;</code>
+     * <code>optional int32 NETWORK_PARAM_2 = 8;</code>
      */
     int getNETWORKPARAM2();
 
     /**
-     * <code>optional int32 NETWORK_PARAM_3 = 11;</code>
+     * <code>optional int32 NETWORK_PARAM_3 = 9;</code>
      */
     int getNETWORKPARAM3();
 
     /**
-     * <code>optional int32 NETWORK_PARAM_4 = 12;</code>
+     * <code>optional int32 NETWORK_PARAM_4 = 10;</code>
      */
     int getNETWORKPARAM4();
 
@@ -101,44 +87,44 @@ public final class DataRecordOuterClass {
      * https://developer.android.com/reference/android/telephony/CellSignalStrength.html 
      * </pre>
      *
-     * <code>optional int32 SIGNAL_ASU_LEVEL = 13;</code>
+     * <code>optional int32 SIGNAL_ASU_LEVEL = 11;</code>
      */
     int getSIGNALASULEVEL();
 
     /**
-     * <code>optional sint32 SIGNAL_DBM = 14;</code>
+     * <code>optional sint32 SIGNAL_DBM = 12;</code>
      */
     int getSIGNALDBM();
 
     /**
-     * <code>optional int32 SIGNAL_LEVEL = 15;</code>
+     * <code>optional int32 SIGNAL_LEVEL = 13;</code>
      */
     int getSIGNALLEVEL();
 
     /**
-     * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+     * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
      */
     int getNETWORKSTATEValue();
     /**
-     * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+     * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
      */
     edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState getNETWORKSTATE();
 
     /**
-     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
      */
     int getNETWORKDATAACTIVITYValue();
     /**
-     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
      */
     edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity getNETWORKDATAACTIVITY();
 
     /**
-     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
      */
     int getVOICECALLSTATEValue();
     /**
-     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
      */
     edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity getVOICECALLSTATE();
   }
@@ -152,73 +138,6 @@ public final class DataRecordOuterClass {
       DataEntryOrBuilder {
     private DataEntry() {
     }
-    /**
-     * Protobuf enum {@code DataEntry.LocProvider}
-     */
-    public enum LocProvider
-        implements com.google.protobuf.Internal.EnumLite {
-      /**
-       * <code>NETWORK_PROVIDER = 0;</code>
-       */
-      NETWORK_PROVIDER(0),
-      /**
-       * <code>GPS_PROVIDER = 1;</code>
-       */
-      GPS_PROVIDER(1),
-      UNRECOGNIZED(-1),
-      ;
-
-      /**
-       * <code>NETWORK_PROVIDER = 0;</code>
-       */
-      public static final int NETWORK_PROVIDER_VALUE = 0;
-      /**
-       * <code>GPS_PROVIDER = 1;</code>
-       */
-      public static final int GPS_PROVIDER_VALUE = 1;
-
-
-      public final int getNumber() {
-        return value;
-      }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static LocProvider valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static LocProvider forNumber(int value) {
-        switch (value) {
-          case 0: return NETWORK_PROVIDER;
-          case 1: return GPS_PROVIDER;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<LocProvider>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          LocProvider> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<LocProvider>() {
-              public LocProvider findValueByNumber(int number) {
-                return LocProvider.forNumber(number);
-              }
-            };
-
-      private final int value;
-
-      private LocProvider(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:DataEntry.LocProvider)
-    }
-
     /**
      * <pre>
      * https://developer.android.com/reference/android/telephony/TelephonyManager.html 
@@ -870,172 +789,110 @@ public final class DataRecordOuterClass {
       tIMESTAMP_ = 0L;
     }
 
-    public static final int NETWORK_LAT_FIELD_NUMBER = 2;
-    private double nETWORKLAT_;
-    /**
-     * <pre>
-     * Location 
-     * </pre>
-     *
-     * <code>optional double NETWORK_LAT = 2;</code>
-     */
-    public double getNETWORKLAT() {
-      return nETWORKLAT_;
-    }
-    /**
-     * <pre>
-     * Location 
-     * </pre>
-     *
-     * <code>optional double NETWORK_LAT = 2;</code>
-     */
-    private void setNETWORKLAT(double value) {
-      
-      nETWORKLAT_ = value;
-    }
-    /**
-     * <pre>
-     * Location 
-     * </pre>
-     *
-     * <code>optional double NETWORK_LAT = 2;</code>
-     */
-    private void clearNETWORKLAT() {
-      
-      nETWORKLAT_ = 0D;
-    }
-
-    public static final int NETWORK_LONG_FIELD_NUMBER = 3;
-    private double nETWORKLONG_;
-    /**
-     * <code>optional double NETWORK_LONG = 3;</code>
-     */
-    public double getNETWORKLONG() {
-      return nETWORKLONG_;
-    }
-    /**
-     * <code>optional double NETWORK_LONG = 3;</code>
-     */
-    private void setNETWORKLONG(double value) {
-      
-      nETWORKLONG_ = value;
-    }
-    /**
-     * <code>optional double NETWORK_LONG = 3;</code>
-     */
-    private void clearNETWORKLONG() {
-      
-      nETWORKLONG_ = 0D;
-    }
-
-    public static final int FUSED_LAT_FIELD_NUMBER = 4;
+    public static final int FUSED_LAT_FIELD_NUMBER = 2;
     private double fUSEDLAT_;
     /**
-     * <code>optional double FUSED_LAT = 4;</code>
+     * <pre>
+     * Location 
+     * </pre>
+     *
+     * <code>optional double FUSED_LAT = 2;</code>
      */
     public double getFUSEDLAT() {
       return fUSEDLAT_;
     }
     /**
-     * <code>optional double FUSED_LAT = 4;</code>
+     * <pre>
+     * Location 
+     * </pre>
+     *
+     * <code>optional double FUSED_LAT = 2;</code>
      */
     private void setFUSEDLAT(double value) {
       
       fUSEDLAT_ = value;
     }
     /**
-     * <code>optional double FUSED_LAT = 4;</code>
+     * <pre>
+     * Location 
+     * </pre>
+     *
+     * <code>optional double FUSED_LAT = 2;</code>
      */
     private void clearFUSEDLAT() {
       
       fUSEDLAT_ = 0D;
     }
 
-    public static final int FUSED_LONG_FIELD_NUMBER = 5;
+    public static final int FUSED_LONG_FIELD_NUMBER = 3;
     private double fUSEDLONG_;
     /**
-     * <code>optional double FUSED_LONG = 5;</code>
+     * <code>optional double FUSED_LONG = 3;</code>
      */
     public double getFUSEDLONG() {
       return fUSEDLONG_;
     }
     /**
-     * <code>optional double FUSED_LONG = 5;</code>
+     * <code>optional double FUSED_LONG = 3;</code>
      */
     private void setFUSEDLONG(double value) {
       
       fUSEDLONG_ = value;
     }
     /**
-     * <code>optional double FUSED_LONG = 5;</code>
+     * <code>optional double FUSED_LONG = 3;</code>
      */
     private void clearFUSEDLONG() {
       
       fUSEDLONG_ = 0D;
     }
 
-    public static final int LOCATION_PROVIDER_FIELD_NUMBER = 6;
-    private int lOCATIONPROVIDER_;
+    public static final int STALE_FIELD_NUMBER = 4;
+    private boolean sTALE_;
     /**
-     * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
+     * <code>optional bool STALE = 4;</code>
      */
-    public int getLOCATIONPROVIDERValue() {
-      return lOCATIONPROVIDER_;
+    public boolean getSTALE() {
+      return sTALE_;
     }
     /**
-     * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
+     * <code>optional bool STALE = 4;</code>
      */
-    public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider getLOCATIONPROVIDER() {
-      edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider result = edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider.forNumber(lOCATIONPROVIDER_);
-      return result == null ? edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
-     */
-    private void setLOCATIONPROVIDERValue(int value) {
-        lOCATIONPROVIDER_ = value;
-    }
-    /**
-     * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
-     */
-    private void setLOCATIONPROVIDER(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
+    private void setSTALE(boolean value) {
       
-      lOCATIONPROVIDER_ = value.getNumber();
+      sTALE_ = value;
     }
     /**
-     * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
+     * <code>optional bool STALE = 4;</code>
      */
-    private void clearLOCATIONPROVIDER() {
+    private void clearSTALE() {
       
-      lOCATIONPROVIDER_ = 0;
+      sTALE_ = false;
     }
 
-    public static final int NETWORK_TYPE_FIELD_NUMBER = 7;
+    public static final int NETWORK_TYPE_FIELD_NUMBER = 5;
     private int nETWORKTYPE_;
     /**
-     * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+     * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
      */
     public int getNETWORKTYPEValue() {
       return nETWORKTYPE_;
     }
     /**
-     * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+     * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
      */
     public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType getNETWORKTYPE() {
       edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType result = edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType.forNumber(nETWORKTYPE_);
       return result == null ? edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType.UNRECOGNIZED : result;
     }
     /**
-     * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+     * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
      */
     private void setNETWORKTYPEValue(int value) {
         nETWORKTYPE_ = value;
     }
     /**
-     * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+     * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
      */
     private void setNETWORKTYPE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType value) {
       if (value == null) {
@@ -1045,36 +902,36 @@ public final class DataRecordOuterClass {
       nETWORKTYPE_ = value.getNumber();
     }
     /**
-     * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+     * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
      */
     private void clearNETWORKTYPE() {
       
       nETWORKTYPE_ = 0;
     }
 
-    public static final int NETWORK_CELL_TYPE_FIELD_NUMBER = 8;
+    public static final int NETWORK_CELL_TYPE_FIELD_NUMBER = 6;
     private int nETWORKCELLTYPE_;
     /**
-     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
      */
     public int getNETWORKCELLTYPEValue() {
       return nETWORKCELLTYPE_;
     }
     /**
-     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
      */
     public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType getNETWORKCELLTYPE() {
       edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType result = edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType.forNumber(nETWORKCELLTYPE_);
       return result == null ? edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType.UNRECOGNIZED : result;
     }
     /**
-     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
      */
     private void setNETWORKCELLTYPEValue(int value) {
         nETWORKCELLTYPE_ = value;
     }
     /**
-     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
      */
     private void setNETWORKCELLTYPE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType value) {
       if (value == null) {
@@ -1084,21 +941,21 @@ public final class DataRecordOuterClass {
       nETWORKCELLTYPE_ = value.getNumber();
     }
     /**
-     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+     * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
      */
     private void clearNETWORKCELLTYPE() {
       
       nETWORKCELLTYPE_ = 0;
     }
 
-    public static final int NETWORK_PARAM_1_FIELD_NUMBER = 9;
+    public static final int NETWORK_PARAM_1_FIELD_NUMBER = 7;
     private int nETWORKPARAM1_;
     /**
      * <pre>
      * Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() 
      * </pre>
      *
-     * <code>optional int32 NETWORK_PARAM_1 = 9;</code>
+     * <code>optional int32 NETWORK_PARAM_1 = 7;</code>
      */
     public int getNETWORKPARAM1() {
       return nETWORKPARAM1_;
@@ -1108,7 +965,7 @@ public final class DataRecordOuterClass {
      * Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() 
      * </pre>
      *
-     * <code>optional int32 NETWORK_PARAM_1 = 9;</code>
+     * <code>optional int32 NETWORK_PARAM_1 = 7;</code>
      */
     private void setNETWORKPARAM1(int value) {
       
@@ -1119,90 +976,90 @@ public final class DataRecordOuterClass {
      * Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() 
      * </pre>
      *
-     * <code>optional int32 NETWORK_PARAM_1 = 9;</code>
+     * <code>optional int32 NETWORK_PARAM_1 = 7;</code>
      */
     private void clearNETWORKPARAM1() {
       
       nETWORKPARAM1_ = 0;
     }
 
-    public static final int NETWORK_PARAM_2_FIELD_NUMBER = 10;
+    public static final int NETWORK_PARAM_2_FIELD_NUMBER = 8;
     private int nETWORKPARAM2_;
     /**
-     * <code>optional int32 NETWORK_PARAM_2 = 10;</code>
+     * <code>optional int32 NETWORK_PARAM_2 = 8;</code>
      */
     public int getNETWORKPARAM2() {
       return nETWORKPARAM2_;
     }
     /**
-     * <code>optional int32 NETWORK_PARAM_2 = 10;</code>
+     * <code>optional int32 NETWORK_PARAM_2 = 8;</code>
      */
     private void setNETWORKPARAM2(int value) {
       
       nETWORKPARAM2_ = value;
     }
     /**
-     * <code>optional int32 NETWORK_PARAM_2 = 10;</code>
+     * <code>optional int32 NETWORK_PARAM_2 = 8;</code>
      */
     private void clearNETWORKPARAM2() {
       
       nETWORKPARAM2_ = 0;
     }
 
-    public static final int NETWORK_PARAM_3_FIELD_NUMBER = 11;
+    public static final int NETWORK_PARAM_3_FIELD_NUMBER = 9;
     private int nETWORKPARAM3_;
     /**
-     * <code>optional int32 NETWORK_PARAM_3 = 11;</code>
+     * <code>optional int32 NETWORK_PARAM_3 = 9;</code>
      */
     public int getNETWORKPARAM3() {
       return nETWORKPARAM3_;
     }
     /**
-     * <code>optional int32 NETWORK_PARAM_3 = 11;</code>
+     * <code>optional int32 NETWORK_PARAM_3 = 9;</code>
      */
     private void setNETWORKPARAM3(int value) {
       
       nETWORKPARAM3_ = value;
     }
     /**
-     * <code>optional int32 NETWORK_PARAM_3 = 11;</code>
+     * <code>optional int32 NETWORK_PARAM_3 = 9;</code>
      */
     private void clearNETWORKPARAM3() {
       
       nETWORKPARAM3_ = 0;
     }
 
-    public static final int NETWORK_PARAM_4_FIELD_NUMBER = 12;
+    public static final int NETWORK_PARAM_4_FIELD_NUMBER = 10;
     private int nETWORKPARAM4_;
     /**
-     * <code>optional int32 NETWORK_PARAM_4 = 12;</code>
+     * <code>optional int32 NETWORK_PARAM_4 = 10;</code>
      */
     public int getNETWORKPARAM4() {
       return nETWORKPARAM4_;
     }
     /**
-     * <code>optional int32 NETWORK_PARAM_4 = 12;</code>
+     * <code>optional int32 NETWORK_PARAM_4 = 10;</code>
      */
     private void setNETWORKPARAM4(int value) {
       
       nETWORKPARAM4_ = value;
     }
     /**
-     * <code>optional int32 NETWORK_PARAM_4 = 12;</code>
+     * <code>optional int32 NETWORK_PARAM_4 = 10;</code>
      */
     private void clearNETWORKPARAM4() {
       
       nETWORKPARAM4_ = 0;
     }
 
-    public static final int SIGNAL_ASU_LEVEL_FIELD_NUMBER = 13;
+    public static final int SIGNAL_ASU_LEVEL_FIELD_NUMBER = 11;
     private int sIGNALASULEVEL_;
     /**
      * <pre>
      * https://developer.android.com/reference/android/telephony/CellSignalStrength.html 
      * </pre>
      *
-     * <code>optional int32 SIGNAL_ASU_LEVEL = 13;</code>
+     * <code>optional int32 SIGNAL_ASU_LEVEL = 11;</code>
      */
     public int getSIGNALASULEVEL() {
       return sIGNALASULEVEL_;
@@ -1212,7 +1069,7 @@ public final class DataRecordOuterClass {
      * https://developer.android.com/reference/android/telephony/CellSignalStrength.html 
      * </pre>
      *
-     * <code>optional int32 SIGNAL_ASU_LEVEL = 13;</code>
+     * <code>optional int32 SIGNAL_ASU_LEVEL = 11;</code>
      */
     private void setSIGNALASULEVEL(int value) {
       
@@ -1223,82 +1080,82 @@ public final class DataRecordOuterClass {
      * https://developer.android.com/reference/android/telephony/CellSignalStrength.html 
      * </pre>
      *
-     * <code>optional int32 SIGNAL_ASU_LEVEL = 13;</code>
+     * <code>optional int32 SIGNAL_ASU_LEVEL = 11;</code>
      */
     private void clearSIGNALASULEVEL() {
       
       sIGNALASULEVEL_ = 0;
     }
 
-    public static final int SIGNAL_DBM_FIELD_NUMBER = 14;
+    public static final int SIGNAL_DBM_FIELD_NUMBER = 12;
     private int sIGNALDBM_;
     /**
-     * <code>optional sint32 SIGNAL_DBM = 14;</code>
+     * <code>optional sint32 SIGNAL_DBM = 12;</code>
      */
     public int getSIGNALDBM() {
       return sIGNALDBM_;
     }
     /**
-     * <code>optional sint32 SIGNAL_DBM = 14;</code>
+     * <code>optional sint32 SIGNAL_DBM = 12;</code>
      */
     private void setSIGNALDBM(int value) {
       
       sIGNALDBM_ = value;
     }
     /**
-     * <code>optional sint32 SIGNAL_DBM = 14;</code>
+     * <code>optional sint32 SIGNAL_DBM = 12;</code>
      */
     private void clearSIGNALDBM() {
       
       sIGNALDBM_ = 0;
     }
 
-    public static final int SIGNAL_LEVEL_FIELD_NUMBER = 15;
+    public static final int SIGNAL_LEVEL_FIELD_NUMBER = 13;
     private int sIGNALLEVEL_;
     /**
-     * <code>optional int32 SIGNAL_LEVEL = 15;</code>
+     * <code>optional int32 SIGNAL_LEVEL = 13;</code>
      */
     public int getSIGNALLEVEL() {
       return sIGNALLEVEL_;
     }
     /**
-     * <code>optional int32 SIGNAL_LEVEL = 15;</code>
+     * <code>optional int32 SIGNAL_LEVEL = 13;</code>
      */
     private void setSIGNALLEVEL(int value) {
       
       sIGNALLEVEL_ = value;
     }
     /**
-     * <code>optional int32 SIGNAL_LEVEL = 15;</code>
+     * <code>optional int32 SIGNAL_LEVEL = 13;</code>
      */
     private void clearSIGNALLEVEL() {
       
       sIGNALLEVEL_ = 0;
     }
 
-    public static final int NETWORK_STATE_FIELD_NUMBER = 16;
+    public static final int NETWORK_STATE_FIELD_NUMBER = 14;
     private int nETWORKSTATE_;
     /**
-     * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+     * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
      */
     public int getNETWORKSTATEValue() {
       return nETWORKSTATE_;
     }
     /**
-     * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+     * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
      */
     public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState getNETWORKSTATE() {
       edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState result = edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState.forNumber(nETWORKSTATE_);
       return result == null ? edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState.UNRECOGNIZED : result;
     }
     /**
-     * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+     * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
      */
     private void setNETWORKSTATEValue(int value) {
         nETWORKSTATE_ = value;
     }
     /**
-     * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+     * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
      */
     private void setNETWORKSTATE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState value) {
       if (value == null) {
@@ -1308,36 +1165,36 @@ public final class DataRecordOuterClass {
       nETWORKSTATE_ = value.getNumber();
     }
     /**
-     * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+     * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
      */
     private void clearNETWORKSTATE() {
       
       nETWORKSTATE_ = 0;
     }
 
-    public static final int NETWORK_DATA_ACTIVITY_FIELD_NUMBER = 17;
+    public static final int NETWORK_DATA_ACTIVITY_FIELD_NUMBER = 15;
     private int nETWORKDATAACTIVITY_;
     /**
-     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
      */
     public int getNETWORKDATAACTIVITYValue() {
       return nETWORKDATAACTIVITY_;
     }
     /**
-     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
      */
     public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity getNETWORKDATAACTIVITY() {
       edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity result = edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity.forNumber(nETWORKDATAACTIVITY_);
       return result == null ? edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity.UNRECOGNIZED : result;
     }
     /**
-     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
      */
     private void setNETWORKDATAACTIVITYValue(int value) {
         nETWORKDATAACTIVITY_ = value;
     }
     /**
-     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
      */
     private void setNETWORKDATAACTIVITY(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity value) {
       if (value == null) {
@@ -1347,36 +1204,36 @@ public final class DataRecordOuterClass {
       nETWORKDATAACTIVITY_ = value.getNumber();
     }
     /**
-     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+     * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
      */
     private void clearNETWORKDATAACTIVITY() {
       
       nETWORKDATAACTIVITY_ = 0;
     }
 
-    public static final int VOICE_CALL_STATE_FIELD_NUMBER = 18;
+    public static final int VOICE_CALL_STATE_FIELD_NUMBER = 16;
     private int vOICECALLSTATE_;
     /**
-     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
      */
     public int getVOICECALLSTATEValue() {
       return vOICECALLSTATE_;
     }
     /**
-     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
      */
     public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity getVOICECALLSTATE() {
       edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity result = edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity.forNumber(vOICECALLSTATE_);
       return result == null ? edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity.UNRECOGNIZED : result;
     }
     /**
-     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
      */
     private void setVOICECALLSTATEValue(int value) {
         vOICECALLSTATE_ = value;
     }
     /**
-     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
      */
     private void setVOICECALLSTATE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity value) {
       if (value == null) {
@@ -1386,7 +1243,7 @@ public final class DataRecordOuterClass {
       vOICECALLSTATE_ = value.getNumber();
     }
     /**
-     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+     * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
      */
     private void clearVOICECALLSTATE() {
       
@@ -1398,56 +1255,50 @@ public final class DataRecordOuterClass {
       if (tIMESTAMP_ != 0L) {
         output.writeUInt64(1, tIMESTAMP_);
       }
-      if (nETWORKLAT_ != 0D) {
-        output.writeDouble(2, nETWORKLAT_);
-      }
-      if (nETWORKLONG_ != 0D) {
-        output.writeDouble(3, nETWORKLONG_);
-      }
       if (fUSEDLAT_ != 0D) {
-        output.writeDouble(4, fUSEDLAT_);
+        output.writeDouble(2, fUSEDLAT_);
       }
       if (fUSEDLONG_ != 0D) {
-        output.writeDouble(5, fUSEDLONG_);
+        output.writeDouble(3, fUSEDLONG_);
       }
-      if (lOCATIONPROVIDER_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider.NETWORK_PROVIDER.getNumber()) {
-        output.writeEnum(6, lOCATIONPROVIDER_);
+      if (sTALE_ != false) {
+        output.writeBool(4, sTALE_);
       }
       if (nETWORKTYPE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType.NETWORK_TYPE_UNKNOWN.getNumber()) {
-        output.writeEnum(7, nETWORKTYPE_);
+        output.writeEnum(5, nETWORKTYPE_);
       }
       if (nETWORKCELLTYPE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType.GSM.getNumber()) {
-        output.writeEnum(8, nETWORKCELLTYPE_);
+        output.writeEnum(6, nETWORKCELLTYPE_);
       }
       if (nETWORKPARAM1_ != 0) {
-        output.writeInt32(9, nETWORKPARAM1_);
+        output.writeInt32(7, nETWORKPARAM1_);
       }
       if (nETWORKPARAM2_ != 0) {
-        output.writeInt32(10, nETWORKPARAM2_);
+        output.writeInt32(8, nETWORKPARAM2_);
       }
       if (nETWORKPARAM3_ != 0) {
-        output.writeInt32(11, nETWORKPARAM3_);
+        output.writeInt32(9, nETWORKPARAM3_);
       }
       if (nETWORKPARAM4_ != 0) {
-        output.writeInt32(12, nETWORKPARAM4_);
+        output.writeInt32(10, nETWORKPARAM4_);
       }
       if (sIGNALASULEVEL_ != 0) {
-        output.writeInt32(13, sIGNALASULEVEL_);
+        output.writeInt32(11, sIGNALASULEVEL_);
       }
       if (sIGNALDBM_ != 0) {
-        output.writeSInt32(14, sIGNALDBM_);
+        output.writeSInt32(12, sIGNALDBM_);
       }
       if (sIGNALLEVEL_ != 0) {
-        output.writeInt32(15, sIGNALLEVEL_);
+        output.writeInt32(13, sIGNALLEVEL_);
       }
       if (nETWORKSTATE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState.UNKNOWN.getNumber()) {
-        output.writeEnum(16, nETWORKSTATE_);
+        output.writeEnum(14, nETWORKSTATE_);
       }
       if (nETWORKDATAACTIVITY_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity.DATA_ACTIVITY_NONE.getNumber()) {
-        output.writeEnum(17, nETWORKDATAACTIVITY_);
+        output.writeEnum(15, nETWORKDATAACTIVITY_);
       }
       if (vOICECALLSTATE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity.CALL_STATE_IDLE.getNumber()) {
-        output.writeEnum(18, vOICECALLSTATE_);
+        output.writeEnum(16, vOICECALLSTATE_);
       }
     }
 
@@ -1460,73 +1311,65 @@ public final class DataRecordOuterClass {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(1, tIMESTAMP_);
       }
-      if (nETWORKLAT_ != 0D) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(2, nETWORKLAT_);
-      }
-      if (nETWORKLONG_ != 0D) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(3, nETWORKLONG_);
-      }
       if (fUSEDLAT_ != 0D) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(4, fUSEDLAT_);
+          .computeDoubleSize(2, fUSEDLAT_);
       }
       if (fUSEDLONG_ != 0D) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(5, fUSEDLONG_);
+          .computeDoubleSize(3, fUSEDLONG_);
       }
-      if (lOCATIONPROVIDER_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider.NETWORK_PROVIDER.getNumber()) {
+      if (sTALE_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(6, lOCATIONPROVIDER_);
+          .computeBoolSize(4, sTALE_);
       }
       if (nETWORKTYPE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType.NETWORK_TYPE_UNKNOWN.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(7, nETWORKTYPE_);
+          .computeEnumSize(5, nETWORKTYPE_);
       }
       if (nETWORKCELLTYPE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType.GSM.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(8, nETWORKCELLTYPE_);
+          .computeEnumSize(6, nETWORKCELLTYPE_);
       }
       if (nETWORKPARAM1_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(9, nETWORKPARAM1_);
+          .computeInt32Size(7, nETWORKPARAM1_);
       }
       if (nETWORKPARAM2_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(10, nETWORKPARAM2_);
+          .computeInt32Size(8, nETWORKPARAM2_);
       }
       if (nETWORKPARAM3_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(11, nETWORKPARAM3_);
+          .computeInt32Size(9, nETWORKPARAM3_);
       }
       if (nETWORKPARAM4_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(12, nETWORKPARAM4_);
+          .computeInt32Size(10, nETWORKPARAM4_);
       }
       if (sIGNALASULEVEL_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(13, sIGNALASULEVEL_);
+          .computeInt32Size(11, sIGNALASULEVEL_);
       }
       if (sIGNALDBM_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeSInt32Size(14, sIGNALDBM_);
+          .computeSInt32Size(12, sIGNALDBM_);
       }
       if (sIGNALLEVEL_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(15, sIGNALLEVEL_);
+          .computeInt32Size(13, sIGNALLEVEL_);
       }
       if (nETWORKSTATE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState.UNKNOWN.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(16, nETWORKSTATE_);
+          .computeEnumSize(14, nETWORKSTATE_);
       }
       if (nETWORKDATAACTIVITY_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity.DATA_ACTIVITY_NONE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(17, nETWORKDATAACTIVITY_);
+          .computeEnumSize(15, nETWORKDATAACTIVITY_);
       }
       if (vOICECALLSTATE_ != edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity.CALL_STATE_IDLE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(18, vOICECALLSTATE_);
+          .computeEnumSize(16, vOICECALLSTATE_);
       }
       memoizedSerializedSize = size;
       return size;
@@ -1654,67 +1497,17 @@ public final class DataRecordOuterClass {
        * Location 
        * </pre>
        *
-       * <code>optional double NETWORK_LAT = 2;</code>
-       */
-      public double getNETWORKLAT() {
-        return instance.getNETWORKLAT();
-      }
-      /**
-       * <pre>
-       * Location 
-       * </pre>
-       *
-       * <code>optional double NETWORK_LAT = 2;</code>
-       */
-      public Builder setNETWORKLAT(double value) {
-        copyOnWrite();
-        instance.setNETWORKLAT(value);
-        return this;
-      }
-      /**
-       * <pre>
-       * Location 
-       * </pre>
-       *
-       * <code>optional double NETWORK_LAT = 2;</code>
-       */
-      public Builder clearNETWORKLAT() {
-        copyOnWrite();
-        instance.clearNETWORKLAT();
-        return this;
-      }
-
-      /**
-       * <code>optional double NETWORK_LONG = 3;</code>
-       */
-      public double getNETWORKLONG() {
-        return instance.getNETWORKLONG();
-      }
-      /**
-       * <code>optional double NETWORK_LONG = 3;</code>
-       */
-      public Builder setNETWORKLONG(double value) {
-        copyOnWrite();
-        instance.setNETWORKLONG(value);
-        return this;
-      }
-      /**
-       * <code>optional double NETWORK_LONG = 3;</code>
-       */
-      public Builder clearNETWORKLONG() {
-        copyOnWrite();
-        instance.clearNETWORKLONG();
-        return this;
-      }
-
-      /**
-       * <code>optional double FUSED_LAT = 4;</code>
+       * <code>optional double FUSED_LAT = 2;</code>
        */
       public double getFUSEDLAT() {
         return instance.getFUSEDLAT();
       }
       /**
-       * <code>optional double FUSED_LAT = 4;</code>
+       * <pre>
+       * Location 
+       * </pre>
+       *
+       * <code>optional double FUSED_LAT = 2;</code>
        */
       public Builder setFUSEDLAT(double value) {
         copyOnWrite();
@@ -1722,7 +1515,11 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional double FUSED_LAT = 4;</code>
+       * <pre>
+       * Location 
+       * </pre>
+       *
+       * <code>optional double FUSED_LAT = 2;</code>
        */
       public Builder clearFUSEDLAT() {
         copyOnWrite();
@@ -1731,13 +1528,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional double FUSED_LONG = 5;</code>
+       * <code>optional double FUSED_LONG = 3;</code>
        */
       public double getFUSEDLONG() {
         return instance.getFUSEDLONG();
       }
       /**
-       * <code>optional double FUSED_LONG = 5;</code>
+       * <code>optional double FUSED_LONG = 3;</code>
        */
       public Builder setFUSEDLONG(double value) {
         copyOnWrite();
@@ -1745,7 +1542,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional double FUSED_LONG = 5;</code>
+       * <code>optional double FUSED_LONG = 3;</code>
        */
       public Builder clearFUSEDLONG() {
         copyOnWrite();
@@ -1754,50 +1551,36 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
+       * <code>optional bool STALE = 4;</code>
        */
-      public int getLOCATIONPROVIDERValue() {
-        return instance.getLOCATIONPROVIDERValue();
+      public boolean getSTALE() {
+        return instance.getSTALE();
       }
       /**
-       * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
+       * <code>optional bool STALE = 4;</code>
        */
-      public Builder setLOCATIONPROVIDERValue(int value) {
+      public Builder setSTALE(boolean value) {
         copyOnWrite();
-        instance.setLOCATIONPROVIDERValue(value);
+        instance.setSTALE(value);
         return this;
       }
       /**
-       * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
+       * <code>optional bool STALE = 4;</code>
        */
-      public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider getLOCATIONPROVIDER() {
-        return instance.getLOCATIONPROVIDER();
-      }
-      /**
-       * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
-       */
-      public Builder setLOCATIONPROVIDER(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.LocProvider value) {
+      public Builder clearSTALE() {
         copyOnWrite();
-        instance.setLOCATIONPROVIDER(value);
-        return this;
-      }
-      /**
-       * <code>optional .DataEntry.LocProvider LOCATION_PROVIDER = 6;</code>
-       */
-      public Builder clearLOCATIONPROVIDER() {
-        copyOnWrite();
-        instance.clearLOCATIONPROVIDER();
+        instance.clearSTALE();
         return this;
       }
 
       /**
-       * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+       * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
        */
       public int getNETWORKTYPEValue() {
         return instance.getNETWORKTYPEValue();
       }
       /**
-       * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+       * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
        */
       public Builder setNETWORKTYPEValue(int value) {
         copyOnWrite();
@@ -1805,13 +1588,13 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+       * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
        */
       public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType getNETWORKTYPE() {
         return instance.getNETWORKTYPE();
       }
       /**
-       * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+       * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
        */
       public Builder setNETWORKTYPE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetType value) {
         copyOnWrite();
@@ -1819,7 +1602,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.NetType NETWORK_TYPE = 7;</code>
+       * <code>optional .DataEntry.NetType NETWORK_TYPE = 5;</code>
        */
       public Builder clearNETWORKTYPE() {
         copyOnWrite();
@@ -1828,13 +1611,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
        */
       public int getNETWORKCELLTYPEValue() {
         return instance.getNETWORKCELLTYPEValue();
       }
       /**
-       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
        */
       public Builder setNETWORKCELLTYPEValue(int value) {
         copyOnWrite();
@@ -1842,13 +1625,13 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
        */
       public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType getNETWORKCELLTYPE() {
         return instance.getNETWORKCELLTYPE();
       }
       /**
-       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
        */
       public Builder setNETWORKCELLTYPE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.CellType value) {
         copyOnWrite();
@@ -1856,7 +1639,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 8;</code>
+       * <code>optional .DataEntry.CellType NETWORK_CELL_TYPE = 6;</code>
        */
       public Builder clearNETWORKCELLTYPE() {
         copyOnWrite();
@@ -1869,7 +1652,7 @@ public final class DataRecordOuterClass {
        * Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() 
        * </pre>
        *
-       * <code>optional int32 NETWORK_PARAM_1 = 9;</code>
+       * <code>optional int32 NETWORK_PARAM_1 = 7;</code>
        */
       public int getNETWORKPARAM1() {
         return instance.getNETWORKPARAM1();
@@ -1879,7 +1662,7 @@ public final class DataRecordOuterClass {
        * Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() 
        * </pre>
        *
-       * <code>optional int32 NETWORK_PARAM_1 = 9;</code>
+       * <code>optional int32 NETWORK_PARAM_1 = 7;</code>
        */
       public Builder setNETWORKPARAM1(int value) {
         copyOnWrite();
@@ -1891,7 +1674,7 @@ public final class DataRecordOuterClass {
        * Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() 
        * </pre>
        *
-       * <code>optional int32 NETWORK_PARAM_1 = 9;</code>
+       * <code>optional int32 NETWORK_PARAM_1 = 7;</code>
        */
       public Builder clearNETWORKPARAM1() {
         copyOnWrite();
@@ -1900,13 +1683,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional int32 NETWORK_PARAM_2 = 10;</code>
+       * <code>optional int32 NETWORK_PARAM_2 = 8;</code>
        */
       public int getNETWORKPARAM2() {
         return instance.getNETWORKPARAM2();
       }
       /**
-       * <code>optional int32 NETWORK_PARAM_2 = 10;</code>
+       * <code>optional int32 NETWORK_PARAM_2 = 8;</code>
        */
       public Builder setNETWORKPARAM2(int value) {
         copyOnWrite();
@@ -1914,7 +1697,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional int32 NETWORK_PARAM_2 = 10;</code>
+       * <code>optional int32 NETWORK_PARAM_2 = 8;</code>
        */
       public Builder clearNETWORKPARAM2() {
         copyOnWrite();
@@ -1923,13 +1706,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional int32 NETWORK_PARAM_3 = 11;</code>
+       * <code>optional int32 NETWORK_PARAM_3 = 9;</code>
        */
       public int getNETWORKPARAM3() {
         return instance.getNETWORKPARAM3();
       }
       /**
-       * <code>optional int32 NETWORK_PARAM_3 = 11;</code>
+       * <code>optional int32 NETWORK_PARAM_3 = 9;</code>
        */
       public Builder setNETWORKPARAM3(int value) {
         copyOnWrite();
@@ -1937,7 +1720,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional int32 NETWORK_PARAM_3 = 11;</code>
+       * <code>optional int32 NETWORK_PARAM_3 = 9;</code>
        */
       public Builder clearNETWORKPARAM3() {
         copyOnWrite();
@@ -1946,13 +1729,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional int32 NETWORK_PARAM_4 = 12;</code>
+       * <code>optional int32 NETWORK_PARAM_4 = 10;</code>
        */
       public int getNETWORKPARAM4() {
         return instance.getNETWORKPARAM4();
       }
       /**
-       * <code>optional int32 NETWORK_PARAM_4 = 12;</code>
+       * <code>optional int32 NETWORK_PARAM_4 = 10;</code>
        */
       public Builder setNETWORKPARAM4(int value) {
         copyOnWrite();
@@ -1960,7 +1743,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional int32 NETWORK_PARAM_4 = 12;</code>
+       * <code>optional int32 NETWORK_PARAM_4 = 10;</code>
        */
       public Builder clearNETWORKPARAM4() {
         copyOnWrite();
@@ -1973,7 +1756,7 @@ public final class DataRecordOuterClass {
        * https://developer.android.com/reference/android/telephony/CellSignalStrength.html 
        * </pre>
        *
-       * <code>optional int32 SIGNAL_ASU_LEVEL = 13;</code>
+       * <code>optional int32 SIGNAL_ASU_LEVEL = 11;</code>
        */
       public int getSIGNALASULEVEL() {
         return instance.getSIGNALASULEVEL();
@@ -1983,7 +1766,7 @@ public final class DataRecordOuterClass {
        * https://developer.android.com/reference/android/telephony/CellSignalStrength.html 
        * </pre>
        *
-       * <code>optional int32 SIGNAL_ASU_LEVEL = 13;</code>
+       * <code>optional int32 SIGNAL_ASU_LEVEL = 11;</code>
        */
       public Builder setSIGNALASULEVEL(int value) {
         copyOnWrite();
@@ -1995,7 +1778,7 @@ public final class DataRecordOuterClass {
        * https://developer.android.com/reference/android/telephony/CellSignalStrength.html 
        * </pre>
        *
-       * <code>optional int32 SIGNAL_ASU_LEVEL = 13;</code>
+       * <code>optional int32 SIGNAL_ASU_LEVEL = 11;</code>
        */
       public Builder clearSIGNALASULEVEL() {
         copyOnWrite();
@@ -2004,13 +1787,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional sint32 SIGNAL_DBM = 14;</code>
+       * <code>optional sint32 SIGNAL_DBM = 12;</code>
        */
       public int getSIGNALDBM() {
         return instance.getSIGNALDBM();
       }
       /**
-       * <code>optional sint32 SIGNAL_DBM = 14;</code>
+       * <code>optional sint32 SIGNAL_DBM = 12;</code>
        */
       public Builder setSIGNALDBM(int value) {
         copyOnWrite();
@@ -2018,7 +1801,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional sint32 SIGNAL_DBM = 14;</code>
+       * <code>optional sint32 SIGNAL_DBM = 12;</code>
        */
       public Builder clearSIGNALDBM() {
         copyOnWrite();
@@ -2027,13 +1810,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional int32 SIGNAL_LEVEL = 15;</code>
+       * <code>optional int32 SIGNAL_LEVEL = 13;</code>
        */
       public int getSIGNALLEVEL() {
         return instance.getSIGNALLEVEL();
       }
       /**
-       * <code>optional int32 SIGNAL_LEVEL = 15;</code>
+       * <code>optional int32 SIGNAL_LEVEL = 13;</code>
        */
       public Builder setSIGNALLEVEL(int value) {
         copyOnWrite();
@@ -2041,7 +1824,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional int32 SIGNAL_LEVEL = 15;</code>
+       * <code>optional int32 SIGNAL_LEVEL = 13;</code>
        */
       public Builder clearSIGNALLEVEL() {
         copyOnWrite();
@@ -2050,13 +1833,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+       * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
        */
       public int getNETWORKSTATEValue() {
         return instance.getNETWORKSTATEValue();
       }
       /**
-       * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+       * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
        */
       public Builder setNETWORKSTATEValue(int value) {
         copyOnWrite();
@@ -2064,13 +1847,13 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+       * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
        */
       public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState getNETWORKSTATE() {
         return instance.getNETWORKSTATE();
       }
       /**
-       * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+       * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
        */
       public Builder setNETWORKSTATE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.NetState value) {
         copyOnWrite();
@@ -2078,7 +1861,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.NetState NETWORK_STATE = 16;</code>
+       * <code>optional .DataEntry.NetState NETWORK_STATE = 14;</code>
        */
       public Builder clearNETWORKSTATE() {
         copyOnWrite();
@@ -2087,13 +1870,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
        */
       public int getNETWORKDATAACTIVITYValue() {
         return instance.getNETWORKDATAACTIVITYValue();
       }
       /**
-       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
        */
       public Builder setNETWORKDATAACTIVITYValue(int value) {
         copyOnWrite();
@@ -2101,13 +1884,13 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
        */
       public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity getNETWORKDATAACTIVITY() {
         return instance.getNETWORKDATAACTIVITY();
       }
       /**
-       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
        */
       public Builder setNETWORKDATAACTIVITY(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.DataActivity value) {
         copyOnWrite();
@@ -2115,7 +1898,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 17;</code>
+       * <code>optional .DataEntry.DataActivity NETWORK_DATA_ACTIVITY = 15;</code>
        */
       public Builder clearNETWORKDATAACTIVITY() {
         copyOnWrite();
@@ -2124,13 +1907,13 @@ public final class DataRecordOuterClass {
       }
 
       /**
-       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
        */
       public int getVOICECALLSTATEValue() {
         return instance.getVOICECALLSTATEValue();
       }
       /**
-       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
        */
       public Builder setVOICECALLSTATEValue(int value) {
         copyOnWrite();
@@ -2138,13 +1921,13 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
        */
       public edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity getVOICECALLSTATE() {
         return instance.getVOICECALLSTATE();
       }
       /**
-       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
        */
       public Builder setVOICECALLSTATE(edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry.VoiceCallActivity value) {
         copyOnWrite();
@@ -2152,7 +1935,7 @@ public final class DataRecordOuterClass {
         return this;
       }
       /**
-       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 18;</code>
+       * <code>optional .DataEntry.VoiceCallActivity VOICE_CALL_STATE = 16;</code>
        */
       public Builder clearVOICECALLSTATE() {
         copyOnWrite();
@@ -2183,15 +1966,12 @@ public final class DataRecordOuterClass {
           edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry other = (edu.buffalo.cse.ubwins.cellmon.DataRecordOuterClass.DataEntry) arg1;
           tIMESTAMP_ = visitor.visitLong(tIMESTAMP_ != 0L, tIMESTAMP_,
               other.tIMESTAMP_ != 0L, other.tIMESTAMP_);
-          nETWORKLAT_ = visitor.visitDouble(nETWORKLAT_ != 0D, nETWORKLAT_,
-              other.nETWORKLAT_ != 0D, other.nETWORKLAT_);
-          nETWORKLONG_ = visitor.visitDouble(nETWORKLONG_ != 0D, nETWORKLONG_,
-              other.nETWORKLONG_ != 0D, other.nETWORKLONG_);
           fUSEDLAT_ = visitor.visitDouble(fUSEDLAT_ != 0D, fUSEDLAT_,
               other.fUSEDLAT_ != 0D, other.fUSEDLAT_);
           fUSEDLONG_ = visitor.visitDouble(fUSEDLONG_ != 0D, fUSEDLONG_,
               other.fUSEDLONG_ != 0D, other.fUSEDLONG_);
-          lOCATIONPROVIDER_ = visitor.visitInt(lOCATIONPROVIDER_ != 0, lOCATIONPROVIDER_,    other.lOCATIONPROVIDER_ != 0, other.lOCATIONPROVIDER_);
+          sTALE_ = visitor.visitBoolean(sTALE_ != false, sTALE_,
+              other.sTALE_ != false, other.sTALE_);
           nETWORKTYPE_ = visitor.visitInt(nETWORKTYPE_ != 0, nETWORKTYPE_,    other.nETWORKTYPE_ != 0, other.nETWORKTYPE_);
           nETWORKCELLTYPE_ = visitor.visitInt(nETWORKCELLTYPE_ != 0, nETWORKCELLTYPE_,    other.nETWORKCELLTYPE_ != 0, other.nETWORKCELLTYPE_);
           nETWORKPARAM1_ = visitor.visitInt(nETWORKPARAM1_ != 0, nETWORKPARAM1_,
@@ -2242,90 +2022,79 @@ public final class DataRecordOuterClass {
                 }
                 case 17: {
 
-                  nETWORKLAT_ = input.readDouble();
+                  fUSEDLAT_ = input.readDouble();
                   break;
                 }
                 case 25: {
 
-                  nETWORKLONG_ = input.readDouble();
-                  break;
-                }
-                case 33: {
-
-                  fUSEDLAT_ = input.readDouble();
-                  break;
-                }
-                case 41: {
-
                   fUSEDLONG_ = input.readDouble();
                   break;
                 }
-                case 48: {
-                  int rawValue = input.readEnum();
+                case 32: {
 
-                  lOCATIONPROVIDER_ = rawValue;
+                  sTALE_ = input.readBool();
                   break;
                 }
-                case 56: {
+                case 40: {
                   int rawValue = input.readEnum();
 
                   nETWORKTYPE_ = rawValue;
                   break;
                 }
-                case 64: {
+                case 48: {
                   int rawValue = input.readEnum();
 
                   nETWORKCELLTYPE_ = rawValue;
                   break;
                 }
-                case 72: {
+                case 56: {
 
                   nETWORKPARAM1_ = input.readInt32();
                   break;
                 }
-                case 80: {
+                case 64: {
 
                   nETWORKPARAM2_ = input.readInt32();
                   break;
                 }
-                case 88: {
+                case 72: {
 
                   nETWORKPARAM3_ = input.readInt32();
                   break;
                 }
-                case 96: {
+                case 80: {
 
                   nETWORKPARAM4_ = input.readInt32();
                   break;
                 }
-                case 104: {
+                case 88: {
 
                   sIGNALASULEVEL_ = input.readInt32();
                   break;
                 }
-                case 112: {
+                case 96: {
 
                   sIGNALDBM_ = input.readSInt32();
                   break;
                 }
-                case 120: {
+                case 104: {
 
                   sIGNALLEVEL_ = input.readInt32();
                   break;
                 }
-                case 128: {
+                case 112: {
                   int rawValue = input.readEnum();
 
                   nETWORKSTATE_ = rawValue;
                   break;
                 }
-                case 136: {
+                case 120: {
                   int rawValue = input.readEnum();
 
                   nETWORKDATAACTIVITY_ = rawValue;
                   break;
                 }
-                case 144: {
+                case 128: {
                   int rawValue = input.readEnum();
 
                   vOICECALLSTATE_ = rawValue;

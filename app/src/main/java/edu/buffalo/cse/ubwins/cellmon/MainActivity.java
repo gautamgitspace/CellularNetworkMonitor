@@ -70,6 +70,7 @@ import java.security.NoSuchAlgorithmException;
 import android.util.Base64;
 import android.app.ActivityManager;
 
+import com.facebook.stetho.Stetho;
 import com.pushlink.android.PushLink;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback
@@ -102,6 +103,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Stetho.initialize(Stetho.newInitializerBuilder(this)
+                .enableDumpapp(
+                        Stetho.defaultDumperPluginsProvider(this)
+                ).enableWebKitInspector(
+                        Stetho.defaultInspectorModulesProvider(this)
+                ).build());
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);

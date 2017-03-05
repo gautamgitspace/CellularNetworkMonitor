@@ -7,15 +7,9 @@ message DataEntry {
     uint64 TIMESTAMP = 1;
     
     /* Location */
-    double NETWORK_LAT = 2;
-    double NETWORK_LONG = 3;
-    double FUSED_LAT = 4;
-    double FUSED_LONG = 5;
-    enum LocProvider {
-        NETWORK_PROVIDER = 0;
-        GPS_PROVIDER = 1;
-    }
-    LocProvider LOCATION_PROVIDER = 6;
+    double FUSED_LAT = 2;
+    double FUSED_LONG = 3;
+    bool STALE = 4;
 
     /* https://developer.android.com/reference/android/telephony/TelephonyManager.html */
     enum NetType {
@@ -35,7 +29,7 @@ message DataEntry {
         NETWORK_TYPE_LTE = 13;
         NETWORK_TYPE_EHRPD = 14;
     }
-    NetType NETWORK_TYPE = 7;
+    NetType NETWORK_TYPE = 5;
 
     /* https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() */
     enum CellType {
@@ -44,18 +38,18 @@ message DataEntry {
         WCDMA = 2;
         LTE = 3;
     }
-    CellType NETWORK_CELL_TYPE = 8;
+    CellType NETWORK_CELL_TYPE = 6;
 
     /* Network Parameters: https://developer.android.com/reference/android/telephony/TelephonyManager.html#getAllCellInfo() */
-    int32 NETWORK_PARAM_1 = 9;
-    int32 NETWORK_PARAM_2 = 10;
-    int32 NETWORK_PARAM_3 = 11;
-    int32 NETWORK_PARAM_4 = 12;
+    int32 NETWORK_PARAM_1 = 7;
+    int32 NETWORK_PARAM_2 = 8;
+    int32 NETWORK_PARAM_3 = 9;
+    int32 NETWORK_PARAM_4 = 10;
 
     /* https://developer.android.com/reference/android/telephony/CellSignalStrength.html */
-    int32 SIGNAL_ASU_LEVEL = 13;
-    sint32 SIGNAL_DBM = 14;
-    int32 SIGNAL_LEVEL = 15;
+    int32 SIGNAL_ASU_LEVEL = 11;
+    sint32 SIGNAL_DBM = 12;
+    int32 SIGNAL_LEVEL = 13;
     
     /* https://developer.android.com/reference/android/net/NetworkInfo.DetailedState.html */
     enum NetState {
@@ -71,7 +65,7 @@ message DataEntry {
         DISCONNECTED = 9;
         FAILED = 10;
     }
-    NetState NETWORK_STATE = 16;
+    NetState NETWORK_STATE = 14;
 
     /* https://developer.android.com/reference/android/telephony/TelephonyManager.html#getDataActivity() */
     enum DataActivity {
@@ -82,7 +76,7 @@ message DataEntry {
         DATA_ACTIVITY_DORMANT = 4;
         DATA_ACTIVITY_UNKNOWN = 5;
     }
-    DataActivity NETWORK_DATA_ACTIVITY = 17;
+    DataActivity NETWORK_DATA_ACTIVITY = 15;
 
     /* https://developer.android.com/reference/android/telephony/TelephonyManager.html */
     enum VoiceCallActivity {
@@ -90,7 +84,7 @@ message DataEntry {
         CALL_STATE_RINGING = 1;
         CALL_STATE_OFFHOOK = 2;
     }
-    VoiceCallActivity VOICE_CALL_STATE = 18;
+    VoiceCallActivity VOICE_CALL_STATE = 16;
 }
 
 message DataRecord {

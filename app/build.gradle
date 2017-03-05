@@ -37,6 +37,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.protobuf:protobuf-lite:3.0.0'
     compile 'com.pushlink:pushlink-android:5.5.0'
+    compile 'com.facebook.stetho:stetho:1.4.2'
 }
 
 protobuf {

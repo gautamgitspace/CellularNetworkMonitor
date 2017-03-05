@@ -25,6 +25,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 
+import static edu.buffalo.cse.ubwins.cellmon.LocationFinder.locationProvider;
+
 /**
  * Created by Gautam on 7/18/16.
  * MBP111.0138.B16
@@ -34,11 +36,11 @@ import java.security.Provider;
  */
 public class ScheduleIntentReceiver extends Service
 {
-    LocationFinder locationFinder;
+//    LocationFinder locationFinder;
     CellularDataRecorder cdr;
     PhoneCallStateRecorder pcsr;
     DBstore dbStore;
-    Location location;
+//    Location location;
     public final String TAG = "[CELNETMON-HNDLRCVR]";
     int keepAlive = 0;
     String IMEI_HASH;
@@ -47,14 +49,14 @@ public class ScheduleIntentReceiver extends Service
  {
      keepAlive++;
 
-     locationFinder = new LocationFinder(arg0);
+//     locationFinder = new LocationFinder(arg0);
 
      final TelephonyManager telephonyManager = (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
      IMEI = telephonyManager.getDeviceId();
      cdr = new CellularDataRecorder();
      pcsr = new PhoneCallStateRecorder();
 
-     locationFinder = new LocationFinder(arg0);
+//     locationFinder = new LocationFinder(arg0);
      //Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
 
      /*FETCH INFO FROM CDR CLASS*/
@@ -69,10 +71,12 @@ public class ScheduleIntentReceiver extends Service
      Double fusedApiLongitude = ForegroundService.FusedApiLongitude;
 
      /*FETCH INFO FROM LOCATION FINDER CLASS*/
-     Double lmLatitude = LocationFinder.latitude;
-     Double lmLongitude = LocationFinder.longitude;
-     String locationProvider = LocationFinder.locationProvider;
-     Double locationdata[] = {lmLatitude,lmLongitude,fusedApiLatitude,fusedApiLongitude};
+//     Double lmLatitude = LocationFinder.latitude;
+//     Double lmLongitude = LocationFinder.longitude;
+//     String locationProvider = LocationFinder.locationProvider;
+//     Double locationdata[] = {lmLatitude,lmLongitude,fusedApiLatitude,fusedApiLongitude};
+     Double locationdata[] = {fusedApiLatitude,fusedApiLongitude};
+     boolean stale = (System.currentTimeMillis() - ForegroundService.LastFusedLocation) > 10000;
 
      /*FETCH INFO FROM PCSR CLASS*/
      int phoneCallState = PhoneCallStateRecorder.call_state;
@@ -86,7 +90,7 @@ public class ScheduleIntentReceiver extends Service
 //     Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
 
      dbStore = new DBstore(arg0);
-     dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState, phoneCallState, mobileNetworkType, locationProvider);
+     dbStore.insertIntoDB(locationdata, stale, timeStamp, cellularInfo, dataActivity, dataState, phoneCallState, mobileNetworkType);
 //     Log.e(TAG, "KEEPALIVE: " + keepAlive);
      if(keepAlive == 1200)
      {

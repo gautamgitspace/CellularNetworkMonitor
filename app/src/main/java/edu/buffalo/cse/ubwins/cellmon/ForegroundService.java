@@ -64,7 +64,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     public LocationRequest mLocationRequest;
     public static Double FusedApiLatitude;
     public static Double FusedApiLongitude;
-    LocationFinder locationFinder;
+    public static long LastFusedLocation;
+//    LocationFinder locationFinder;
     PowerManager.WakeLock wakeLock;
     SharedPreferences preferences;
     public static int TYPE_WIFI = 1;
@@ -183,9 +184,9 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
             mGoogleApiClient.connect();
             //finished connecting API Client
-            locationFinder = new LocationFinder(getApplicationContext());
+//            locationFinder = new LocationFinder(getApplicationContext());
             //calling getLocation() from Location provider
-            locationFinder.getLocation();
+//            locationFinder.getLocation();
 
             /*CALL TO SCHEDULER METHOD*/
             scheduler.beep(getApplicationContext());
@@ -248,6 +249,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     {
         FusedApiLatitude = location.getLatitude();
         FusedApiLongitude = location.getLongitude();
+        LastFusedLocation = System.currentTimeMillis();
     }
 
     @Override
@@ -449,7 +451,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         boolean uploadflag = true;
 
         if(cursor.moveToFirst()) {
-            long timeStamp = cursor.getLong(6);
+            long timeStamp = cursor.getLong(4);
             long currTimestamp = System.currentTimeMillis();
             long timeGap = currTimestamp - timeStamp;
             if(timeGap < 5*60*60*1000)
@@ -478,24 +480,25 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
             do {
                 dataRecord.addENTRY(DataRecordOuterClass.DataEntry.newBuilder()
-                        .setNETWORKLAT(cursor.getDouble(1))
-                        .setNETWORKLONG(cursor.getDouble(2))
-                        .setFUSEDLAT(cursor.getDouble(3))
-                        .setFUSEDLONG(cursor.getDouble(4))
-                        .setLOCATIONPROVIDERValue(cursor.getInt(5))
-                        .setTIMESTAMP(cursor.getLong(6))
-                        .setNETWORKCELLTYPEValue(cursor.getInt(7))
-                        .setNETWORKTYPEValue(cursor.getInt(8))
-                        .setNETWORKPARAM1(cursor.getInt(9))
-                        .setNETWORKPARAM2(cursor.getInt(10))
-                        .setNETWORKPARAM3(cursor.getInt(11))
-                        .setNETWORKPARAM4(cursor.getInt(12))
-                        .setSIGNALDBM(cursor.getInt(13))
-                        .setSIGNALLEVEL(cursor.getInt(14))
-                        .setSIGNALASULEVEL(cursor.getInt(15))
-                        .setNETWORKSTATEValue(cursor.getInt(16))
-                        .setNETWORKDATAACTIVITYValue(cursor.getInt(17))
-                        .setVOICECALLSTATEValue(cursor.getInt(18)).build());
+//                        .setNETWORKLAT(cursor.getDouble(1))
+//                        .setNETWORKLONG(cursor.getDouble(2))
+                        .setFUSEDLAT(cursor.getDouble(1))
+                        .setFUSEDLONG(cursor.getDouble(2))
+                        .setSTALE(cursor.getInt(3) > 0)
+//                        .setLOCATIONPROVIDERValue(cursor.getInt(4))
+                        .setTIMESTAMP(cursor.getLong(4))
+                        .setNETWORKCELLTYPEValue(cursor.getInt(5))
+                        .setNETWORKTYPEValue(cursor.getInt(6))
+                        .setNETWORKPARAM1(cursor.getInt(7))
+                        .setNETWORKPARAM2(cursor.getInt(8))
+                        .setNETWORKPARAM3(cursor.getInt(9))
+                        .setNETWORKPARAM4(cursor.getInt(10))
+                        .setSIGNALDBM(cursor.getInt(11))
+                        .setSIGNALLEVEL(cursor.getInt(12))
+                        .setSIGNALASULEVEL(cursor.getInt(13))
+                        .setNETWORKSTATEValue(cursor.getInt(14))
+                        .setNETWORKDATAACTIVITYValue(cursor.getInt(15))
+                        .setVOICECALLSTATEValue(cursor.getInt(16)).build());
 
                 recordToSend = dataRecord.build();
 //
@@ -563,7 +566,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 if(Integer.parseInt(recordsPhraseLogger)==count)
                 {
                     Log.e(LOG_TAG, "Attempting to delete from DB");
-                    String rawQuery = "DELETE FROM cellRecords WHERE rowid IN (SELECT rowid FROM cellRecords LIMIT "+count+");";
+                    String rawQuery = "DELETE FROM cellRecords WHERE ID IN (SELECT ID FROM cellRecords ORDER BY TIMESTAMP LIMIT "+count+");";
                     DBHandler dbHandler = new DBHandler(getApplicationContext());
                     SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
                     sqLiteDatabase.beginTransaction();
@@ -629,7 +632,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     }
     private Cursor fetchTop12000FromDB()
     {
-        String rawQuery = "SELECT * FROM cellRecords LIMIT 12000";
+        String rawQuery = "SELECT * FROM cellRecords ORDER BY TIMESTAMP LIMIT 12000";
         DBHandler dbHandler = new DBHandler(getApplicationContext());
         SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery(rawQuery, null);

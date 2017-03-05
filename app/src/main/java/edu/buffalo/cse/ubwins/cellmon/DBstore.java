@@ -25,7 +25,7 @@ public class DBstore
         this.mContext=context;
     }
 
-    public void insertIntoDB(Double[] locationdata, Long timeStamp, String cellularInfo, int dataActivity, int dataState, int phoneCallState,int mobileNetworkType, String locationProvider)
+    public void insertIntoDB(Double[] locationdata, boolean stale, Long timeStamp, String cellularInfo, int dataActivity, int dataState, int phoneCallState,int mobileNetworkType)
     {
         String networkType = "";
         int networkTypeval = -1;
@@ -55,13 +55,13 @@ public class DBstore
             networkRSSI = splitter1[1];
             networkRSSIVariables = networkRSSI.split("#");
         }
-        int locationProviderval = -1;
-        if (locationProvider!=null && locationProvider.equals(LocationManager.GPS_PROVIDER)){
-            locationProviderval = 1;
-        }
-        else if (locationProvider!=null &&locationProvider.equals(LocationManager.NETWORK_PROVIDER)){
-            locationProviderval = 2;
-        }
+//        int locationProviderval = -1;
+//        if (locationProvider!=null && locationProvider.equals(LocationManager.GPS_PROVIDER)){
+//            locationProviderval = 1;
+//        }
+//        else if (locationProvider!=null &&locationProvider.equals(LocationManager.NETWORK_PROVIDER)){
+//            locationProviderval = 2;
+//        }
         if (networkType!=null && networkType.equals("GSM")){
             networkTypeval = 0;
         }
@@ -76,11 +76,12 @@ public class DBstore
         }
         //Log.v(TAG,"Trying to push to DB");
 
-        contentValues.put("N_LAT",locationdata[0]);
-        contentValues.put("N_LONG",locationdata[1]);
-        contentValues.put("F_LAT",locationdata[2]);
-        contentValues.put("F_LONG",locationdata[3]);
-        contentValues.put("LOCATION_PROVIDER",locationProviderval);
+//        contentValues.put("N_LAT",locationdata[0]);
+//        contentValues.put("N_LONG",locationdata[1]);
+        contentValues.put("F_LAT",locationdata[0]);
+        contentValues.put("F_LONG",locationdata[1]);
+        contentValues.put("F_STALE", stale);
+//        contentValues.put("LOCATION_PROVIDER",locationProviderval);
         contentValues.put("TIMESTAMP",timeStamp);
         contentValues.put("NETWORK_TYPE", networkTypeval);
         contentValues.put("NETWORK_TYPE2", mobileNetworkType);
