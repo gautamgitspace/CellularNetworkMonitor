@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -94,6 +96,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SharedPreferences preferences;
     Button startTrackingButton;
     Button stopTrackingButton;
+    String statusPhraseLogger;
+    String recordsPhraseLogger;
+    String URL_UPLOAD = "http://104.196.177.7:80/aggregator/upload/";
 
 
     @Override
@@ -218,11 +223,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startTrackingButton.setOnClickListener(this);
         stopTrackingButton.setOnClickListener(this);
         Button ping = (Button) findViewById(R.id.ping);
+        Button forceExport = (Button) findViewById(R.id.forceExport);
         ping.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "Ping pressed");
                 new PingTask().execute();
+            }
+        });
+
+        forceExport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Force upload pressed");
+                new ForceExportTask().execute(URL_UPLOAD);
             }
         });
         /*
@@ -308,6 +322,156 @@ class PingTask extends AsyncTask<String, Void, Void>{
         return null;
     }
 }
+
+class ForceExportTask extends AsyncTask<String, Void, String>{
+
+    @Override
+    protected String doInBackground(String... urls)
+    {
+        Log.v(TAG, "inside ForceExportTask");
+        return FORCE_POST(urls[0]);
+    }
+}
+
+
+
+    public String FORCE_POST(String url){
+        String TEMP_TAG = "[CURSOR_DATA] : ";
+        int statusCode;
+        String result = "";
+
+        Cursor cursor = fetchTop12000FromDB();
+        int count = cursor.getCount();
+        DataRecordOuterClass.DataRecord.Builder dataRecord = DataRecordOuterClass.DataRecord.newBuilder();
+        DataRecordOuterClass.DataRecord recordToSend;
+
+        if (cursor.moveToFirst())
+        {
+            String IMEI = getIMEI();
+            String networkOperatorCode = getNetworkOperatorCode();
+            String networkOperatorName = getNetworkOperatorName();
+
+            try{
+                IMEI_TO_POST = genHash(IMEI);
+            }
+            catch(NoSuchAlgorithmException nsa)
+            {
+                nsa.printStackTrace();
+            }
+            dataRecord.setIMEIHASH(IMEI_TO_POST);
+            dataRecord.setNETWORKOPERATORNAME(networkOperatorName);
+            dataRecord.setNETWORKOPERATORCODE(networkOperatorCode);
+
+            do {
+                dataRecord.addENTRY(DataRecordOuterClass.DataEntry.newBuilder()
+                        .setFUSEDLAT(cursor.getDouble(1))
+                        .setFUSEDLONG(cursor.getDouble(2))
+                        .setSTALE(cursor.getInt(3) > 0)
+                        .setTIMESTAMP(cursor.getLong(4))
+                        .setNETWORKCELLTYPEValue(cursor.getInt(5))
+                        .setNETWORKTYPEValue(cursor.getInt(6))
+                        .setNETWORKPARAM1(cursor.getInt(7))
+                        .setNETWORKPARAM2(cursor.getInt(8))
+                        .setNETWORKPARAM3(cursor.getInt(9))
+                        .setNETWORKPARAM4(cursor.getInt(10))
+                        .setSIGNALDBM(cursor.getInt(11))
+                        .setSIGNALLEVEL(cursor.getInt(12))
+                        .setSIGNALASULEVEL(cursor.getInt(13))
+                        .setNETWORKSTATEValue(cursor.getInt(14))
+                        .setNETWORKDATAACTIVITYValue(cursor.getInt(15))
+                        .setVOICECALLSTATEValue(cursor.getInt(16)).build());
+
+                recordToSend = dataRecord.build();
+
+
+            } while (cursor.moveToNext());
+
+            byte[] logToSend = recordToSend.toByteArray();
+            int len = logToSend.length;
+            Log.e("SIZE","Length of 5 entries is : "+len);
+
+
+
+            try {
+
+                    /*1. create HttpClient*/
+                HttpClient httpclient = new DefaultHttpClient();
+
+                    /*2. make POST request to the given URL*/
+                HttpPost httpPost = new HttpPost(url);
+
+                    /*3. Build ByteArrayEntity*/
+                ByteArrayEntity byteArrayEntity = new ByteArrayEntity(logToSend);
+
+                    /*4. Set httpPost Entity*/
+                httpPost.setEntity(byteArrayEntity);
+
+                    /*5. Execute POST request to the given URL*/
+                HttpResponse httpResponse = httpclient.execute(httpPost);
+
+                /*9. receive response as inputStream*/
+                statusCode = httpResponse.getStatusLine().getStatusCode();
+
+                /*CONVERT INPUT STREAM TO STRING*/
+                responsePhrase = EntityUtils.toString(httpResponse.getEntity());
+                Log.v(TAG, "RESPONSE" + responsePhrase);
+
+                /*PARSE JSON RESPONSE*/
+                JSONObject jsonObject = new JSONObject(responsePhrase);
+                recordsPhraseLogger = jsonObject.getString("records");
+                statusPhraseLogger = jsonObject.getString("status");
+
+//                Log.e(LOG_TAG, "STATUS: " + statusPhraseLogger);
+//                Log.e(LOG_TAG, "RECORDS INSERTED: " + recordsPhraseLogger);
+
+                /*DELETE FROM DB IF NO OF RECORDS FETCHED == NO OF RECORDS INSERTED*/
+                if(Integer.parseInt(recordsPhraseLogger)==count)
+                {
+                    Log.e(TAG, "Attempting to delete from DB");
+                    String rawQuery = "DELETE FROM cellRecords WHERE ID IN (SELECT ID FROM cellRecords ORDER BY TIMESTAMP LIMIT "+count+");";
+                    DBHandler dbHandler = new DBHandler(getApplicationContext());
+                    SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
+                    sqLiteDatabase.beginTransaction();
+                    sqLiteDatabase.execSQL(rawQuery);
+                    sqLiteDatabase.setTransactionSuccessful();
+                    sqLiteDatabase.endTransaction();
+                    sqLiteDatabase.close();
+                }
+
+
+                if (statusCode != 404)
+                {
+                    result = Integer.toString(statusCode);
+                    Log.v(TAG, "STATUS CODE: " + result);
+                }
+                else
+                {
+                    result = Integer.toString(statusCode);
+                    Log.v(TAG, "STATUS CODE: " + result);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            Log.e(TEMP_TAG, "DB IS BROKE AS HELL!");
+            result = "DB_EMPTY";
+        }
+        return result;
+    }
+
+    private Cursor fetchTop12000FromDB()
+    {
+        String rawQuery = "SELECT * FROM cellRecords ORDER BY TIMESTAMP LIMIT 12000";
+        DBHandler dbHandler = new DBHandler(getApplicationContext());
+        SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery(rawQuery, null);
+        return cursor;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater mMenuInfater = getMenuInflater();

@@ -438,6 +438,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         }
     }
 
+
+
     public String LOG_POST(String url)
     {
         String TEMP_TAG = "[CURSOR_DATA] : ";
