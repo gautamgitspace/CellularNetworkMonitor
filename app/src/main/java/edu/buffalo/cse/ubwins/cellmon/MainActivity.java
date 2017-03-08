@@ -75,7 +75,8 @@ import android.app.ActivityManager;
 import com.facebook.stetho.Stetho;
 import com.pushlink.android.PushLink;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,
+        ActivityCompat.OnRequestPermissionsResultCallback
 {
 
     public final String TAG = "[CELNETMON-ACTIVITY]";
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Stetho to allow for viewing database in the Chrome inspector
         Stetho.initialize(Stetho.newInitializerBuilder(this)
                 .enableDumpapp(
                         Stetho.defaultDumperPluginsProvider(this)
@@ -142,7 +144,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         /*First read location permission*/
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
             requestLocationPermission();
         }
@@ -154,7 +157,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /*Second read phone state permission*/
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)
         {
             requestPhonePermission();
         }
@@ -166,7 +170,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         /*Write to Storage permission*/
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
             requestStoragePermission();
         }
         else
@@ -178,7 +184,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         /*Wake Lock Permission*/
 
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED)
+        {
             requestWakeLockPermission();
         }
         else
@@ -276,7 +284,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 class PingTask extends AsyncTask<String, Void, Void>{
 
     protected Void doInBackground(String... urls){
-        final TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        final TelephonyManager telephonyManager =
+                (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         String IMEI_HASH = telephonyManager.getDeviceId();
         try {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
@@ -297,14 +306,18 @@ class PingTask extends AsyncTask<String, Void, Void>{
         {
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet();
-            String customURL = "http://104.196.177.7/aggregator/ping?imei_hash=" + URLEncoder.encode(IMEI_HASH, "UTF-8");
+            String customURL =
+                    "http://104.196.177.7/aggregator/ping?imei_hash=" +
+                            URLEncoder.encode(IMEI_HASH, "UTF-8");
             Log.d(TAG, customURL);
             request.setURI(new URI(customURL));
             Log.d(TAG, "Prerequest time: " + System.currentTimeMillis());
             response = client.execute(request);
             Log.d(TAG, "Postrequest time: " + System.currentTimeMillis());
-            Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: " + response.getStatusLine().getReasonPhrase());
-            Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: " + response.getStatusLine().getStatusCode());
+            Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: " +
+                    response.getStatusLine().getReasonPhrase());
+            Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: " +
+                    response.getStatusLine().getStatusCode());
 //            Log.d(TAG, new JSONObject(response).toString());
         }
         catch (URISyntaxException e)
@@ -323,7 +336,7 @@ class PingTask extends AsyncTask<String, Void, Void>{
     }
 }
 
-class ForceExportTask extends AsyncTask<String, Void, String>{
+class ForceExportTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... urls)
@@ -428,7 +441,10 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
                 if(Integer.parseInt(recordsPhraseLogger)==count)
                 {
                     Log.e(TAG, "Attempting to delete from DB");
-                    String rawQuery = "DELETE FROM cellRecords WHERE ID IN (SELECT ID FROM cellRecords ORDER BY TIMESTAMP LIMIT "+count+");";
+                    String rawQuery =
+                            "DELETE FROM cellRecords WHERE ID IN " +
+                                    "(SELECT ID FROM cellRecords ORDER BY TIMESTAMP LIMIT " +
+                                    count + ");";
                     DBHandler dbHandler = new DBHandler(getApplicationContext());
                     SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
                     sqLiteDatabase.beginTransaction();
@@ -525,26 +541,31 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
 
     public void requestLocationPermission() {
         //Log.i(TAG, "LOCATION permission has NOT been granted. Requesting permission.");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
     }
 
     public void requestPhonePermission() {
         //Log.i(TAG, "Phone permission has NOT been granted. Requesting permission.");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_PHONE);
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_PHONE);
     }
 
     public void requestStoragePermission() {
         //Log.i(TAG, "STORAGE permission has NOT been granted. Requesting permission.");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
     }
 
     public void requestWakeLockPermission() {
         //Log.i(TAG, "Wake lock permission has NOT been granted. Requesting permission.");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WAKE_LOCK}, REQUEST_WAKELOCK);
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WAKE_LOCK}, REQUEST_WAKELOCK);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         SharedPreferences.Editor editor = preferences.edit();
         if (requestCode == REQUEST_LOCATION) {
             //Log.i(TAG, "Received response for Location permission request.");
@@ -633,7 +654,8 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
 
 
     private String getIMEI() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getDeviceId();
     }
 
@@ -668,37 +690,44 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
     /* https://developer.android.com/reference/android/telephony/TelephonyManager.html */
 
     private String getNetworkCountryISO() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getNetworkCountryIso();
     }
 
     private String getNetworkOperatorCode() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getNetworkOperator();
     }
 
     private String getNetworkOperatorName() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getNetworkOperatorName();
     }
 
     private String getPhoneType() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return Integer.toString(telephonyManager.getPhoneType());
     }
 
     private String getSimCountryISO() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getSimCountryIso();
     }
 
     private String getSimOperator() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getSimOperator();
     }
 
     private String getSimOperatorName() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getSimOperatorName();
     }
 
@@ -716,7 +745,8 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
 
     public boolean isConnected()
     {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr =
+                (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
@@ -757,7 +787,8 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
                 String sdkInt = getSdkInt();
 
                 /*SERIALIZATION*/
-                RegisterDeviceOuterClass.RegisterDevice registerDevice = RegisterDeviceOuterClass.RegisterDevice.newBuilder()
+                RegisterDeviceOuterClass.RegisterDevice registerDevice =
+                        RegisterDeviceOuterClass.RegisterDevice.newBuilder()
                         .setIMEIHASH(IMEI_TO_POST)
                         .setBOARD(board)
                         .setBRAND(brand)
@@ -868,7 +899,10 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
         else
         {
             Log.v(TAG, "isConnected = FALSE");
-            Toast.makeText(getBaseContext(), "Device has no Internet Connectivity! Please check your Network Connection and try again", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(),
+                    "Device has no Internet Connectivity! " +
+                            "Please check your Network Connection and try again",
+                    Toast.LENGTH_LONG).show();
 
             if(!isRegistered)
             {
@@ -1085,7 +1119,8 @@ class ForceExportTask extends AsyncTask<String, Void, String>{
     }
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+        for (ActivityManager.RunningServiceInfo service :
+                manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
                 return true;
             }

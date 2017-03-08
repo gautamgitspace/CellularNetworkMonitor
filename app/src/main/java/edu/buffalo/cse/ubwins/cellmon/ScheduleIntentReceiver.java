@@ -48,10 +48,16 @@ public class ScheduleIntentReceiver extends Service
  public void onScheduleIntentReceiver(Context arg0)
  {
      keepAlive++;
-
+     // Don't log if a location has not been recorded yet or if a location hasn't been recorded in
+     // over 10 minutes
+     if(ForegroundService.FusedApiLatitude == null || ForegroundService.FusedApiLongitude == null ||
+             (System.currentTimeMillis() - ForegroundService.LastFusedLocation > (10000*60))){
+         return;
+     }
 //     locationFinder = new LocationFinder(arg0);
 
-     final TelephonyManager telephonyManager = (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
+     final TelephonyManager telephonyManager =
+             (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
      IMEI = telephonyManager.getDeviceId();
      cdr = new CellularDataRecorder();
      pcsr = new PhoneCallStateRecorder();
@@ -80,7 +86,7 @@ public class ScheduleIntentReceiver extends Service
 
      /*FETCH INFO FROM PCSR CLASS*/
      int phoneCallState = PhoneCallStateRecorder.call_state;
-//     Log.i(TAG, "onReceive: Location data is before inserting "+locationdata[0] +" "+ locationdata[1]+" "+ locationdata[2]+" "+ locationdata[3]);
+//     Log.i(TAG, "onReceive: Location data is before inserting "+locationdata[0] +" "+ locationdata[1]);
 //
 //
 //     Log.v(TAG, "TIME STAMP: " + timeStamp);
@@ -90,13 +96,14 @@ public class ScheduleIntentReceiver extends Service
 //     Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
 
      dbStore = new DBstore(arg0);
-     dbStore.insertIntoDB(locationdata, stale, timeStamp, cellularInfo, dataActivity, dataState, phoneCallState, mobileNetworkType);
+     dbStore.insertIntoDB(locationdata, stale, timeStamp, cellularInfo, dataActivity, dataState,
+             phoneCallState, mobileNetworkType);
 //     Log.e(TAG, "KEEPALIVE: " + keepAlive);
      if(keepAlive == 1200)
      {
          /*GET IMEI*/
          try {
-             /*HASH EMEI*/
+             /*HASH IMEI*/
              IMEI_HASH = genHash(IMEI);
          }
 
@@ -111,13 +118,14 @@ public class ScheduleIntentReceiver extends Service
          {
              HttpClient client = new DefaultHttpClient();
              HttpGet request = new HttpGet();
-             String customURL = "http://104.196.177.7/aggregator/ping?imei_hash=" + URLEncoder.encode(IMEI_HASH, "UTF-8");
+             String customURL = "http://104.196.177.7/aggregator/ping?imei_hash="
+                     + URLEncoder.encode(IMEI_HASH, "UTF-8");
              request.setURI(new URI(customURL));
-             Log.d(TAG, "Prerequest time: " + System.currentTimeMillis());
              response = client.execute(request);
-             Log.d(TAG, "Postrequest time: " + System.currentTimeMillis());
-             Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: " + response.getStatusLine().getReasonPhrase());
-             Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: " + response.getStatusLine().getStatusCode());
+             Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: "
+                     + response.getStatusLine().getReasonPhrase());
+             Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: "
+                     + response.getStatusLine().getStatusCode());
          }
          catch (URISyntaxException e)
          {
@@ -154,6 +162,7 @@ public class ScheduleIntentReceiver extends Service
         }
         return IMEI_Base64;
     }
+
     @Override
     public IBinder onBind(Intent intent)
     {

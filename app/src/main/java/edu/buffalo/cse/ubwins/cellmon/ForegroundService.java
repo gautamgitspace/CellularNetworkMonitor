@@ -19,13 +19,10 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
-import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,7 +31,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -45,16 +41,15 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static android.text.format.DateUtils.HOUR_IN_MILLIS;
-
-public class ForegroundService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener
+public class ForegroundService extends Service implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener
 {
     private static final String LOG_TAG = "ForegroundService";
 
@@ -118,7 +113,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             Log.v(TAG, "MEDIA MOUNT ERROR!");
         }
         else {
-            exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            exportDir =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
             if (!exportDir.exists())
             {
@@ -177,7 +173,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                     notification);
 
             /*ACQUIRING WAKELOCK*/
-            PowerManager mgr = (PowerManager)getApplicationContext().getSystemService(Context.POWER_SERVICE);
+            PowerManager mgr =
+                    (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
             wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
             wakeLock.acquire();
             Log.v(LOG_TAG, "Acquired WakeLock");
@@ -191,7 +188,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             /*CALL TO SCHEDULER METHOD*/
             scheduler.beep(getApplicationContext());
             //Log.v(LOG_TAG, "SCHEDULER SET TO BEEP Every second");
-            Toast.makeText(getApplicationContext(), "Tracking set to ON!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),
+                    "Tracking set to ON!", Toast.LENGTH_SHORT).show();
 
         }
         else if (intent.getAction().equals("stopforeground"))
@@ -212,7 +210,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             }
             stopForeground(true);
             stopSelf();
-            Toast.makeText(getApplicationContext(), "Tracking set to OFF!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),
+                    "Tracking set to OFF!", Toast.LENGTH_SHORT).show();
         }
         return START_STICKY;
     }
@@ -236,7 +235,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setInterval(3000);
         try {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
         }
         catch (SecurityException e)
         {
@@ -273,7 +273,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
     private final BroadcastReceiver receiver = new BroadcastReceiver()
     {
-        boolean chargingtrue = false;
+        boolean isCharging = false;
         @Override
         public void onReceive(Context context, Intent intent)
         {
@@ -318,11 +318,11 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 }
 
                 /*CHECK FOR WIFI*/
-                chargingtrue = true;
+                isCharging = true;
                 int count = 0;
 
                 /*UPLOAD 40 HOURS OF DATA IN ONE GO*/
-                while (chargingtrue && count <= 15)
+                while (isCharging && count <= 15)
                 {
                     //Log.v("FS","Charging: inside while loop");
                     int status = getConnectivityStatus(getApplicationContext());
@@ -346,7 +346,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             {
                 /*ACTION: NOT CHARGING*/
                 Log.e("FS","Not Charging");
-                chargingtrue =false;
+                isCharging = false;
 
                 /*WRITE TO CSV DIRECTLY*/
                 try
@@ -386,7 +386,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
     public static int getConnectivityStatus(Context context)
     {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (null != activeNetwork)
@@ -418,7 +419,10 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         else
         {
             Log.v(LOG_TAG, "isConnected = FALSE");
-            Toast.makeText(getBaseContext(), "Device has no Internet Connectivity! Please check your Network Connection and try again", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(),
+                    "Device has no Internet Connectivity! " +
+                            "Please check your Network Connection and try again",
+                    Toast.LENGTH_LONG).show();
         }
         return res;
     }
@@ -448,7 +452,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
         Cursor cursor = fetchTop12000FromDB();
         int count = cursor.getCount();
-        DataRecordOuterClass.DataRecord.Builder dataRecord = DataRecordOuterClass.DataRecord.newBuilder();
+        DataRecordOuterClass.DataRecord.Builder dataRecord =
+                DataRecordOuterClass.DataRecord.newBuilder();
         DataRecordOuterClass.DataRecord recordToSend;
         boolean uploadflag = true;
 
@@ -503,27 +508,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                         .setVOICECALLSTATEValue(cursor.getInt(16)).build());
 
                 recordToSend = dataRecord.build();
-//
-//                Log.e(TEMP_TAG, "[N_LAT] : " + cursor.getString(1));
-//                Log.e(TEMP_TAG, "[N_LONG] : " + cursor.getString(2));
-//                Log.e(TEMP_TAG, "[F_LAT] : " + cursor.getString(3));
-//                Log.e(TEMP_TAG, "[F_LONG] : " + cursor.getString(4));
-//                Log.e(TEMP_TAG, "[LOCATION_PROVIDER] : " + cursor.getString(5));
-//                Log.e(TEMP_TAG, "[TIMESTAMP] : " + cursor.getString(6));
-//                Log.e(TEMP_TAG, "[NETWORK_TYPE] : " + cursor.getString(7));
-//                Log.e(TEMP_TAG, "[NETWORK_TYPE2] : " + cursor.getString(8));
-//                Log.e(TEMP_TAG, "[NETWORK_PARAM1] : " + cursor.getString(9));
-//                Log.e(TEMP_TAG, "[NETWORK_PARAM2] : " + cursor.getString(10));
-//                Log.e(TEMP_TAG, "[NETWORK_PARAM3] : " + cursor.getString(11));
-//                Log.e(TEMP_TAG, "[NETWORK_PARAM4] : " + cursor.getString(12));
-//                Log.e(TEMP_TAG, "[DBM] : " + cursor.getString(13));
-//                Log.e(TEMP_TAG, "[NETWORK_LEVEL] : " + cursor.getString(14));
-//                Log.e(TEMP_TAG, "[ASU_LEVEL] : " + cursor.getString(15));
-//                Log.e(TEMP_TAG, "[DATA_STATE] : " + cursor.getString(16));
-//                Log.e(TEMP_TAG, "[DATA_ACTIVITY] : " + cursor.getString(17));
-//                Log.e(TEMP_TAG, "[CALL_STATE] : " + cursor.getString(18));
-//                Log.e(TEMP_TAG, "---------------------------------------------------");
-
             } while (cursor.moveToNext());
 
             byte[] logToSend = recordToSend.toByteArray();
@@ -568,7 +552,10 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 if(Integer.parseInt(recordsPhraseLogger)==count)
                 {
                     Log.e(LOG_TAG, "Attempting to delete from DB");
-                    String rawQuery = "DELETE FROM cellRecords WHERE ID IN (SELECT ID FROM cellRecords ORDER BY TIMESTAMP LIMIT "+count+");";
+                    String rawQuery =
+                            "DELETE FROM cellRecords WHERE ID IN " +
+                                    "(SELECT ID FROM cellRecords ORDER BY TIMESTAMP LIMIT " +
+                                    count + ");";
                     DBHandler dbHandler = new DBHandler(getApplicationContext());
                     SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
                     sqLiteDatabase.beginTransaction();
@@ -603,17 +590,20 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
         return result;
     }
     private String getIMEI() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getDeviceId();
     }
 
     private String getNetworkOperatorCode() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getNetworkOperator();
     }
 
     private String getNetworkOperatorName() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getNetworkOperatorName();
     }
     private String genHash(String input) throws NoSuchAlgorithmException
@@ -643,7 +633,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 
     public boolean isConnected()
     {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr =
+                (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }

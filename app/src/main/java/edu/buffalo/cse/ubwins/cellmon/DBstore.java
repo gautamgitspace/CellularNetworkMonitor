@@ -25,7 +25,9 @@ public class DBstore
         this.mContext=context;
     }
 
-    public void insertIntoDB(Double[] locationdata, boolean stale, Long timeStamp, String cellularInfo, int dataActivity, int dataState, int phoneCallState,int mobileNetworkType)
+    public void insertIntoDB(Double[] locationdata, boolean stale, Long timeStamp,
+                             String cellularInfo, int dataActivity, int dataState,
+                             int phoneCallState, int mobileNetworkType)
     {
         String networkType = "";
         int networkTypeval = -1;
