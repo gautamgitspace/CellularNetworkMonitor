@@ -207,6 +207,22 @@ public final class DataRecordOuterClass {
        * <code>NETWORK_TYPE_EHRPD = 14;</code>
        */
       NETWORK_TYPE_EHRPD(14),
+      /**
+       * <code>NETWORK_TYPE_HSPAP = 15;</code>
+       */
+      NETWORK_TYPE_HSPAP(15),
+      /**
+       * <code>NETWORK_TYPE_GSM = 16;</code>
+       */
+      NETWORK_TYPE_GSM(16),
+      /**
+       * <code>NETWORK_TYPE_TD_SCDMA = 17;</code>
+       */
+      NETWORK_TYPE_TD_SCDMA(17),
+      /**
+       * <code>NETWORK_TYPE_IWLAN = 18;</code>
+       */
+      NETWORK_TYPE_IWLAN(18),
       UNRECOGNIZED(-1),
       ;
 
@@ -270,6 +286,22 @@ public final class DataRecordOuterClass {
        * <code>NETWORK_TYPE_EHRPD = 14;</code>
        */
       public static final int NETWORK_TYPE_EHRPD_VALUE = 14;
+      /**
+       * <code>NETWORK_TYPE_HSPAP = 15;</code>
+       */
+      public static final int NETWORK_TYPE_HSPAP_VALUE = 15;
+      /**
+       * <code>NETWORK_TYPE_GSM = 16;</code>
+       */
+      public static final int NETWORK_TYPE_GSM_VALUE = 16;
+      /**
+       * <code>NETWORK_TYPE_TD_SCDMA = 17;</code>
+       */
+      public static final int NETWORK_TYPE_TD_SCDMA_VALUE = 17;
+      /**
+       * <code>NETWORK_TYPE_IWLAN = 18;</code>
+       */
+      public static final int NETWORK_TYPE_IWLAN_VALUE = 18;
 
 
       public final int getNumber() {
@@ -301,6 +333,10 @@ public final class DataRecordOuterClass {
           case 12: return NETWORK_TYPE_IDEN;
           case 13: return NETWORK_TYPE_LTE;
           case 14: return NETWORK_TYPE_EHRPD;
+          case 15: return NETWORK_TYPE_HSPAP;
+          case 16: return NETWORK_TYPE_GSM;
+          case 17: return NETWORK_TYPE_TD_SCDMA;
+          case 18: return NETWORK_TYPE_IWLAN;
           default: return null;
         }
       }

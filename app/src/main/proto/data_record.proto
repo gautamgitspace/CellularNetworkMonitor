@@ -28,6 +28,10 @@ message DataEntry {
         NETWORK_TYPE_IDEN = 12;
         NETWORK_TYPE_LTE = 13;
         NETWORK_TYPE_EHRPD = 14;
+        NETWORK_TYPE_HSPAP = 15;
+        NETWORK_TYPE_GSM = 16;
+        NETWORK_TYPE_TD_SCDMA = 17;
+        NETWORK_TYPE_IWLAN = 18;
     }
     NetType NETWORK_TYPE = 5;
 
