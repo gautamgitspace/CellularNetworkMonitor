@@ -26,11 +26,13 @@ public class LocationFinder extends Service implements LocationListener
 
     public static double latitude;
     public static double longitude;
-    public static String locationProvider;
 
-    private static final long distance = 10;
-    private static final long updateInterval = 30000;
+    // We want instant results once we start listening so we can minimize the amount of time
+    // the gps is on
+    private static final long distance = 0;
+    private static final long updateInterval = 0;
     boolean isGPSEnabled = false;
+    public static boolean isGPSUpdated = false;
     static final String TAG = "[CELNETMON-LOCFINDER]";
     protected LocationManager locationManager;
 
@@ -39,7 +41,6 @@ public class LocationFinder extends Service implements LocationListener
     public LocationFinder(Context context)
     {
         this.mContext = context;
-        //Log.v(TAG,"Context Constructor Fired.");
     }
 
     public void getLocation()
@@ -47,88 +48,31 @@ public class LocationFinder extends Service implements LocationListener
 
         locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (isGPSEnabled) {
+        if (isGPSEnabled)
+        {
             try
             {
-                //Log.v(TAG, "GPS Based Location Services are ENABLED");
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, updateInterval, distance, this);
             }
             catch (SecurityException s)
             {
                 s.printStackTrace();
             }
-        } else {
-
-            try {
-                //Log.v(TAG, "trying to get location from Wi-Fi or Cellular Towers");
-                locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
-
-            }
-            catch (SecurityException s)
-            {
-                s.printStackTrace();
-            }
-
-
         }
     }
 
-    /* METHOD TO RESOLVE GEO COORDINATES
-    public void addressResolver(Location location)
-    {
-
-        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        geocoder = new Geocoder(mContext);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        try {
-            if (isConnected)
-            {
-                Log.v(TAG, "Attempting to resolve address");
-                List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                if (locationList.get(0).getLocality() != null)
-                {
-                    locality = locationList.get(0).getLocality();
-                    Log.v(TAG, "[LOCALITY]" + locality);
-                }
-                if (locationList.get(0).getAdminArea() != null)
-                {
-                    adminArea = locationList.get(0).getAdminArea();
-                    Log.v(TAG, "[ADMIN AREA]" + adminArea);
-                }
-                if (locationList.get(0).getCountryName() != null)
-                {
-                    countryCode = locationList.get(0).getCountryName();
-                    Log.v(TAG, "[COUNTRY]" + countryCode);
-                }
-                if (locationList.get(0).getThoroughfare() != null)
-                {
-                    throughFare = locationList.get(0).getThoroughfare();
-                    Log.v(TAG, "[THROUGH FARE]" + throughFare);
-                }
-            }
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
+    public void stopUpdates(){
+        locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+        locationManager.removeUpdates(this);
     }
-
-    */
 
     @Override
     public void onLocationChanged(Location location)
     {
-        //Log.i(TAG, "onLocationChanged for Location Manager: ");
-
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-        locationProvider=location.getProvider();
-        //Log.i(TAG, "onLocationChanged: latitude is " +latitude);
-        //Log.i(TAG, "onLocationChanged: Longitude is  "+longitude);
-        //Log.i(TAG, "onLocationChanged: Location provider is"+ locationProvider);
-
+        isGPSUpdated = true;
+        stopUpdates();
     }
 
     @Override
