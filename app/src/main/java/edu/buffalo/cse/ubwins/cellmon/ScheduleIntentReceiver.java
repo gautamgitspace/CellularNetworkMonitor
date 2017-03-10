@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
@@ -46,12 +47,7 @@ public class ScheduleIntentReceiver extends Service {
 
     public void onScheduleIntentReceiver(Context arg0) {
         keepAlive++;
-        // Don't log if a location has not been recorded yet or if a location hasn't been recorded in
-        // over 10 minutes
-        if (ForegroundService.FusedApiLatitude == null || ForegroundService.FusedApiLongitude == null ||
-                (System.currentTimeMillis() - ForegroundService.LastFusedLocation > (10000 * 60))) {
-            return;
-        }
+
 //     locationFinder = new LocationFinder(arg0);
 
         final TelephonyManager telephonyManager =
@@ -69,6 +65,15 @@ public class ScheduleIntentReceiver extends Service {
         int dataActivity = cdr.getCurrentDataActivity(telephonyManager);
         int dataState = cdr.getCurrentDataState(telephonyManager);
         int mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
+
+        final LocationManager locationManager = (LocationManager) arg0.getSystemService(LOCATION_SERVICE);
+        // Don't log if a location has not been recorded yet or if a location hasn't been recorded in
+        // over 10 minutes AND there is no data connection AND there is no GPS available
+        if (ForegroundService.FusedApiLatitude == null || ForegroundService.FusedApiLongitude == null ||
+                ((System.currentTimeMillis() - ForegroundService.LastFusedLocation > (10000 * 60))
+                && dataState == 0 && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))) {
+            return;
+        }
 
      /*FETCH INFO FROM FUSED API*/
         Double fusedApiLatitude = ForegroundService.FusedApiLatitude;
