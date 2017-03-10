@@ -39,7 +39,6 @@ public class ScheduleIntentReceiver extends Service {
     CellularDataRecorder cdr;
     PhoneCallStateRecorder pcsr;
     DBstore dbStore;
-    //    Location location;
     public final String TAG = "[CELNETMON-HNDLRCVR]";
     int keepAlive = 0;
     String IMEI_HASH;
@@ -67,28 +66,16 @@ public class ScheduleIntentReceiver extends Service {
         int mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
 
         final LocationManager locationManager = (LocationManager) arg0.getSystemService(LOCATION_SERVICE);
-        // Don't log if a location has not been recorded yet or if a location hasn't been recorded in
-        // over 10 minutes AND there is no data connection AND there is no GPS available
-        if (ForegroundService.FusedApiLatitude == null || ForegroundService.FusedApiLongitude == null ||
-                ((System.currentTimeMillis() - ForegroundService.LastFusedLocation > (10000 * 60))
-                && dataState == 0 && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))) {
+
+        if (ForegroundService.FusedApiLatitude == null || ForegroundService.FusedApiLongitude == null) {
             return;
         }
 
      /*FETCH INFO FROM FUSED API*/
         Double fusedApiLatitude = ForegroundService.FusedApiLatitude;
         Double fusedApiLongitude = ForegroundService.FusedApiLongitude;
-        boolean stale = (System.currentTimeMillis() - ForegroundService.LastFusedLocation) > 10000;
-
-        // If the gps location has been updated, use those coordinates and mark the location
-        // as not stale
-        if (LocationFinder.isGPSUpdated) {
-            fusedApiLatitude = LocationFinder.latitude;
-            fusedApiLongitude = LocationFinder.longitude;
-            stale = false;
-            LocationFinder.isGPSUpdated = false;
-        }
-
+        boolean stale = ((System.currentTimeMillis() - ForegroundService.LastFusedLocation) > 12000)
+                && dataState == 0 && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         Double locationdata[] = {fusedApiLatitude, fusedApiLongitude};
 

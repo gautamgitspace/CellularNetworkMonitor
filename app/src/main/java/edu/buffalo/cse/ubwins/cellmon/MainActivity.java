@@ -72,8 +72,8 @@ import java.security.NoSuchAlgorithmException;
 import android.util.Base64;
 import android.app.ActivityManager;
 
-import com.facebook.stetho.Stetho;
-import com.pushlink.android.PushLink;
+//import com.facebook.stetho.Stetho;
+//import com.pushlink.android.PushLink;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback
@@ -111,12 +111,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         // Initialize Stetho to allow for viewing database in the Chrome inspector
-        Stetho.initialize(Stetho.newInitializerBuilder(this)
-                .enableDumpapp(
-                        Stetho.defaultDumperPluginsProvider(this)
-                ).enableWebKitInspector(
-                        Stetho.defaultInspectorModulesProvider(this)
-                ).build());
+//        Stetho.initialize(Stetho.newInitializerBuilder(this)
+//                .enableDumpapp(
+//                        Stetho.defaultDumperPluginsProvider(this)
+//                ).enableWebKitInspector(
+//                        Stetho.defaultInspectorModulesProvider(this)
+//                ).build());
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(!isRegistered && locPermission && storagePermission && phonePermission)
         {
             /* PushLink Registration */
-            PushLink.start(this, R.mipmap.ic_launcher, "td6pjldtieedf3is", getIMEI());
+//            PushLink.start(this, R.mipmap.ic_launcher, "td6pjldtieedf3is", getIMEI());
             onRegisterClicked();
         }
         else if(isRegistered)
@@ -230,23 +230,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         startTrackingButton.setOnClickListener(this);
         stopTrackingButton.setOnClickListener(this);
-        Button ping = (Button) findViewById(R.id.ping);
-        Button forceExport = (Button) findViewById(R.id.forceExport);
-        ping.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Ping pressed");
-                new PingTask().execute();
-            }
-        });
 
-        forceExport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Force upload pressed");
-                new ForceExportTask().execute(URL_UPLOAD);
-            }
-        });
+//        Button ping = (Button) findViewById(R.id.ping);
+//        Button forceExport = (Button) findViewById(R.id.forceExport);
+//        ping.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.d(TAG, "Ping pressed");
+//                new PingTask().execute();
+//            }
+//        });
+//
+//        forceExport.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Log.d(TAG, "Force upload pressed");
+//                new ForceExportTask().execute(URL_UPLOAD);
+//            }
+//        });
         /*
         //TRACK BUTTON 1 - DELETE DB
         track = (Button) findViewById(R.id.button1);
@@ -279,213 +280,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //create receiver and register it
 
-    }
-
-class PingTask extends AsyncTask<String, Void, Void>{
-
-    protected Void doInBackground(String... urls){
-        final TelephonyManager telephonyManager =
-                (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-        String IMEI_HASH = telephonyManager.getDeviceId();
-        try {
-            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-            byte[] sha256Hash = sha256.digest(IMEI_HASH.getBytes("UTF-8"));
-            IMEI_HASH = Base64.encodeToString(sha256Hash, Base64.DEFAULT);
-            IMEI_HASH=IMEI_HASH.replaceAll("\n", "");
-
-        }
-
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        Log.v(TAG, "GENERATED IMEI HASH");
-        //TODO KEEP-ALIVE GET
-        HttpResponse response = null;
-        try
-        {
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet();
-            String customURL =
-                    "http://104.196.177.7/aggregator/ping?imei_hash=" +
-                            URLEncoder.encode(IMEI_HASH, "UTF-8");
-            Log.d(TAG, customURL);
-            request.setURI(new URI(customURL));
-            Log.d(TAG, "Prerequest time: " + System.currentTimeMillis());
-            response = client.execute(request);
-            Log.d(TAG, "Postrequest time: " + System.currentTimeMillis());
-            Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: " +
-                    response.getStatusLine().getReasonPhrase());
-            Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: " +
-                    response.getStatusLine().getStatusCode());
-//            Log.d(TAG, new JSONObject(response).toString());
-        }
-        catch (URISyntaxException e)
-        {
-            e.printStackTrace();
-        }
-        catch (ClientProtocolException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
-}
-
-class ForceExportTask extends AsyncTask<String, Void, String> {
-
-    @Override
-    protected String doInBackground(String... urls)
-    {
-        Log.v(TAG, "inside ForceExportTask");
-        return FORCE_POST(urls[0]);
-    }
-}
-
-
-
-    public String FORCE_POST(String url){
-        String TEMP_TAG = "[CURSOR_DATA] : ";
-        int statusCode;
-        String result = "";
-
-        Cursor cursor = fetchTop12000FromDB();
-        int count = cursor.getCount();
-        DataRecordOuterClass.DataRecord.Builder dataRecord = DataRecordOuterClass.DataRecord.newBuilder();
-        DataRecordOuterClass.DataRecord recordToSend;
-
-        if (cursor.moveToFirst())
-        {
-            String IMEI = getIMEI();
-            String networkOperatorCode = getNetworkOperatorCode();
-            String networkOperatorName = getNetworkOperatorName();
-
-            try{
-                IMEI_TO_POST = genHash(IMEI);
-            }
-            catch(NoSuchAlgorithmException nsa)
-            {
-                nsa.printStackTrace();
-            }
-            dataRecord.setIMEIHASH(IMEI_TO_POST);
-            dataRecord.setNETWORKOPERATORNAME(networkOperatorName);
-            dataRecord.setNETWORKOPERATORCODE(networkOperatorCode);
-
-            do {
-                dataRecord.addENTRY(DataRecordOuterClass.DataEntry.newBuilder()
-                        .setFUSEDLAT(cursor.getDouble(1))
-                        .setFUSEDLONG(cursor.getDouble(2))
-                        .setSTALE(cursor.getInt(3) > 0)
-                        .setTIMESTAMP(cursor.getLong(4))
-                        .setNETWORKCELLTYPEValue(cursor.getInt(5))
-                        .setNETWORKTYPEValue(cursor.getInt(6))
-                        .setNETWORKPARAM1(cursor.getInt(7))
-                        .setNETWORKPARAM2(cursor.getInt(8))
-                        .setNETWORKPARAM3(cursor.getInt(9))
-                        .setNETWORKPARAM4(cursor.getInt(10))
-                        .setSIGNALDBM(cursor.getInt(11))
-                        .setSIGNALLEVEL(cursor.getInt(12))
-                        .setSIGNALASULEVEL(cursor.getInt(13))
-                        .setNETWORKSTATEValue(cursor.getInt(14))
-                        .setNETWORKDATAACTIVITYValue(cursor.getInt(15))
-                        .setVOICECALLSTATEValue(cursor.getInt(16)).build());
-
-                recordToSend = dataRecord.build();
-
-
-            } while (cursor.moveToNext());
-
-            byte[] logToSend = recordToSend.toByteArray();
-            int len = logToSend.length;
-            Log.e("SIZE","Length of 5 entries is : "+len);
-
-
-
-            try {
-
-                    /*1. create HttpClient*/
-                HttpClient httpclient = new DefaultHttpClient();
-
-                    /*2. make POST request to the given URL*/
-                HttpPost httpPost = new HttpPost(url);
-
-                    /*3. Build ByteArrayEntity*/
-                ByteArrayEntity byteArrayEntity = new ByteArrayEntity(logToSend);
-
-                    /*4. Set httpPost Entity*/
-                httpPost.setEntity(byteArrayEntity);
-
-                    /*5. Execute POST request to the given URL*/
-                HttpResponse httpResponse = httpclient.execute(httpPost);
-
-                /*9. receive response as inputStream*/
-                statusCode = httpResponse.getStatusLine().getStatusCode();
-
-                /*CONVERT INPUT STREAM TO STRING*/
-                responsePhrase = EntityUtils.toString(httpResponse.getEntity());
-                Log.v(TAG, "RESPONSE" + responsePhrase);
-
-                /*PARSE JSON RESPONSE*/
-                JSONObject jsonObject = new JSONObject(responsePhrase);
-                recordsPhraseLogger = jsonObject.getString("records");
-                statusPhraseLogger = jsonObject.getString("status");
-
-//                Log.e(LOG_TAG, "STATUS: " + statusPhraseLogger);
-//                Log.e(LOG_TAG, "RECORDS INSERTED: " + recordsPhraseLogger);
-
-                /*DELETE FROM DB IF NO OF RECORDS FETCHED == NO OF RECORDS INSERTED*/
-                if(Integer.parseInt(recordsPhraseLogger)==count)
-                {
-                    Log.e(TAG, "Attempting to delete from DB");
-                    String rawQuery =
-                            "DELETE FROM cellRecords WHERE ID IN " +
-                                    "(SELECT ID FROM cellRecords ORDER BY TIMESTAMP LIMIT " +
-                                    count + ");";
-                    DBHandler dbHandler = new DBHandler(getApplicationContext());
-                    SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
-                    sqLiteDatabase.beginTransaction();
-                    sqLiteDatabase.execSQL(rawQuery);
-                    sqLiteDatabase.setTransactionSuccessful();
-                    sqLiteDatabase.endTransaction();
-                    sqLiteDatabase.close();
-                }
-
-
-                if (statusCode != 404)
-                {
-                    result = Integer.toString(statusCode);
-                    Log.v(TAG, "STATUS CODE: " + result);
-                }
-                else
-                {
-                    result = Integer.toString(statusCode);
-                    Log.v(TAG, "STATUS CODE: " + result);
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
-        else
-        {
-            Log.e(TEMP_TAG, "DB IS BROKE AS HELL!");
-            result = "DB_EMPTY";
-        }
-        return result;
-    }
-
-    private Cursor fetchTop12000FromDB()
-    {
-        String rawQuery = "SELECT * FROM cellRecords ORDER BY TIMESTAMP LIMIT 12000";
-        DBHandler dbHandler = new DBHandler(getApplicationContext());
-        SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery(rawQuery, null);
-        return cursor;
     }
 
     @Override
