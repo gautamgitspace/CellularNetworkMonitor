@@ -47,6 +47,8 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static edu.buffalo.cse.ubwins.cellmon.Scheduler.scheduler;
+
 public class ForegroundService extends Service implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener
@@ -54,28 +56,39 @@ public class ForegroundService extends Service implements
     private static final String LOG_TAG = "ForegroundService";
 
     ScheduleIntentReceiver scheduleIntentReceiver;
-    Scheduler scheduler;
+//    Scheduler scheduler;
     private GoogleApiClient mGoogleApiClient;
     public LocationRequest mLocationRequest;
     public static Double FusedApiLatitude;
     public static Double FusedApiLongitude;
     public static long LastFusedLocation;
-//    LocationFinder locationFinder;
-    PowerManager.WakeLock wakeLock;
-    SharedPreferences preferences;
+
     public static int TYPE_WIFI = 1;
     public static int TYPE_MOBILE = 2;
     public static int TYPE_NOT_CONNECTED = 0;
+
     String URL_UPLOAD = "http://104.196.177.7:80/aggregator/upload/";
     String responsePhrase;
     String statusPhraseLogger;
     String recordsPhraseLogger;
     String IMEI_TO_POST;
     static PrintWriter printWriter = null;
+
+    private SQLiteDatabase sqLiteDatabase;
+
+    // Originally 5 hours and 12000 entries
+    static int hoursPerUpload = 5;
+    static int entriesToUpload = 12000;
+    File exportDir;
+    Alarm alarm = new Alarm();
+    private Scheduler scheduler;
+
+    PowerManager.WakeLock wakeLock;
+    SharedPreferences preferences;
     static FileWriter fileWriter = null;
     static File file = null;
-    File exportDir;
     ContentValues contentValues = new ContentValues();
+
     public final String TAG = "[CELMON-FRGRNDSRVC]";
 
     public static void initPrintWriter(File file)
@@ -173,11 +186,11 @@ public class ForegroundService extends Service implements
                     notification);
 
             /*ACQUIRING WAKELOCK*/
-            PowerManager mgr =
-                    (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-            wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
-            wakeLock.acquire();
-            Log.v(LOG_TAG, "Acquired WakeLock");
+//            PowerManager mgr =
+//                    (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+//            wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
+//            wakeLock.acquire();
+//            Log.v(LOG_TAG, "Acquired WakeLock");
 
             mGoogleApiClient.connect();
             //finished connecting API Client
@@ -186,7 +199,9 @@ public class ForegroundService extends Service implements
 //            locationFinder.getLocation();
 
             /*CALL TO SCHEDULER METHOD*/
-            scheduler.beep(getApplicationContext());
+            alarm.setAlarm(this);
+
+//            scheduler.beep(getApplicationContext());
             //Log.v(LOG_TAG, "SCHEDULER SET TO BEEP Every second");
             Toast.makeText(getApplicationContext(),
                     "Tracking set to ON!", Toast.LENGTH_SHORT).show();
@@ -195,12 +210,13 @@ public class ForegroundService extends Service implements
         else if (intent.getAction().equals("stopforeground"))
         {
             /*CANCEL SCHEDULER AND RELEASE WAKELOCK*/
-            if(wakeLock.isHeld()) {
-                wakeLock.release();
-            }
+//            if(wakeLock.isHeld()) {
+//                wakeLock.release();
+//            }
             //Log.v(LOG_TAG, "Releasing WakeLock");
+            alarm.cancelAlarm(this);
 
-            Scheduler.stopScheduler();
+//            Scheduler.stopScheduler();
             //Log.v(LOG_TAG, "Beeping Service Stoppped");
 
             /*to disconnect google api client*/
@@ -233,7 +249,7 @@ public class ForegroundService extends Service implements
     public void onConnected(Bundle bundle) {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setInterval(3000);
+        mLocationRequest.setInterval(10000);
         try {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest, this);
@@ -450,7 +466,7 @@ public class ForegroundService extends Service implements
         int statusCode;
         String result = "";
 
-        Cursor cursor = fetchTop12000FromDB();
+        Cursor cursor = fetchTopFromDB(entriesToUpload);
         int count = cursor.getCount();
         DataRecordOuterClass.DataRecord.Builder dataRecord =
                 DataRecordOuterClass.DataRecord.newBuilder();
@@ -461,14 +477,14 @@ public class ForegroundService extends Service implements
             long timeStamp = cursor.getLong(4);
             long currTimestamp = System.currentTimeMillis();
             long timeGap = currTimestamp - timeStamp;
-            if(timeGap < 5*60*60*1000)
+            if(timeGap < hoursPerUpload*60*60*1000)
             {
                 uploadflag = false;
                 result = "Data not stale enough";
             }
         }
 
-        if (cursor.moveToFirst() && uploadflag==true)
+        if (cursor.moveToFirst() && uploadflag)
         {
             String IMEI = getIMEI();
             String networkOperatorCode = getNetworkOperatorCode();
@@ -487,12 +503,9 @@ public class ForegroundService extends Service implements
 
             do {
                 dataRecord.addENTRY(DataRecordOuterClass.DataEntry.newBuilder()
-//                        .setNETWORKLAT(cursor.getDouble(1))
-//                        .setNETWORKLONG(cursor.getDouble(2))
                         .setFUSEDLAT(cursor.getDouble(1))
                         .setFUSEDLONG(cursor.getDouble(2))
                         .setSTALE(cursor.getInt(3) > 0)
-//                        .setLOCATIONPROVIDERValue(cursor.getInt(4))
                         .setTIMESTAMP(cursor.getLong(4))
                         .setNETWORKCELLTYPEValue(cursor.getInt(5))
                         .setNETWORKTYPEValue(cursor.getInt(6))
@@ -587,6 +600,7 @@ public class ForegroundService extends Service implements
             Log.e(TEMP_TAG, "DB IS BROKE AS HELL!");
             result = "DB_EMPTY";
         }
+        sqLiteDatabase.close();
         return result;
     }
     private String getIMEI() {
@@ -622,13 +636,13 @@ public class ForegroundService extends Service implements
         }
         return IMEI_Base64;
     }
-    private Cursor fetchTop12000FromDB()
+
+    private Cursor fetchTopFromDB(int limit)
     {
-        String rawQuery = "SELECT * FROM cellRecords ORDER BY TIMESTAMP LIMIT 12000";
+        String rawQuery = "SELECT * FROM cellRecords ORDER BY TIMESTAMP LIMIT " + limit;
         DBHandler dbHandler = new DBHandler(getApplicationContext());
-        SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery(rawQuery, null);
-        return cursor;
+        sqLiteDatabase = dbHandler.getWritableDatabase();
+        return sqLiteDatabase.rawQuery(rawQuery, null);
     }
 
     public boolean isConnected()

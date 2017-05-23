@@ -22,11 +22,14 @@ package edu.buffalo.cse.ubwins.cellmon;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
@@ -36,6 +39,9 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -45,7 +51,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.design.widget.Snackbar;
@@ -72,15 +81,15 @@ import java.security.NoSuchAlgorithmException;
 import android.util.Base64;
 import android.app.ActivityManager;
 
-//import com.facebook.stetho.Stetho;
+import com.facebook.stetho.Stetho;
 //import com.pushlink.android.PushLink;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,
+public class MainActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback
 {
 
     public final String TAG = "[CELNETMON-ACTIVITY]";
-    private View mLayout;
+    private DrawerLayout mLayout;
     private static final int REQUEST_LOCATION = 0;
     private static final int REQUEST_STORAGE = 2;
     private static final int REQUEST_PHONE = 1;
@@ -95,12 +104,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String IMEI_TO_POST;
     NetworkStateReceiver receiver;
     SharedPreferences preferences;
-    Button startTrackingButton;
-    Button stopTrackingButton;
-    String statusPhraseLogger;
-    String recordsPhraseLogger;
     String URL_UPLOAD = "http://104.196.177.7:80/aggregator/upload/";
 
+    private String[] actions;
+//    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private CharSequence mTitle;
+    private CharSequence mDrawerTitle;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -108,40 +119,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_base);
+
 
         // Initialize Stetho to allow for viewing database in the Chrome inspector
-//        Stetho.initialize(Stetho.newInitializerBuilder(this)
-//                .enableDumpapp(
-//                        Stetho.defaultDumperPluginsProvider(this)
-//                ).enableWebKitInspector(
-//                        Stetho.defaultInspectorModulesProvider(this)
-//                ).build());
+        Stetho.initialize(Stetho.newInitializerBuilder(this)
+                .enableDumpapp(
+                        Stetho.defaultDumperPluginsProvider(this)
+                ).enableWebKitInspector(
+                        Stetho.defaultInspectorModulesProvider(this)
+                ).build());
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+//        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(mToolbar);
 
         file = new File(getApplicationContext().getFilesDir(), fileName);
 
-        startTrackingButton = (Button) findViewById(R.id.button4);
-        stopTrackingButton = (Button) findViewById(R.id.button5);
-
-        /*Creating googleApiClient for Fused Location Provider*/
-        mLayout = findViewById(R.id.myLayout);
-        /*Ask for permissions here itself(both for final app and one write to storage for generating CSV file)*/
-
-        if(isMyServiceRunning(ForegroundService.class)){
-            startTrackingButton.setEnabled(false);
-            stopTrackingButton.setEnabled(true);
-        }
-        else{
-            startTrackingButton.setEnabled(true);
-            stopTrackingButton.setEnabled(false);
-        }
-
         /*DECLARE EDITOR FOR PERMISSIONS */
        SharedPreferences.Editor editor = preferences.edit();
-
 
         /*First read location permission*/
         if (ActivityCompat.checkSelfPermission(getApplicationContext(),
@@ -153,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             editor.putBoolean("LOCATION", true);
             editor.commit();
-            //Log.v(TAG, "LOCATION permission has already been granted.");
         }
 
         /*Second read phone state permission*/
@@ -166,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             editor.putBoolean("PHONE", true);
             editor.commit();
-            //Log.v(TAG, "Phone permission has already been granted.");
         }
 
         /*Write to Storage permission*/
@@ -179,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             editor.putBoolean("STORAGE", true);
             editor.commit();
-            //Log.v(TAG, "Storage permission has already been granted.");
         }
 
         /*Wake Lock Permission*/
@@ -193,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             editor.putBoolean("WAKELOCK", true);
             editor.commit();
-            //Log.v(TAG, "Wakelock permission has already been granted.");
         }
 
         /* CALL TO REGISTER DEVICE*/
@@ -202,157 +193,117 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         boolean storagePermission = preferences.getBoolean("STORAGE",false);
         boolean phonePermission = preferences.getBoolean("PHONE",false);
         boolean isRegistered = preferences.getBoolean("isRegistered", false);
-        //Log.e(TAG, "isRegistered Value [1]: " + isRegistered);
 
         /*Call only after all 3 permissions are granted*/
         if(!isRegistered && locPermission && storagePermission && phonePermission)
         {
-            /* PushLink Registration */
-//            PushLink.start(this, R.mipmap.ic_launcher, "td6pjldtieedf3is", getIMEI());
             onRegisterClicked();
-        }
-        else if(isRegistered)
-        {
-            TextView textView = (TextView) findViewById(R.id.textView30);
-            textView.setText("Device Already Registered!");
         }
 
         Log.v(TAG, "CelNetMon Service Started");
 
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        Boolean started = sharedPref.getBoolean("Started", false);
 
-        if (started) {
-            Button button = (Button) findViewById(R.id.button);
-            assert button != null;
-            button.setEnabled(false);
+        // Set up UI
+
+        mTitle = mDrawerTitle = getTitle();
+        actions = getResources().getStringArray(R.array.app_actions);
+        mLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        mLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.simple_list_item, actions));
+
+        mDrawerList.setOnItemClickListener(new DrawerClickListener());
+
+
+
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,
+                mLayout,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+        ) {
+            public void onDrawerClosed(View view){
+                super.onDrawerClosed(view);
+                getSupportActionBar().setTitle(mTitle);
+                invalidateOptionsMenu();
+            }
+
+            public void onDrawerOpened(View drawerView){
+                super.onDrawerOpened(drawerView);
+                getSupportActionBar().setTitle("Options");
+                invalidateOptionsMenu();
+            }
+        };
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        mLayout.addDrawerListener(mDrawerToggle);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        if(savedInstanceState == null){
+            selectItem(0);
         }
-
-        startTrackingButton.setOnClickListener(this);
-        stopTrackingButton.setOnClickListener(this);
-
-//        Button ping = (Button) findViewById(R.id.ping);
-//        Button forceExport = (Button) findViewById(R.id.forceExport);
-//        ping.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.d(TAG, "Ping pressed");
-//                new PingTask().execute();
-//            }
-//        });
-//
-//        forceExport.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.d(TAG, "Force upload pressed");
-//                new ForceExportTask().execute(URL_UPLOAD);
-//            }
-//        });
-        /*
-        //TRACK BUTTON 1 - DELETE DB
-        track = (Button) findViewById(R.id.button1);
-        track.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg1) {
-                deleteDB();
-            }
-        });
-
-        //TRACK BUTTON 2 - EXPORT DB
-        track = (Button) findViewById(R.id.button2);
-        track.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg1) {
-                exportDB();
-            }
-        });
-
-        //TRACK BUTTON 3 - EXPORT CSV
-        track = (Button) findViewById(R.id.button3);
-        track.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg1) {
-                exportToCSV();
-            }
-        });
-        */
-
-
-        //create receiver and register it
 
     }
 
     @Override
+    protected void onPostCreate(Bundle savedInstanceState){
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater mMenuInfater = getMenuInflater();
-        mMenuInfater.inflate(R.menu.app_menu,menu);
+        getMenuInflater().inflate(R.menu.app_menu,menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_mapView){
-            Toast.makeText(MainActivity.this,"MapView Clicked",Toast.LENGTH_LONG).show();
-        }
-        if(item.getItemId() == R.id.action_aboutUs){
-            Toast.makeText(MainActivity.this,"About Us Clicked",Toast.LENGTH_LONG).show();
+        if(mDrawerToggle.onOptionsItemSelected(item)){
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onClick(View v)
-    {
-       SharedPreferences.Editor editor = preferences.edit();
-        Log.e(TAG, "inside on click");
-        switch (v.getId()) {
-            case R.id.button4:
-                Intent startIntent = new Intent(MainActivity.this, ForegroundService.class);
-                startIntent.setAction("startforeground");
-                startService(startIntent);
-                editor.putBoolean("TRACKING", true);
-                editor.commit();
-                stopTrackingButton.setEnabled(true);
-                startTrackingButton.setEnabled(false);
-                break;
-            case R.id.button5:
-                if(isMyServiceRunning(ForegroundService.class))
-                {
-                    Log.v("STOP Button","Stopped");
-                Intent stopIntent = new Intent(MainActivity.this, ForegroundService.class);
-                stopIntent.setAction("stopforeground");
-                startService(stopIntent);}
-                startTrackingButton.setEnabled(true);
-                stopTrackingButton.setEnabled(false);
-                editor.putBoolean("TRACKING", false);
-                editor.commit();
-                break;
-            default:
-                break;
-        }
-    }
+
+
+
+
+
+
+
+
+
 
     public void requestLocationPermission() {
-        //Log.i(TAG, "LOCATION permission has NOT been granted. Requesting permission.");
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
     }
 
     public void requestPhonePermission() {
-        //Log.i(TAG, "Phone permission has NOT been granted. Requesting permission.");
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_PHONE);
     }
 
     public void requestStoragePermission() {
-        //Log.i(TAG, "STORAGE permission has NOT been granted. Requesting permission.");
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
     }
 
     public void requestWakeLockPermission() {
-        //Log.i(TAG, "Wake lock permission has NOT been granted. Requesting permission.");
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WAKE_LOCK}, REQUEST_WAKELOCK);
     }
@@ -362,10 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                            @NonNull int[] grantResults) {
         SharedPreferences.Editor editor = preferences.edit();
         if (requestCode == REQUEST_LOCATION) {
-            //Log.i(TAG, "Received response for Location permission request.");
-
             /*Check if the only required permission has been granted*/
-
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //Log.i(TAG, "Location permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_location,
@@ -379,16 +327,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 {
                     onRegisterClicked();
                 }
-            } else {
-                //Log.i(TAG, "Location permission was NOT granted.");
+            }
+            else {
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
             }
-
-        } else if (requestCode == REQUEST_STORAGE) {
-            //Log.i(TAG, "Received response for storage permissions request.");
+        }
+        else if (requestCode == REQUEST_STORAGE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //Log.i(TAG, "Storage permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_storage,
                         Snackbar.LENGTH_SHORT).show();
                 editor.putBoolean("STORAGE", true);
@@ -400,15 +346,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 {
                     onRegisterClicked();
                 }
-            } else {
-               //Log.i(TAG, "Storage permission was NOT granted.");
+            }
+            else {
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
             }
-        } else if (requestCode == REQUEST_PHONE) {
-            //Log.i(TAG, "Received response for phone permissions request.");
+        }
+        else if (requestCode == REQUEST_PHONE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //Log.i(TAG, "Phone permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_phone,
                         Snackbar.LENGTH_SHORT).show();
                 editor.putBoolean("PHONE", true);
@@ -421,24 +366,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     onRegisterClicked();
                 }
             } else {
-                //Log.i(TAG, "Phone permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
             }
-        } else if (requestCode == REQUEST_WAKELOCK) {
-            //Log.i(TAG, "Received response for wakeLock permissions request.");
+        }
+        else if (requestCode == REQUEST_WAKELOCK) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //Log.i(TAG, "Phone permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_wakelock,
                         Snackbar.LENGTH_SHORT).show();
                 editor.putBoolean("WAKELOCK", true);
                 editor.commit();
-            } else {
-                //Log.i(TAG, "Phone permission was NOT granted.");
+            }
+            else {
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
             }
-        } else {
+        }
+        else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
@@ -453,33 +397,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return telephonyManager.getDeviceId();
     }
 
-    private String getBoard() {
-        return Build.BOARD;
-    }
-
-    private String getBrand() {
-        return Build.BRAND;
-    }
-
-    private String getDevice() {
-        return Build.DEVICE;
-    }
-
-    private String getHardware() {
-        return android.os.Build.HARDWARE;
-    }
-
-    private String getManufacturer() {
-        return android.os.Build.MANUFACTURER;
-    }
-
-    private String getModel() {
-        return android.os.Build.MODEL;
-    }
-
-    private String getProduct() {
-        return Build.PRODUCT;
-    }
+    private String getBoard() { return Build.BOARD; }
+    private String getBrand() { return Build.BRAND; }
+    private String getDevice() { return Build.DEVICE; }
+    private String getHardware() { return android.os.Build.HARDWARE; }
+    private String getManufacturer() { return android.os.Build.MANUFACTURER; }
+    private String getModel() { return android.os.Build.MODEL; }
+    private String getProduct() { return Build.PRODUCT; }
 
     /* https://developer.android.com/reference/android/telephony/TelephonyManager.html */
 
@@ -528,14 +452,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /* https://developer.android.com/reference/android/os/Build.VERSION.html */
     //private String getBaseOS(){return Build.VERSION.BASE_OS;}
 
-    private String getRelease() {
-        return Build.VERSION.RELEASE;
-    }
-
-    private String getSdkInt() {
-        return Integer.toString(Build.VERSION.SDK_INT);
-    }
-
+    private String getRelease() { return Build.VERSION.RELEASE; }
+    private String getSdkInt() { return Integer.toString(Build.VERSION.SDK_INT); }
 
     public boolean isConnected()
     {
@@ -603,34 +521,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 byte infoToSend[] = registerDevice.toByteArray();
 
-                /*POST LOGGING BLOCK
-                Log.v(TAG,"######################################################");
-                Log.v(TAG, "Phone Info #1: IMEI: " + IMEI);
-                Log.v(TAG, "Phone Info #1B: IMEI_BASE64_HASH: " + IMEI_TO_POST);
-
-                Log.v(TAG, "Phone Info #2: BOARD: " + board);
-                Log.v(TAG, "Phone Info #3: BRAND: " + brand);
-                Log.v(TAG, "Phone Info #4: DEVICE: " + device);
-                Log.v(TAG, "Phone Info #5: HARDWARE: " + hardware);
-                Log.v(TAG, "Phone Info #6: MANUFACTURER: " + manufacturer);
-                Log.v(TAG, "Phone Info #7: MODEL: " + modelMake);
-                Log.v(TAG, "Phone Info #8: PRODUCT: " + product);
-
-
-                Log.v(TAG,"Phone Info #9: NETWORK_COUNTRY_ISO: " + networkCountryISO);
-                Log.v(TAG,"Phone Info #10: NETWORK_OPERATOR_CODE: " + networkOperatorCode);
-                Log.v(TAG,"Phone Info #11: NETWORK_OPERATOR_NAME: " + networkOperatorName);
-                Log.v(TAG,"Phone Info #12: PHONE_TYPE: " + phoneType);
-                Log.v(TAG,"Phone Info #13: SIM_COUNTRY_ISO: " + simCountryISO);
-                Log.v(TAG,"Phone Info #14: SIM_OPERATOR: " + simOperator);
-                Log.v(TAG,"Phone Info #15: SIM_OPERATOR_NAME: " + simOperatorName);
-
-                Log.v(TAG,"Phone Info #16: RELEASE: " + release);
-                Log.v(TAG,"Phone Info #17: SDK_INT: " + sdkInt);
-                Log.v(TAG,"######################################################");
-
-                */
-
                 /*1. create HttpClient*/
                 HttpClient httpclient = new DefaultHttpClient();
 
@@ -661,26 +551,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d(TAG, httpResponse.toString());
                 /*PARSE JSON RESPONSE*/
 
-
                 if(statusCode!=404)
                 {
                     result = Integer.toString(statusCode);
                     Log.v(TAG, "STATUS CODE: " + result);
                 }
-
                 else
                 {
                     result = Integer.toString(statusCode);
                     //Log.v(TAG, "STATUS CODE: " + result);
                 }
-
             }
             catch (Exception e)
             {
                 Log.d("InputStream", e.getLocalizedMessage());
             }
         return result;
-        }
+    }
 
     public void onRegisterClicked()
     {
@@ -703,20 +590,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 receiver = new NetworkStateReceiver();
                 receiver.addListener(new NetworkStateReceiver.NetworkStateReceiverListener() {
-                @Override
-                public void networkAvailable() {
-                    //Log.v("AUTOMATE", "NETWORK IS AVAILABLE");
-
+                    @Override
+                    public void networkAvailable() {
                         onRegisterClicked();
+                    }
 
-                }
-
-                @Override
-                public void networkUnavailable() {
-                    //Log.v("AUTOMATE", "NETWORK IS UNAVAILABLE");
-                }
-
-            });
+                    @Override
+                    public void networkUnavailable() {
+                        //Log.v("AUTOMATE", "NETWORK IS UNAVAILABLE");
+                    }
+                });
             registerReceiver(receiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
             }
         }
@@ -742,11 +625,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 j.printStackTrace();
             }
 
-            //Log.e(TAG, "STATUS PHRASE: " + statusPhrase);
             if(statusPhrase!=null && statusPhrase.equals("SUCCESS"))
             {
                 TextView textView = (TextView) findViewById(R.id.textView30);
-                textView.setText("Device Registered!");
+                if(textView != null) textView.setText("Device Registered!");
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putBoolean("isRegistered", true);
                 editor.commit();
@@ -757,7 +639,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 try {
                     reasonPhrase = jsonObject.getString("reason");
-                    //Log.e(TAG, "REASON PHRASE: " + reasonPhrase);
                 }
                 catch (JSONException j)
                 {
@@ -766,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(reasonPhrase.equals("Given IMEI_HASH configuration already exists"))
                 {
                     TextView textView = (TextView) findViewById(R.id.textView30);
-                    textView.setText("Device Already Registered!");
+                    if(textView != null) textView.setText("Device Already Registered!");
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putBoolean("isRegistered", true);
                     editor.commit();
@@ -775,125 +656,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 {
                     Log.d(TAG, reasonPhrase);
                     TextView textView = (TextView) findViewById(R.id.textView30);
-                    textView.setText("Device Registration Failed!");
+                    if(textView != null) textView.setText("Device Registration Failed!");
                 }
             }
         }
     }
-
-
-    /* EXPORT TO CSV BLOCK
-    public void exportToCSV()
-    {
-
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state))
-        {
-            Toast.makeText(this, "MEDIA MOUNT ERROR!", Toast.LENGTH_LONG).show();
-        }
-        else
-        {
-            File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            if (!exportDir.exists())
-            {
-                exportDir.mkdirs();
-                Log.v(TAG, "Directory made");
-            }
-
-            File file = new File(exportDir, "CellularData.csv") ;
-            PrintWriter printWriter = null;
-            try
-            {
-                file.createNewFile();
-                printWriter = new PrintWriter(new FileWriter(file));
-                DBHandler dbHandler = new DBHandler(getApplicationContext());
-                SQLiteDatabase sqLiteDatabase = dbHandler.getReadableDatabase();
-                Cursor curCSV = sqLiteDatabase.rawQuery("select * from cellRecords", null);
-                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,LOCATION_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_TYPE2,NETWORK_PARAM1,NETWORK_PARAM2,NETWORK_PARAM3,NETWORK_PARAM4,DBM,NETWORK_LEVEL,ASU_LEVEL,DATA_STATE,DATA_ACTIVITY,CALL_STATE");
-                while(curCSV.moveToNext())
-                {
-                    String lmLatitude = curCSV.getString(curCSV.getColumnIndex("N_LAT"));
-                    String lmLongitude = curCSV.getString(curCSV.getColumnIndex("N_LONG"));
-                    String fLatitude = curCSV.getString(curCSV.getColumnIndex("F_LAT"));
-                    String fLongitude = curCSV.getString(curCSV.getColumnIndex("F_LONG"));
-                    String locationProvider = curCSV.getString(curCSV.getColumnIndex("LOCATION_PROVIDER"));
-
-                    String timeStamp = curCSV.getString(curCSV.getColumnIndex("TIMESTAMP"));
-                    String networkType = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE"));
-                    String networkType2 = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE2"));
-                    String networkParam1 = curCSV.getString(curCSV.getColumnIndex("NETWORK_PARAM1"));
-                    String networkParam2 = curCSV.getString(curCSV.getColumnIndex("NETWORK_PARAM2"));
-                    String networkParam3 = curCSV.getString(curCSV.getColumnIndex("NETWORK_PARAM3"));
-                    String networkParam4 = curCSV.getString(curCSV.getColumnIndex("NETWORK_PARAM4"));
-
-                    String dbm = curCSV.getString(curCSV.getColumnIndex("DBM"));
-                    String networklevel = curCSV.getString(curCSV.getColumnIndex("NETWORK_LEVEL"));
-                    String asulevel = curCSV.getString(curCSV.getColumnIndex("ASU_LEVEL"));
-                    String dataState = curCSV.getString(curCSV.getColumnIndex("DATA_STATE"));
-                    String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
-                    String callState = curCSV.getString(curCSV.getColumnIndex("CALL_STATE"));
-
-                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + locationProvider + "," + timeStamp + "," + networkType + ","  + networkType2 + "," + networkParam1 + "," + networkParam2 + ","  + networkParam3 + ","  + networkParam4 + ","  + dbm + ","  + networklevel+ ","  + asulevel + "," + dataState + "," + dataActivity + "," + callState;
-                    printWriter.println(record);
-                }
-                curCSV.close();
-                sqLiteDatabase.close();
-            }
-
-            catch(Exception exc)
-            {
-                exc.printStackTrace();
-                Toast.makeText(this, "ERROR!", Toast.LENGTH_LONG).show();
-            }
-            finally
-            {
-                if(printWriter != null) printWriter.close();
-            }
-            Toast.makeText(this, "DB Exported to CSV file!", Toast.LENGTH_LONG).show();
-        }
-    }
-    */
-
-    /* DELETE DB BLOCK
-    private void deleteDB()
-    {
-        boolean result = this.deleteDatabase("mainTuple");
-        if (result==true)
-        {
-            Toast.makeText(this, "DB Deleted!", Toast.LENGTH_LONG).show();
-        }
-    }
-    */
-
-    /* EXPORT DB BLOCK
-    private void exportDB()
-    {
-        File sd = Environment.getExternalStorageDirectory();
-        File data = Environment.getDataDirectory();
-        FileChannel source;
-        FileChannel destination;
-        String currentDBPath = "/data/" + "ubcomputerscience.edu.buffalo.cse.ubwins.cellmon.cellularnetworkmonitor" + "/databases/" + "mainTuple";
-        String backupDBPath = "mainTuple";
-        File currentDB = new File(data, currentDBPath);
-        File backupDB = new File(sd, backupDBPath);
-        if (currentDB.exists())
-        {
-            try
-            {
-                source = new FileInputStream(currentDB).getChannel();
-                destination = new FileOutputStream(backupDB).getChannel();
-                destination.transferFrom(source, 0, source.size());
-                source.close();
-                destination.close();
-                Toast.makeText(this, "DB Exported!", Toast.LENGTH_LONG).show();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-    */
 
     private String genHash(String input) throws NoSuchAlgorithmException
     {
@@ -911,15 +678,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         return IMEI_Base64;
     }
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service :
-                manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
+
+    private class DrawerClickListener implements android.widget.AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Log.d(TAG,"ID selected: " + id);
+            Log.d(TAG, "ID for Home: " + R.string.app_menu_home);
+            selectItem(position);
         }
-        return false;
     }
 
+    private void selectItem(int position){
+        Fragment fragment;
+        switch (position){
+            case 0:
+                fragment = new HomeFragment();
+                break;
+            case 1:
+                fragment = new MapFragment();
+                break;
+            default:
+                fragment = new HomeFragment();
+        }
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
+
+        mDrawerList.setItemChecked(position, true);
+        setTitle(actions[position]);
+        mLayout.closeDrawers();
+    }
+
+    @Override
+    public void setTitle(CharSequence title){
+        mTitle = title;
+        getSupportActionBar().setTitle(mTitle);
+    }
 }

@@ -1,9 +1,15 @@
 <resources>
     <string name="app_name">CellularNetworkMonitor</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <string name="ok">OK</string>
-    <string name="app_menu_mapView">Map View</string>
+    <string name="settings">Settings</string>
+    <string name="app_menu_mapView">Map</string>
     <string name="app_menu_home">Home</string>
     <string name="app_menu_aboutUS">About Us</string>
+
     <string name="permission_available_location">Location Permission has been granted.</string>
     <string name="permission_available_storage">Storage Permissions have been granted.</string>
     <string name="permission_available_wakelock">WakeLock Permissions have been granted.</string>
@@ -13,4 +19,9 @@
     <string name="permission_storage_rationale">Storage permissions are needed to be able to log the data to local memory.</string>
     <string name="permission_phone_rationale">Phone state permissions are needed to be able to log the necessary data.</string>
     <string name="permission_wakelock_rationale">Wake lock permissions are needed to be able to log the necessary data.</string>
+    <string-array name="app_actions">
+        <item>@string/app_menu_home</item>
+        <item>@string/app_menu_mapView</item>
+    </string-array>
+
 </resources>

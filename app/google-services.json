@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "62153221471",
+    "firebase_url": "https://eminent-parsec-158802.firebaseio.com",
+    "project_id": "eminent-parsec-158802",
+    "storage_bucket": "eminent-parsec-158802.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62153221471:android:a6d915737041af62",
+        "android_client_info": {
+          "package_name": "edu.buffalo.cse.ubwins.cellmon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "62153221471-fgct8koqqdv56ffieijlhbql0tobhg5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_ViTr-Tyypip3_ii3H0CcJyHo6i0_t68"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

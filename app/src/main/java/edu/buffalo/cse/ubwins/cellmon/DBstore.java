@@ -10,8 +10,11 @@ package edu.buffalo.cse.ubwins.cellmon;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
+
+import com.google.firebase.crash.FirebaseCrash;
 
 
 public class DBstore
@@ -57,13 +60,12 @@ public class DBstore
             networkRSSI = splitter1[1];
             networkRSSIVariables = networkRSSI.split("#");
         }
-//        int locationProviderval = -1;
-//        if (locationProvider!=null && locationProvider.equals(LocationManager.GPS_PROVIDER)){
-//            locationProviderval = 1;
-//        }
-//        else if (locationProvider!=null &&locationProvider.equals(LocationManager.NETWORK_PROVIDER)){
-//            locationProviderval = 2;
-//        }
+        else{
+            FirebaseCrash.log("Cellular info equals an empty string");
+            sqLiteDatabase.close();
+            return;
+        }
+
         if (networkType!=null && networkType.equals("GSM")){
             networkTypeval = 0;
         }
@@ -78,12 +80,9 @@ public class DBstore
         }
         //Log.v(TAG,"Trying to push to DB");
 
-//        contentValues.put("N_LAT",locationdata[0]);
-//        contentValues.put("N_LONG",locationdata[1]);
         contentValues.put("F_LAT",locationdata[0]);
         contentValues.put("F_LONG",locationdata[1]);
         contentValues.put("F_STALE", stale);
-//        contentValues.put("LOCATION_PROVIDER",locationProviderval);
         contentValues.put("TIMESTAMP",timeStamp);
         contentValues.put("NETWORK_TYPE", networkTypeval);
         contentValues.put("NETWORK_TYPE2", mobileNetworkType);
@@ -99,6 +98,12 @@ public class DBstore
         contentValues.put("CALL_STATE",phoneCallState);
 
         sqLiteDatabase.insert("cellRecords", null, contentValues);
+
+        // Only store one hour of data for map testing
+        long mapCount = DatabaseUtils.queryNumEntries(sqLiteDatabase, "mapRecords");
+        if(mapCount < 1200){
+            sqLiteDatabase.insert("mapRecords", null, contentValues);
+        }
         sqLiteDatabase.close();
         //Log.v(TAG,"Push to DB Successful");
     }

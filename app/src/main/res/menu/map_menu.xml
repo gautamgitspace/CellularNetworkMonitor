@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--<item-->
+        <!--android:id="@+id/date_select"-->
+        <!--android:title="Select Date"-->
+        <!--android:icon="@drawable/ic_date_range_white_24dp"-->
+        <!--app:showAsAction="ifRoom"/>-->
+    <item
+        android:id="@+id/time_options"
+        android:title="Timespan"
+        android:icon="@drawable/ic_date_range_white_24dp"
+        app:showAsAction="always|withText">
+        <menu>
+            <group
+                android:id="@+id/time_group"
+                android:checkableBehavior="single">
+                <item android:id="@+id/day_select" android:title="Day" />
+                <item android:id="@+id/week_select" android:title="Week" />
+                <item android:id="@+id/month_select" android:title="Month" />
+            </group>
+        </menu>
+    </item>
+    <!--<item-->        <!--android:id="@+id/action_mapView"-->
+        <!--android:title="@string/app_menu_mapView"-->
+        <!--android:icon="@mipmap/ic_action_place"-->
+        <!--app:showAsAction="ifRoom"/>-->
+    <!--<item-->
+        <!--android:id="@+id/action_aboutUs"-->
+        <!--android:title="@string/app_menu_aboutUS"-->
+        <!--android:icon="@mipmap/ic_action_about"-->
+        <!--app:showAsAction="never" />-->
+</menu>

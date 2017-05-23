@@ -1,16 +1,19 @@
 package edu.buffalo.cse.ubwins.cellmon;
 
-import android.app.Service;
+import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.location.LocationManager;
-import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import android.os.AsyncTask;
+import android.os.PowerManager;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
+
+import com.google.firebase.crash.FirebaseCrash;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -24,30 +27,58 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
 
+import static android.content.Context.LOCATION_SERVICE;
 
 /**
- * Created by Gautam on 7/18/16.
- * MBP111.0138.B16
- * agautam2@buffalo.edu
- * University at Buffalo, The State University of New York.
- * Copyright © 2016 Gautam. All rights reserved.
+ * Created by pcoonan on 4/12/17.
  */
-public class ScheduleIntentReceiver extends Service {
-//    LocationFinder locationFinder;
+
+public class Alarm extends BroadcastReceiver {
     CellularDataRecorder cdr;
     PhoneCallStateRecorder pcsr;
     DBstore dbStore;
-    public final String TAG = "[CELNETMON-HNDLRCVR]";
-    int keepAlive = 0;
+    public final String TAG = "[CELNETMON-ALARM]";
+    static int keepAlive = 0;
     String IMEI_HASH;
     String IMEI;
+    public static long lastTime = 0;
 
-    public void onScheduleIntentReceiver(Context arg0) {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+//        long cur = System.currentTimeMillis();
+//        Log.d(TAG, "Received alarm trigger since " + ((cur - lastTime)/1000.0));
+//        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+//        PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+//        wakeLock.acquire();
+
+        logData(context);
+        setAlarm(context);
+//        wakeLock.release();
+    }
+
+    @TargetApi(19)
+    public void setAlarm(Context context){
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent i = new Intent(context, Alarm.class);
+        i.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+10000, pi);
+        lastTime = System.currentTimeMillis();
+//        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (10000 * offset), 60000, pi);
+//        Log.d(TAG, "Alarm set!");
+    }
+
+    public void cancelAlarm(Context context){
+        Intent intent = new Intent(context, Alarm.class);
+        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(sender);
+        Log.d(TAG, "Alarm cancelled!");
+    }
+
+    private void logData(Context arg0) {
         keepAlive++;
-
-//     locationFinder = new LocationFinder(arg0);
 
         final TelephonyManager telephonyManager =
                 (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
@@ -82,22 +113,23 @@ public class ScheduleIntentReceiver extends Service {
 
      /*FETCH INFO FROM PCSR CLASS*/
         int phoneCallState = PhoneCallStateRecorder.call_state;
-//     Log.i(TAG, "onReceive: Location data is before inserting "+locationdata[0] +" "+ locationdata[1]);
-//
-//
-//     Log.v(TAG, "TIME STAMP: " + timeStamp);
-//     Log.v(TAG, "CELLULAR INFO: " + cellularInfo);
-//     Log.v(TAG, "DATA ACTIVITY: " + dataActivity);
-//     Log.v(TAG, "DATA STATE: " + dataState);
-//     Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
 
         dbStore = new DBstore(arg0);
         dbStore.insertIntoDB(locationdata, stale, timeStamp, cellularInfo, dataActivity, dataState,
                 phoneCallState, mobileNetworkType);
-//     Log.e(TAG, "KEEPALIVE: " + keepAlive);
-        // Ping every hour -> 3600 / log frequency
+
         if (keepAlive == 360) {
-         /*GET IMEI*/
+            new PingTask().execute();
+            keepAlive = 0;
+        }
+    }
+
+    class PingTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String IMEI_HASH = "";
+            String responseStr = "";
             try {
              /*HASH IMEI*/
                 IMEI_HASH = genHash(IMEI);
@@ -112,26 +144,21 @@ public class ScheduleIntentReceiver extends Service {
                 HttpGet request = new HttpGet();
                 String customURL = "http://104.196.177.7/aggregator/ping?imei_hash="
                         + URLEncoder.encode(IMEI_HASH, "UTF-8");
+                Log.d(TAG, customURL);
                 request.setURI(new URI(customURL));
                 response = client.execute(request);
                 Log.v(TAG, "RESPONSE PHRASE FOR HTTP GET: "
                         + response.getStatusLine().getReasonPhrase());
                 Log.v(TAG, "RESPONSE STATUS FOR HTTP GET: "
                         + response.getStatusLine().getStatusCode());
-            } catch (URISyntaxException e) {
+                responseStr = response.getStatusLine().getReasonPhrase();
+            } catch (URISyntaxException|IOException e) {
                 e.printStackTrace();
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                FirebaseCrash.log("Error in ping task for: " + IMEI_HASH);
             }
-            //RESET KEEPALIVE
-            keepAlive = 0;
-            //Log.e(TAG, "KEEPALIVE RESET: " + keepAlive);
+            return responseStr;
         }
-
     }
-
 
     private String genHash(String input) throws NoSuchAlgorithmException {
         String IMEI_Base64 = "";
@@ -146,12 +173,5 @@ public class ScheduleIntentReceiver extends Service {
         return IMEI_Base64;
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // Used only in case of bound services.
-        return null;
-    }
 
 }
-
-

@@ -22,6 +22,7 @@ public class DBHandler extends SQLiteOpenHelper
     static final String TAG = "[CELNETMON-DBHANDLER]";
 
     private static final String schema = "CREATE TABLE cellRecords (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, F_LAT DATA, F_LONG DATA, F_STALE DATA, TIMESTAMP DATA, NETWORK_TYPE DATA, NETWORK_TYPE2 DATA, NETWORK_PARAM1 DATA, NETWORK_PARAM2 DATA, NETWORK_PARAM3 DATA, NETWORK_PARAM4 DATA, DBM DATA, NETWORK_LEVEL DATA,ASU_LEVEL DATA, DATA_STATE DATA, DATA_ACTIVITY DATA, CALL_STATE DATA)";
+    private static final String mapSchema = "CREATE TABLE mapRecords (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, F_LAT DATA, F_LONG DATA, F_STALE DATA, TIMESTAMP DATA, NETWORK_TYPE DATA, NETWORK_TYPE2 DATA, NETWORK_PARAM1 DATA, NETWORK_PARAM2 DATA, NETWORK_PARAM3 DATA, NETWORK_PARAM4 DATA, DBM DATA, NETWORK_LEVEL DATA,ASU_LEVEL DATA, DATA_STATE DATA, DATA_ACTIVITY DATA, CALL_STATE DATA)";
     private static final String schemeBatteryStatus = "CREATE TABLE batteryStatus (TIMESTAMP DATA, BATTERY_LEVEL DATA)";
     public DBHandler(Context context)
 
@@ -34,6 +35,7 @@ public class DBHandler extends SQLiteOpenHelper
     {
         db.execSQL(schema);
         Log.v(TAG, "CREATING DB " + dbName + "WITH TABLE cellRecords");
+        db.execSQL(mapSchema);
         db.execSQL(schemeBatteryStatus);
         Log.v(TAG, "CREATING DB " + dbNameBatt + "WITH TABLE batteryStatus");
     }
@@ -43,6 +45,7 @@ public class DBHandler extends SQLiteOpenHelper
     {
         //logic understood from - http://stackoverflow.com/questions/3675032/drop-existing-table-in-sqlite-when-if-exists-operator-is-not-supported
         db.execSQL("DROP TABLE IF EXISTS cellRecords");
+        db.execSQL("DROP TABLE IF EXISTS mapRecords");
         db.execSQL("DROP TABLE IF EXISTS batteryStatus");
         onCreate(db);
     }

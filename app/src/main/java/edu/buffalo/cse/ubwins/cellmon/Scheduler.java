@@ -40,7 +40,7 @@ public class Scheduler
                 }
             }
         };
-        beeperHandle = scheduler.scheduleAtFixedRate(beeper, 0, 3, SECONDS);
+        beeperHandle = scheduler.scheduleAtFixedRate(beeper, 0, 10, SECONDS);
     }
     
     public static void stopScheduler()
